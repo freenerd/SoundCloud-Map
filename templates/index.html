@@ -1,0 +1,45 @@
+<html>
+	<head>
+		<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key={{ google_maps_api_key }}" type="text/javascript"></script>
+    <script src="/scripts/jquery-1.3.2.js" type="text/javascript"></script>
+		<script src="/scripts/soundmanager2.js" type="text/javascript"></script>
+		<script src="/scripts/soundcloud-player.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/scripts/script.js?v={{random}}" type="text/javascript"></script>       
+    <script src="/scripts/parse-tracks.js?v={{random}}" type="text/javascript"></script>     
+    
+		<link rel="stylesheet" href="/style/style.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="/style/soundcloud-player.css" type="text/css" media="screen" charset="utf-8">
+		
+		<title>SoundCloud Map</title>
+	</head>
+	
+	<body id="map" onunload="GUnload()">
+		<div style="background-color:white; position:absolute; top:10px; left:80px; z-index:2;">
+			<a id="link_all" href="#">All</a> 
+			<a id="link_rock" href="#">Rock</a> 
+			<a id="link_techno" href="#">Techno</a> 
+			<a id="link_house" href="#">House</a>
+		</div>
+
+		<div id="map_canvas" style="height: 100%; width:100%"></div>
+
+		<div id="player-container">
+			<div id="player">
+			</div>
+		</div>
+
+		<!-- TEMPLATE FOR BUBBLE -->
+    <div class="bubble" id="bubble-template">
+      <h5 class="title"></h5>
+      <img class="avatar" src="" />
+      <ul>
+        <li>Track by <span class="artist"></span></li>
+        <li>Uploaded <span class="time"></span></li>
+        <li><a class="play-button" href="#">Click to play</a></li>
+      </ul>
+    </div>
+		<!-- END TEMPLATE FOR BUBBLE -->
+		
+		</body>		
+</html>
+		

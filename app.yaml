@@ -1,0 +1,34 @@
+application: soundcloudmap
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /scripts
+  static_dir: scripts  
+
+- url: /style
+  static_dir: style  
+
+- url: /backend-update
+  script: backend_update.py
+
+- url: /backend-cleanup
+  script: backend_cleanup.py
+
+- url: /frontend-json/.*
+  script: frontend_json.py
+
+- url: /images
+  static_dir: images
+
+- url: /favicon.ico
+  static_files: images/favicon.ico
+  upload: images/favicon.ico
+
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+
+- url: .*
+  script: main.py

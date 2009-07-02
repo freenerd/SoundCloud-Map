@@ -1,0 +1,8 @@
+cron:
+- description: update the cache with new tracks
+  url: /backend-update
+  schedule: every 3 minutes
+
+# - description: clean up cache -> delete old tracks
+#   url: /backend-cleanup
+#   schedule: every 2 minutes

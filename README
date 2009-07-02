@@ -1,0 +1,19 @@
+SoundCloud Map displays the latest music uploaded to SoundCloud on a Google Maps map. It features track playback, genre-based filtering and an easy-to-use user interface. It has been implemented by using Python on Google App Engine. The front-end uses jQuery as well as the SoundCloud Javascript Player and Soundmanager 2.
+
+The application has been created by Johan Uhle in the summer term 2009 at Hasso Plattner Institute in Potsdam / Germany.
+
+A paper about the app, it's functionality and possible extensions has been released here
+http://www.freenerd.de/soundcloudmap-paper/
+
+A live version of SoundCloud Map can be found here
+http://soundcloudmap.appspot.com
+
+The source code has been released on Github here
+http://www.github.com/fajdslfj
+
+You are welcome to use, install, fork or do whatever you like. Reference to me is always a nice thing :)
+Check the settings.py file for entering your Google Maps API key
+
+Johan Uhle
+http://www.freenerd.de
+http://www.twitter.com/freenerd
