@@ -9,7 +9,7 @@ A live version of SoundCloud Map can be found here
 http://soundcloudmap.appspot.com
 
 The source code has been released on Github here
-http://www.github.com/fajdslfj
+http://github.com/freenerd/SoundCloud-Map/
 
 You are welcome to use, install, fork or do whatever you like. Reference to me is always a nice thing :)
 Check the settings.py file for entering your Google Maps API key
