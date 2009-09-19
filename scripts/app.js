@@ -101,9 +101,20 @@ $(function() {
     $.getJSON(url, '', function(data) {
       tracks = data;
       if ( tracks.length < 1) return false;
-
-      $.each( tracks,	function( intIndex, track ) {
-        track.marker = new GMarker(new GPoint(track.location_lat, track.location_lng));
+      
+      $.each( tracks,	function( intIndex, track ) {                     
+				var option;
+				if (track['tracks_in_location'] < 10) {
+					option = markerOptions1;
+				} else {
+				 	if (track['tracks_in_location'] < 100) {
+						option = markerOptions2; 
+					} else {
+					 	option = markerOptions3;
+					};  
+				};
+	
+        track.marker = new GMarker(new GPoint(track.location_lat, track.location_lng), option);
 
         track.html = $('#bubble-template')
           .clone()
