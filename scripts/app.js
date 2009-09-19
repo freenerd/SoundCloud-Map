@@ -184,7 +184,7 @@ $(function() {
     
     sound = soundManager.createSound({
       id: track.track_id,
-      url: "http://media.soundcloud.com/stream/KcoNolQWb1bB",
+      url: track.stream_url + "?oauth_consumer_key=FhPCTC6rJGetkMIcLwI9A",
       whileloading : throttle(200,function() {
         loading.css('width',(sound.bytesLoaded/sound.bytesTotal)*100+"%");
       }),
