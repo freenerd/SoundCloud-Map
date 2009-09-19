@@ -83,7 +83,10 @@ class MainHandler(webapp.RequestHandler):
 			lat = split_uri[-3]
 			lng = split_uri[-2]
 			tracks = models.TrackCache.gql("WHERE location_lat = :1 AND location_lng = :2", lat, lng) 
-			                                                                                                           
+			                                                                                          
+		else:
+			tracks = models.TrackCache.gql("ORDER BY __key__ DESC LIMIT "+str(settings.FRONTEND_TRACKS_LIMIT))   
+			                 
 		track_array = []
 		used_locations = set()
 		for track in tracks:
