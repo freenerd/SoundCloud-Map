@@ -41,8 +41,8 @@ class TrackCache(db.Model):
 	user_permalink = db.TextProperty()
 	username = db.StringProperty()
 	fullname = db.TextProperty()
-	location_lng = db.TextProperty()
-	location_lat = db.TextProperty()	
+	location_lng = db.StringProperty()
+	location_lat = db.StringProperty()	
 	city = db.TextProperty()
 	country = db.TextProperty()
 	avatar_url = db.TextProperty()
@@ -51,4 +51,12 @@ class TrackCache(db.Model):
 	
 	def created_minutes_ago(self):
 		timedelta = datetime.datetime.now() - self.created_at
-		return (timedelta.seconds / 60)
+		return (timedelta.seconds / 60)    
+		
+class LocationTracksCounter(db.Model):
+	
+	location_lng = db.StringProperty(required=True)
+	location_lat = db.StringProperty(required=True)
+	city = db.StringProperty()
+	country = db.StringProperty()                  
+	counter = db.IntegerProperty(required=True)	
