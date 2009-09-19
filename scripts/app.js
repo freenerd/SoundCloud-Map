@@ -83,7 +83,7 @@ $(function() {
 	  if($(this).attr("data") == 'all') {
   	  loadTracks('frontend-json/');
 	  } else {
-	    loadTracks('frontend-json/' + $(this).attr("data"));
+	    loadTracks('frontend-json/genre/' + $(this).attr("data"));
 	  }
 	  return false;
 	});
