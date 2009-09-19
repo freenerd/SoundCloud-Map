@@ -10,13 +10,13 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 7 times in query history.
+# Used 127 times in query history.
 - kind: TrackCache
   properties:
   - name: __key__
     direction: desc
 
-# Unused in query history -- copied from input.
+# Used 11 times in query history.
 - kind: TrackCache
   properties:
   - name: genre
