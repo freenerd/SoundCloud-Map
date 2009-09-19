@@ -53,9 +53,11 @@ class MainHandler(webapp.RequestHandler):
 		used_locations = set()
 		for track in tracks:
 			# a distinct location may only be on the map once because marker on same position aren't displayed properly
-			location = str(track.location_lng) + str(track.location_lat)
+			location = str(track.location_lat) + "/" + str(track.location_lng)
 			if location in used_locations: continue
 			used_locations.add(location)
+			
+			location_track_counter = models.LocationTracksCounter.get_by_key_name(location)																											
 			
 			track_array.append({  'track_id' : track.track_id,
 														'title' : track.title,
@@ -64,6 +66,7 @@ class MainHandler(webapp.RequestHandler):
 														'avatar_url' : track.avatar_url,
 														'location_lng' : track.location_lng,
 														'location_lat' : track.location_lat,
+														'tracks_in_location' : getattr(location_track_counter, 'counter', 1), 
 														'created_at' : "new Date(\"%s\")" % track.created_at.ctime(),
 														'created_minutes_ago' : track.created_minutes_ago(),
 														'waveform_url' : track.waveform_url})

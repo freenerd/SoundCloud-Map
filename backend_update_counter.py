@@ -41,12 +41,12 @@ class MainHandler(webapp.RequestHandler):
 		""" 
 	
 		id = int((self.request.uri).split('/')[-1])
-		logging.error("Starting Updating Counter with id %i" % id)
+		logging.info("Starting Updating Counter with id %i" % id)
 	      
 		time_start = time.time()
 	
 		while (time.time() - time_start) < 28:
-			logging.error("Updating Counter for id %i at time %i" % (id, int((time.time() - time_start)))) 
+			logging.info("Updating Counter for id %i at time %i" % (id, int((time.time() - time_start)))) 
 			track = models.TrackCache.get_by_id(id)        
 			
 			if track:
