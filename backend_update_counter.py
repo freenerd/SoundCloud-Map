@@ -48,7 +48,6 @@ class MainHandler(webapp.RequestHandler):
 		while (time.time() - time_start) < 28:
 			logging.error("Updating Counter for id %i at time %i" % (id, int((time.time() - time_start)))) 
 			track = models.TrackCache.get_by_id(id)        
-			logging.error("Track: %s" % dir(track)) 
 			
 			if track:
 				track_dict = { 'location_lng' : track.location_lng,

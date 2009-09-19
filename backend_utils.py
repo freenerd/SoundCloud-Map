@@ -264,14 +264,16 @@ def get_location(city, country):
 	
 def update_location_tracks_counter(track, increase = True):	
 	location_track_counter = models.LocationTracksCounter.gql("WHERE location_lng = :1 AND location_lat = :2", \
-																														track['location_lng'] or '', track['location_lat'] or '')[0] 
-	# logging.error("location is %s" % location_track_counter.key)																																																									
-	if hasattr(location_track_counter, 'counter'):
+																														track['location_lng'] or '', track['location_lat'] or '').get()																											
+																																																									
+	if hasattr(location_track_counter, 'counter'):  
 		if increase:
 			location_track_counter.counter += 1
 		else:
-			location_track_counter.counter -= 1
-		location_track_counter.put()
+			location_track_counter.counter -= 1 
+		location_track_counter.put() 
+ 		logging.error("Updated Location Track Counter for location %s / %s (city: %s) to %i" % \
+ 									(location_track_counter.location_lat, location_track_counter.location_lng, location_track_counter.city, location_track_counter.counter))
 	else:
 		new_location_track_counter = models.LocationTracksCounter( \
 			key_name = track['location_lat'] + "/" + track['location_lng'],
@@ -281,4 +283,7 @@ def update_location_tracks_counter(track, increase = True):
 			country = track['country'],
 			counter = 1)
 		new_location_track_counter.put()
+ 		logging.error("Inserted new Location Track Counter for location %s / %s (city: %s) to %i" % \
+ 									(new_location_track_counter.location_lat, new_location_track_counter.location_lng, new_location_track_counter.city, new_location_track_counter.counter))
+		
 			
