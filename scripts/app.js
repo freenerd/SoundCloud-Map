@@ -48,31 +48,25 @@ $(function() {
 	var icon1 = new GIcon(G_DEFAULT_ICON);
   icon1.image = "images/sc_marker_1.png";
   icon1.iconSize = new GSize(12, 23);
-  icon1.shadow = "images/sc_marker_1_shadow.png";
-  icon1.shadowSize = new GSize(42, 31);
+  icon1.shadow = null;
   icon1.iconAnchor = new GPoint(10, 29);
   icon1.infoWindowAnchor = new GPoint(10, 14);
-  icon1.imageMap = [ 10,29, 1,16, 0,5, 5,0, 12,4, 18,2, 21,12, 21,16 ]; 	
 	markerOptions1 = { icon:icon1 };
 	
 	var icon2 = new GIcon(G_DEFAULT_ICON);
   icon2.image = "images/sc_marker_2.png";
   icon2.iconSize = new GSize(18, 27);
-  icon2.shadow = "images/sc_marker_2_shadow.png";
-  icon2.shadowSize = new GSize(42, 31);
+  icon2.shadow = null;
   icon2.iconAnchor = new GPoint(10, 29);
   icon2.infoWindowAnchor = new GPoint(10, 14);
-  icon2.imageMap = [ 10,29, 1,16, 0,5, 5,0, 12,4, 18,2, 21,12, 21,16 ]; 	
 	markerOptions2 = { icon:icon2 };   
 	
 	var icon3 = new GIcon(G_DEFAULT_ICON);
   icon3.image = "images/sc_marker_3.png";
   icon3.iconSize = new GSize(22, 31);
-  icon3.shadow = "images/sc_marker_3_shadow.png";
-  icon3.shadowSize = new GSize(42, 31);
+  icon3.shadow = null;
   icon3.iconAnchor = new GPoint(10, 29);
   icon3.infoWindowAnchor = new GPoint(10, 14);
-  icon3.imageMap = [ 10,29, 1,16, 0,5, 5,0, 12,4, 18,2, 21,12, 21,16 ]; 	
 	markerOptions3 = { icon:icon3 };        
 
 //  var markers = new Object(); // all markers
@@ -104,11 +98,11 @@ $(function() {
       
       $.each( tracks,	function( intIndex, track ) {                     
 				var option;
-				if (track['tracks_in_location'] < 10) {
+				if (track.tracks_in_location < 10) {
 					option = markerOptions1;
 				} else {
-				 	if (track['tracks_in_location'] < 100) {
-						option = markerOptions2; 
+				 	if (track.tracks_in_location < 100) {
+						option = markerOptions2;
 					} else {
 					 	option = markerOptions3;
 					};  
