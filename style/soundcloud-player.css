@@ -37,23 +37,28 @@
   -moz-border-radius: 7px;
   border-radius: 7px;
   -webkit-border-radius: 7px;  
+  text-indent: -9999px;
+  background: #d6d6d6 url('../images/controls.png') 0 -51px repeat-x;
 }
 
 #player .prev {
   left: 0;
+  background-position: 7px 4px;
 }
 
 #player .pause {
   left: 60px;
+  background-position: 8px -107px;
 }
 
 #player .next {
   right: 20px;
+  background-position: 8px -55px;
 }
 
 #player .waveform {
   height: 50px;
-  background: #0f0;
+  background: #ccc;
   position: relative;
   top: -2px;
 }
@@ -67,7 +72,7 @@
 #player .waveform .loading {
   height: 50px;
   width: 80%;
-  background: #f00;
+  background: #696969;
   position: absolute;
   top: 0;
 }
@@ -75,7 +80,7 @@
 #player .waveform .progress {
   height: 50px;
   width: 40%;
-  background: #eee;
+  background: #f60;
   position: absolute;
   top: 0;
   opacity: 0.45;
@@ -87,7 +92,7 @@
 #player .waveform .progress-bar {
   height: 50px;
   width: 1px;
-  background: #000;
+  background: #f30;
   position: absolute;
   top: 0;
   left: 40%;
