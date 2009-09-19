@@ -31,7 +31,10 @@ soundManager.url = "/scripts/soundmanager2_flash9.swf";
 
 
 /* Initialize Google Maps */
-var map;
+var map; 
+var icon1;
+var icon2;
+var icon3;
 $(function() {
   if (GBrowserIsCompatible()) {
     map = new GMap2(document.getElementById("map_canvas"));
