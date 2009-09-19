@@ -22,7 +22,7 @@ indexes:
   - name: genre
   - name: __key__
 
-# Used 10 times in query history.
+# Used 40 times in query history.
 - kind: TrackCache
   properties:
   - name: genre
