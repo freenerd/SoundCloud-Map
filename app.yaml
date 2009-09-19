@@ -17,7 +17,10 @@ handlers:
   script: backend_cleanup.py
 
 - url: /frontend-json/.*
-  script: frontend_json.py
+  script: frontend_json.py 
+  
+- url: /backend-update-counter/.*
+  script: backend_update_counter.py
 
 - url: /images
   static_dir: images
