@@ -11,15 +11,10 @@
 		<link rel="stylesheet" href="/style/soundcloud-player.css" type="text/css" media="screen" charset="utf-8">
 		
 		<title>SoundCloud Map</title>
+		
 	</head>
 	
 	<body id="map" onunload="GUnload()">
-		<div style="background-color:white; position:absolute; top:10px; left:80px; z-index:2;">
-			<a id="link_all" href="#">All</a> 
-			<a id="link_rock" href="#">Rock</a> 
-			<a id="link_techno" href="#">Techno</a> 
-			<a id="link_house" href="#">House</a>
-		</div>
 
 		<div id="map_canvas" style="height: 100%; width:100%"></div>
 
@@ -28,15 +23,36 @@
 			</div>
 		</div>
 
+    <div class="options">
+      <div class="genres">
+        Genres:
+  			<a id="link_all" href="#">All</a> | 
+  			<a id="link_rock" href="#">Rock</a> | 
+  			<a id="link_techno" href="#">Techno</a> | 
+  			<a id="link_house" href="#">House</a>
+  		</div>
+  		<div class="jump-to">
+  		  SoundMap
+  		  <form>
+  		    Jump to:
+  		    <input type="text" />
+  		  </form>
+  		</div>
+		</div>
+		
+
 		<!-- TEMPLATE FOR BUBBLE -->
     <div class="bubble" id="bubble-template">
-      <h5 class="title"></h5>
-      <img class="avatar" src="" />
-      <ul>
-        <li>Track by <span class="artist"></span></li>
-        <li>Uploaded <span class="time"></span></li>
-        <li><a class="play-button" href="#">Click to play</a></li>
-      </ul>
+      <div class="city">Berlin</div>
+      <div class="info">
+        <img class="avatar" src="" />
+        <ul>
+          <li><h3 class="title"></h3></li>
+          <li>Track by <span class="artist"></span></li>
+          <li>Uploaded <span class="time"></span></li>
+        </ul>
+      </div>
+      <a class="play-button" href="#">Click to play</a>
     </div>
 		<!-- END TEMPLATE FOR BUBBLE -->
 		

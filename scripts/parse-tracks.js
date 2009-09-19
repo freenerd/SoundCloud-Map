@@ -45,12 +45,12 @@ $.extend(SC, {
 		          html[objValue['track_id']].find('.avatar').attr("src",objValue['avatar_url']);            
 		          html[objValue['track_id']].find('ul li span.artist').html(objValue['username']);
 		          html[objValue['track_id']].find('ul li span.time').html(objValue['created_minutes_ago'] + " minutes ago");
-		          html[objValue['track_id']].find('ul li a.play-button').click(function(ev) {
+		          html[objValue['track_id']].find('a.play-button').click(function(ev) {
 																									$("#player-container").slideDown('slow');
 																									if(window.soundManager.swfLoaded) window.soundManager.stopAll()
 																									$('#player .sc-player').remove();																																	
 																									$('<a class="soundcloud-player" href="'+objValue['permalink']+'">Play</a>').appendTo("#player");
-																									$('#player .soundcloud-player').scPlayer({width:700, collapse:false, autoplay:true});
+																									$('#player .soundcloud-player').scPlayer({width: '100%', collapse:false, autoplay:true});
 																									$('<img class="waveform" src="' + objValue['waveform_url'] + '" />').appendTo('#player .sc-player');
 																									return false;
 																								});
