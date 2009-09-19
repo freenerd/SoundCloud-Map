@@ -76,7 +76,7 @@
 
 #player .waveform .loading {
   height: 50px;
-  width: 80%;
+  width: 0%;
   background: #696969;
   position: absolute;
   top: 0;
@@ -84,7 +84,7 @@
 
 #player .waveform .progress {
   height: 50px;
-  width: 40%;
+  width: 0;
   background: #f60;
   border-right: 1px solid #f30;
   position: absolute;
@@ -93,14 +93,5 @@
   -moz-opacity: 0.45;
   filter: alpha(opacity=45);
   
-}
-
-#player .waveform .progress-bar {
-  height: 50px;
-  width: 1px;
-  background: #f30;
-  position: absolute;
-  top: 0;
-  left: 40%;
 }
 
