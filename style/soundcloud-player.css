@@ -81,6 +81,7 @@
   height: 50px;
   width: 40%;
   background: #f60;
+  border-right: 1px solid #f30;
   position: absolute;
   top: 0;
   opacity: 0.45;
