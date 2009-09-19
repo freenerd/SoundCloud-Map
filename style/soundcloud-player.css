@@ -1,104 +1,95 @@
 /* Styles for the SC player */
 
-.sc-player {
-  width: 24px;
-  position: relative;
-  height: 60px;
-  color: #555;
-  font-size: 12px;
-  line-height: 1;
-  overflow: hidden;
-  -moz-user-select : none;
-  padding-top: 20px;
+
+#player-container-placeholder {
+  padding: 10px;
+	width: 100%;
+	height: 80px;
+	position: absolute;
+	bottom: 80px;
+	repeat-x scroll 0% 0%;
+	-moz-background-clip: -moz-initial;
+	-moz-background-origin: -moz-initial;
+	-moz-background-inline-policy: -moz-initial;
+	z-index: 10000;
+  background: #d6d6d6 url('../images/bg.png') 0 -51px repeat-x;
 }
 
-  .sc-player.controls, .soundcloud-player {
-    width: 20px;
-    height: 50px;
-    display: block;
-    float: left;
-    background: url(/images/controls.png) no-repeat 0 0;
-    text-indent: -9999px;
-    outline: 0;
-    top: 2px;
-    left: 2px;
-    z-index: 10;
-  }
-  
-  .soundcloud-player {
-    position: relative;
-  }
-  
-  .sc-player.playing > a {
-    background-position: -20px 0;
-  }
 
-  .sc-player .metadata {
-    position: absolute;
-    top: 0;
-    margin: 0;
-  }
+#player {
+  height: 50px;
+  padding: 10px 80px 0 120px;
+  position: relative;
+}
 
-  .sc-player a {
-    color: #555;
-    text-decoration: none;    
-		float: left;
-  }
-  
-  .sc-player a:hover {
-    text-decoration: underline;    
-  }
+.metadata {
+  padding-top: 5px;
+  font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+}
 
-	.sc-player .waveform {
-		height: 50px;
-		/*width: 100%;*/
-		float: left;
-    background: #FFF;
-	}
+#player .prev, #player .pause, #player .next {
+  position: absolute;
+  top: 7px;
+  width: 50px;
+  height: 50px;
+  border: 1px solid #ccc;
+  -moz-border-radius: 7px;
+  border-radius: 7px;
+  -webkit-border-radius: 7px;  
+}
+
+#player .prev {
+  left: 0;
+}
+
+#player .pause {
+  left: 60px;
+}
+
+#player .next {
+  right: 20px;
+}
+
+#player .waveform {
+  height: 50px;
+  background: #0f0;
+  position: relative;
+  top: -2px;
+}
+
+#player .waveform img {
+  height: 50px;
+  width: 100%;
+  position: absolute;
+}
+
+#player .waveform .loading {
+  height: 50px;
+  width: 80%;
+  background: #f00;
+  position: absolute;
+  top: 0;
+}
+
+#player .waveform .progress {
+  height: 50px;
+  width: 40%;
+  background: #eee;
+  position: absolute;
+  top: 0;
+  opacity: 0.45;
+  -moz-opacity: 0.45;
+  filter: alpha(opacity=45);
   
-  .sc-player .permalink {
-    position: absolute;
-    left: 20px;
-    top: 4px;
-    z-index: 20;
-  }
-  
-  .sc-player .time {
-    position: absolute;
-    right: 2px;
-    top: 4px;
-    margin: 0;
-  }
-  
-  .sc-player .loading {
-    height: 1px;
-    position: absolute;
-    background: #aaa;
-    bottom: 0;
-  }
-  
-  .sc-player .delimiter {
-    display: none;
-  }
-  
-  .sc-player .progress {
-    height: 59px;
-    position: absolute;
-    background: #ccc;
-    bottom: 1px;
-		/* transparancy for all browser */
-		filter:alpha(opacity=50);
-		-moz-opacity:0.5;
-		-khtml-opacity: 0.5;
-		opacity: 0.4;
-		
-    /*background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));*/ /* fancy gradient for webkit */
-  }
-  
-  .sc-player .progress-bar {
-    position: absolute;
-    top: 0;
-    height: 54px;
-    width: 100%;
-    z-index: 5;
-  }
+}
+
+#player .waveform .progress-bar {
+  height: 50px;
+  width: 1px;
+  background: #000;
+  position: absolute;
+  top: 0;
+  left: 40%;
+}
+
