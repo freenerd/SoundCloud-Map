@@ -162,7 +162,7 @@ def write_tracks_to_cache(tracks):
 			waveform_url = track['waveform_url'],
 			downloadable = track['downloadable'],
 			artwork_url = track['artwork_url'],
-			genre = utils.match_genre(track['genre']),
+			genre = track['genre'].strip().lower(),
 			username = track['user']['username'],
 			fullname = track['user']['full_name'],
 			location_lng = (track['location_lng'] or ''),
@@ -283,7 +283,7 @@ def update_location_tracks_counter(track, increase = True):
 			country = unicode(track['country']),
 			counter = 1)
 		new_location_track_counter.put()
- 		logging.error("Inserted new Location Track Counter for location %s / %s (city: %s) to %i" % \
+ 		logging.info("Inserted new Location Track Counter for location %s / %s (city: %s) to %i" % \
  									(new_location_track_counter.location_lat, new_location_track_counter.location_lng, new_location_track_counter.city, new_location_track_counter.counter))
 		
 			

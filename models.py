@@ -43,8 +43,8 @@ class TrackCache(db.Model):
 	fullname = db.TextProperty()
 	location_lng = db.StringProperty()
 	location_lat = db.StringProperty()	
-	city = db.TextProperty()
-	country = db.TextProperty()
+	city = db.StringProperty()
+	country = db.StringProperty()
 	avatar_url = db.TextProperty()
 	
 	entry_created_at = db.DateTimeProperty(auto_now_add=True)

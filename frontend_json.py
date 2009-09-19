@@ -31,6 +31,7 @@ import logging
 
 import os
 import urllib
+import re
 
 import models
 import utils
@@ -41,14 +42,48 @@ class MainHandler(webapp.RequestHandler):
 	This script returns JSON-formatted tracks.
 	"""
 	
-	def get(self):
-		genre = (self.request.uri).split('/')[-1]
+	def get(self): 
 		
-		if genre == 'rock': tracks = models.TrackCache.gql("WHERE genre = :1 ORDER BY __key__ DESC LIMIT "+str(settings.FRONTEND_TRACKS_LIMIT), "rock")
-		elif genre == 'techno': tracks = models.TrackCache.gql("WHERE genre = :1 ORDER BY __key__ DESC LIMIT "+str(settings.FRONTEND_TRACKS_LIMIT), "techno")
-		elif genre == 'house': tracks = models.TrackCache.gql("WHERE genre = :1 ORDER BY __key__ DESC LIMIT "+str(settings.FRONTEND_TRACKS_LIMIT), "house")
-		else: tracks = models.TrackCache.gql("ORDER BY __key__ DESC LIMIT "+str(settings.FRONTEND_TRACKS_LIMIT))
-		
+		split_uri = (self.request.uri).split('/')             
+		logging.info("Split URI: %s" % split_uri)
+				
+		if re.search("genre", self.request.uri):
+			genre = split_uri[-1]                 
+			query_string = "WHERE genre IN :1 ORDER BY __key__ DESC LIMIT " + str(settings.FRONTEND_TRACKS_LIMIT)
+			if genre == 'house': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_house)
+			elif genre == 'techno': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_techno)  
+			elif genre == 'dubstep': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_dubstep)	
+			elif genre == 'hiphop': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_hiphop)				
+			elif genre == 'electronic': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_electronic) 
+			elif genre == 'drumandbass': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_drumandbass)
+			elif genre == 'trance': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_trance)
+			elif genre == 'rock': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_rock)
+			elif genre == 'indie': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_indie)
+			elif genre == 'pop': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_pop)																				
+			elif genre == 'ambient': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_ambient)
+			elif genre == 'jazz': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_jazz)
+			elif genre == 'classical': 
+				tracks = models.TrackCache.gql(query_string, utils.genre_classical)		
+			else: 
+				tracks = models.TrackCache.gql("ORDER BY __key__ DESC LIMIT "+str(settings.FRONTEND_TRACKS_LIMIT)) 
+			 
+		elif re.search("location", self.request.uri):
+			lat = split_uri[-3]
+			lng = split_uri[-2]
+			tracks = models.TrackCache.gql("WHERE location_lat = :1 AND location_lng = :2", lat, lng) 
+			                                                                                                           
 		track_array = []
 		used_locations = set()
 		for track in tracks:
@@ -63,13 +98,17 @@ class MainHandler(webapp.RequestHandler):
 														'title' : track.title,
 														'permalink' : track.permalink,
 														'username' : track.username,
+														'user_permalink' : track.user_permalink,
 														'avatar_url' : track.avatar_url,
 														'location_lng' : track.location_lng,
-														'location_lat' : track.location_lat,
+														'location_lat' : track.location_lat,                                 
+														'city' : track.city,
+														'country' : track.country,
 														'tracks_in_location' : getattr(location_track_counter, 'counter', 1), 
 														'created_at' : "new Date(\"%s\")" % track.created_at.ctime(),
 														'created_minutes_ago' : track.created_minutes_ago(),
-														'waveform_url' : track.waveform_url})
+														'waveform_url' : track.waveform_url,
+														'stream_url': track.stream_url})
 														
 		tracks_json = json.dumps(track_array)
 		self.response.out.write(tracks_json)
