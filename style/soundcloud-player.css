@@ -28,7 +28,7 @@
   font-size: 15px;
 }
 
-#player .prev, #player .pause, #player .next {
+#player .prev, #player .pause, #player .next, #player .play {
   position: absolute;
   top: 7px;
   width: 50px;
@@ -42,6 +42,11 @@
 }
 
 #player .prev {
+  left: 0;
+  background-position: 7px 4px;
+}
+
+#player .play {
   left: 0;
   background-position: 7px 4px;
 }
