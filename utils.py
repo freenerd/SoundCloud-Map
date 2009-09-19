@@ -21,17 +21,21 @@
 
 import os
 
+genre_house = ['house', 'tech house', 'deep house', 'progressive house', 'tech-house', \
+							 'electro house', 'techhouse', 'minimal house', 'funky house', 'dance']
+genre_techno = ['techno', 'techno minimal', 'minimal techno']
+genre_dubstep = ['dubstep', 'dub step']
+genre_hiphop = ['hip hop', 'hip-hop', 'hiphop', 'rap', 'r&b']
+genre_electronic = ['electronic', 'electro', 'electronica', 'minimal', 'idm']
+genre_drumandbass = ['drum & bass', 'drum and bass', 'drum n bass', 'dnb', 'drum\'n\'bass', 'breakbeat', 'drum&bass', 'breaks']   
+genre_trance = ['trance', 'progressive_trance']
+genre_rock = ['rock']
+genre_indie = ['indie', 'alternative', 'acoustic']
+genre_pop = ['pop']
+genre_ambient = ['ambient']
+genre_jazz = ['jazz', 'free jazz', 'nu-jazz', 'nu jazz']
+genre_classical = ['classical', 'classic']
+
+
 def in_development_enviroment():
 	return os.environ["SERVER_SOFTWARE"] != "Google Apphosting/1.0"
-
-def match_genre(genre):	
-	if genre:
-		genre = genre.strip().lower()
-		if genre.find('rock') != -1:
-			return 'rock'	
-		if genre.find('techno') != -1:
-			return 'techno'	
-		if genre.find('house') != -1:
-			return 'house'
-	return genre
-	

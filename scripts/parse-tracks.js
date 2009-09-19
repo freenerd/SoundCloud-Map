@@ -33,11 +33,43 @@ $.extend(SC, {
 		$.getJSON(url,'',
 			function(data) { 
 				if ( data.length < 1) return false;
+				                                                                            
+				
+				#
+				#
+				#
+				#
+				#
+				#
+				
 				
 				$.each( data,	function( intIndex, objValue ) {
 							point = new GPoint(objValue['location_lat'], objValue['location_lng']);
-							marker[objValue['track_id']] = new GMarker(point);
+							var option;
+							if (objValue['tracks_in_location'] < 10) {
+								option = markerOptions1;
+							} else {
+								if (objValue['tracks_in_location'] < 100) {
+									option = markerOptions2; 
+									} else {
+										option = markerOptions3;
+									};  
+							}; 
+						
+							marker[objValue['track_id']] = new GMarker(point, option);
+        
 
+##
+#
+#
+#
+##
+#
+#
+#
+#
+#
+#
 							html[objValue['track_id']] = $('#bubble-template')
 		            															.clone()
 																	            .attr('id', 'bubble' + objValue['track_id']);
@@ -57,7 +89,8 @@ $.extend(SC, {
 
 							GEvent.addListener(marker[objValue['track_id']], "click", function()
 							      		 		{marker[objValue['track_id']].openInfoWindow(html[objValue['track_id']][0])});
-							map.addOverlay(marker[objValue['track_id']]);					
+							map.addOverlay(marker[objValue['track_id']]);
+							 				
 					});
 			}
 		);

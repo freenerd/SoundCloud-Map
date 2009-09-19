@@ -43,7 +43,8 @@ def main():
 		logging.info("Got Data from Soundcloud API")
 		logging.info("Fetched %i tracks from Soundcloud" % len(tracks))
 		if len(tracks) > 0:
-			logging.info("Latest track is \"%s\" by \"%s\" (%s)." % (tracks[0]['title'], tracks[0]['user']['username'], tracks[0]['created_at']))		
+			logging.info("Latest track is \"%s\" by \"%s\" (%s)." % \
+									 (tracks[0]['title'], tracks[0]['user']['username'], tracks[0]['created_at']))		
 			tracks = backend_utils.remove_duplicate_users(tracks)
 			tracks = backend_utils.remove_unusable_tracks(tracks)			
 			tracks = backend_utils.add_complete_user_data(tracks)
