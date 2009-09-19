@@ -13,5 +13,5 @@ FRONTEND_TRACKS_LIMIT = 100
 CLEANUP_INTERVAL = 1440 # in minutes
 
 # In which Interval the backend scripts /backend-update is called
-API_QUERY_INTERVAL = 5 # in minutes
+API_QUERY_INTERVAL = 3 # in minutes
 
