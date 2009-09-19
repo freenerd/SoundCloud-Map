@@ -123,11 +123,17 @@ def add_complete_user_data(tracks):
 		# fetch user data
 		userdata = open_soundcloud_api("/users/%s.json" % track['user']['permalink'])
 		userdata = json.loads(userdata)
-		track['user'] = userdata
+		track['user'] = userdata                                                                                    
+		logging.info("user: %s", track)
+		# logging.info("Having a look at the complete user data of track %s by user %s (city: %s / country: %s)" % )
 		# localize
-		try:
-			track['location'] = get_location(track['user']['city'], track['user']['country'])
-			logging.info("Location for User \"%s\" is %s." % (track['user']['username'], track['location']))
+		try:        
+			location = get_location(track['user']['city'], track['user']['country'])
+			track['location_lat'] = location['lat']
+			track['location_lng'] = location['lng']
+			track['city'] = location['city'] or track.get('city', None)
+			track['country'] = location['country'] or track.get('country', None) 						
+			logging.info("Location for User \"%s\" is %s / %s." % (track['user']['username'], track['location_lat'], track['location_lng']))
 		except RuntimeError:
 			logging.info("No Location for User \"%s\" with City/Country: \"%s / %s\"." % (track['user']['username'], track['user']['city'], track['user']['country']))
 			counter['no_location'] += 1			
@@ -158,18 +164,19 @@ def write_tracks_to_cache(tracks):
 			artwork_url = track['artwork_url'],
 			genre = utils.match_genre(track['genre']),
 			username = track['user']['username'],
-			fullname = track['user']['username'],
-			location_lng = (track['location'][0] or ''),
-			location_lat = (track['location'][1] or ''),
-			city = track['user']['city'],
-			country = track['user']['country'],					
+			fullname = track['user']['full_name'],
+			location_lng = (track['location_lng'] or ''),
+			location_lat = (track['location_lat'] or ''),
+			city = track['city'],
+			country = track['country'],					
 			user_id = track['user']['id'],
 			user_permalink = track['user']['permalink'],
 			avatar_url = track['user']['avatar_url'])			
-		logging.info("Saving to DB: Track \"%s\" by \"%s\" (%s)." % (track['title'], track['user']['username'], track['created_at']))	
+		logging.info("Saving to DB: Track \"%s\" by \"%s\" (%s)." % (track['title'], track['user']['username'], track['created_at']))	   
 		new_track.put()
-		counter += 1
+		update_location_tracks_counter(track)
 		
+	counter += 1 	
 	return counter
 		
 def cleanup_cache():
@@ -223,14 +230,27 @@ def get_location(city, country):
 	if position:
 		lng = lat = 0
 		position_object = json.loads(position.content)
-		logging.info("Returned object from api is: %s" % str(dict(position_object)))
+		logging.info("Returned object from api is: %s" % unicode(dict(position_object)))
 				
 		if position_object['Status']['code'] == 200:
 			# 200 = "Success"
-			lng = str(position_object['Placemark'][0]['Point']['coordinates'][0])
-			lat = str(position_object['Placemark'][0]['Point']['coordinates'][1])
+			lng = unicode(position_object['Placemark'][0]['Point']['coordinates'][1])
+			lat = unicode(position_object['Placemark'][0]['Point']['coordinates'][0]) 
+			from_api_country = position_object['Placemark'][0]['AddressDetails']['Country']    
+			try:
+				country = unicode(from_api_country['CountryName'])
+			except KeyError:
+				country = None  
+			try:
+				if 'SubAdministrativeArea' in from_api_country['AdministrativeArea']:                                            
+					city = 	unicode(from_api_country['AdministrativeArea']['SubAdministrativeArea']['Locality']['LocalityName'])
+				else:
+					city = 	unicode(from_api_country['AdministrativeArea']['Locality']['LocalityName']) 
+			except KeyError:
+				 city = None
+				
 			time.sleep(1) # wait to avoid Google Maps' 620 "Too many requests" error in next query
-			return (lat,lng)
+			return {'lng': lng, 'lat': lat, 'country': country, 'city': city}
 			
 		if position_object['Status']['code'] in (602, 603):
 			# 602 and 603 = "Address could not be localized"
@@ -240,4 +260,30 @@ def get_location(city, country):
 			# Something worse must have happened than just not being able to find an address
 			logging.error("Localization via maps.google.com failed with error code %i" % position_object['Status']['code'])
 			
-	raise RuntimeError, "Cannot be localized"
+	raise RuntimeError, "Cannot be localized"    
+	
+def update_location_tracks_counter(track, increase = True):	
+	location_track_counter = models.LocationTracksCounter.gql("WHERE location_lng = :1 AND location_lat = :2", \
+																														unicode(track['location_lng']), unicode(track['location_lat'])).get()																											
+																																																									
+	if hasattr(location_track_counter, 'counter'):  
+		if increase:
+			location_track_counter.counter += 1
+		else:
+			location_track_counter.counter -= 1 
+		location_track_counter.put() 
+ 		logging.info("Updated Location Track Counter for location %s / %s (city: %s) to %i" % \
+ 									(location_track_counter.location_lat, location_track_counter.location_lng, location_track_counter.city, location_track_counter.counter))
+	else:
+		new_location_track_counter = models.LocationTracksCounter( \
+			key_name = unicode(track['location_lat'] + "/" + track['location_lng']),
+			location_lat = unicode(track['location_lat']), 
+			location_lng = unicode(track['location_lng']),
+			city = unicode(track['city']),
+			country = unicode(track['country']),
+			counter = 1)
+		new_location_track_counter.put()
+ 		logging.error("Inserted new Location Track Counter for location %s / %s (city: %s) to %i" % \
+ 									(new_location_track_counter.location_lat, new_location_track_counter.location_lng, new_location_track_counter.city, new_location_track_counter.counter))
+		
+			
