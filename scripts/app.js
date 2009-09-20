@@ -120,6 +120,7 @@ $(function() {
 	
         track.marker = new GMarker(new GPoint(track.location_lat, track.location_lng), option);
         
+        // hack to fix
 				if (track.city == null) track.city = track.country;
 
         track.html = $('#bubble-template')
@@ -147,16 +148,15 @@ $(function() {
           $.getJSON("/frontend-json/location/" + track.location_lat + "/" + track.location_lng + "/50/",function(extraTracks) {
             // clear the tracks list
             $("#bubble" + track.track_id).find('.tracks-list').html("");
-            
+                        
             // add the new ones
             $.each(extraTracks,function(i,t) {
-              console.log(t);
-              // $("#bubble" + track.track_id)
-              //   .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background:url(" + (t.artwork_url ? t.artwork_url : t.avatar_url) + ")'>track</a></li>").end()
-              //   .find('.tracks-list .mini-artwork:last a').click(function() {
-              //     console.log('tracks');
-              //     return false;
-              //   });              
+              $("#bubble" + track.track_id)
+                .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background:url(" + (t.artwork_url ? t.artwork_url : t.avatar_url) + ")'>track</a></li>").end()
+                .find('.tracks-list .mini-artwork:last a').click(function() {
+                  console.log('tracks');
+                  return false;
+                });              
             });
             
           });
