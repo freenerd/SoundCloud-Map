@@ -36,12 +36,17 @@ var icon2;
 var icon3;
 $(function() {
   if (GBrowserIsCompatible()) {
-    map = new GMap2(document.getElementById("map_canvas"));
+    map = new GMap2($("#map_canvas")[0]);
+    $("#map_canvas").height($(window).height()-40);
 		map.addControl(new GSmallMapControl());
 		map.addControl(new GMapTypeControl());
     map.setCenter(new GLatLng(46.437857, -42.011719), 3);				
 	}                                          
-	   
+	
+	$(window).resize(function() {
+    $("#map_canvas").height($(window).height()-(playerIsVisible ? 140 : 40));
+	});
+	
 	// Different Sized Icons for the Marker. 1 is small. 3 is big
 	
 	var icon1 = new GIcon(G_DEFAULT_ICON);
@@ -198,7 +203,9 @@ $(function() {
 
   function showPlayer(e) {
     if(!playerIsVisible) { // show player if it's hidden
+      playerIsVisible = true;
       $("#player-container").slideDown();
+      $("#map_canvas").animate({height:$(window).height()-140},500);
     }
 
     var track = (e.data ? e.data : e);
@@ -220,14 +227,15 @@ $(function() {
         progress.css('width',(sound.position/sound.durationEstimate)*100+"%");
         // $('.position',dom).html(formatMs(sound.position));
         // $('.duration',dom).html(formatMs(sound.durationEstimate));
-      })
-      // onfinish : function() {
-      //   dom.removeClass("playing");
-      //   sound.setPosition(0);
-      // },
-      // onload : function () {
-      //   loading.css('width',"100%");
-      // }
+      }),
+      onfinish : function() {
+        $("body").removeClass("playing");
+        sound.setPosition(0);
+        playRandom();
+      },
+      onload : function () {
+        loading.css('width',"100%");
+      }
     });
 
     play();

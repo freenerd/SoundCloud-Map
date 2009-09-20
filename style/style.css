@@ -37,6 +37,7 @@ a:hover {
 }
 
 #map_canvas {
+  height: 100%;
 }
 
 #bubble-template{

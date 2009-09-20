@@ -46,38 +46,42 @@ class MainHandler(webapp.RequestHandler):
 		
 		split_uri = (self.request.uri).split('/')             
 		logging.info("Split URI: %s" % split_uri)
+		query_all = "ORDER BY __key__ DESC LIMIT " + str(settings.FRONTEND_TRACKS_LIMIT)
+		has_been_query_for_all = False
 				
 		if re.search("genre", self.request.uri):
 			genre = split_uri[-1]                 
-			query_string = "WHERE genre IN :1 ORDER BY __key__ DESC LIMIT " + str(settings.FRONTEND_TRACKS_LIMIT)
+			query_genre = "WHERE genre IN :1 " + query_all 
 			if genre == 'house': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_house)
+				tracks = models.TrackCache.gql(query_genre, utils.genre_house)
 			elif genre == 'techno': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_techno)  
+				tracks = models.TrackCache.gql(query_genre, utils.genre_techno)  
 			elif genre == 'dubstep': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_dubstep)	
+				tracks = models.TrackCache.gql(query_genre, utils.genre_dubstep)	
 			elif genre == 'hiphop': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_hiphop)				
+				tracks = models.TrackCache.gql(query_genre, utils.genre_hiphop)				
 			elif genre == 'electronic': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_electronic) 
+				tracks = models.TrackCache.gql(query_genre, utils.genre_electronic) 
 			elif genre == 'drumandbass': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_drumandbass)
+				tracks = models.TrackCache.gql(query_genre, utils.genre_drumandbass)
 			elif genre == 'trance': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_trance)
+				tracks = models.TrackCache.gql(query_genre, utils.genre_trance)
 			elif genre == 'rock': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_rock)
+				tracks = models.TrackCache.gql(query_genre, utils.genre_rock)
 			elif genre == 'indie': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_indie)
+				tracks = models.TrackCache.gql(query_genre, utils.genre_indie)
 			elif genre == 'pop': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_pop)																				
+				tracks = models.TrackCache.gql(query_genre, utils.genre_pop)																				
 			elif genre == 'ambient': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_ambient)
+				tracks = models.TrackCache.gql(query_genre, utils.genre_ambient)
 			elif genre == 'jazz': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_jazz)
+				tracks = models.TrackCache.gql(query_genre, utils.genre_jazz)
 			elif genre == 'classical': 
-				tracks = models.TrackCache.gql(query_string, utils.genre_classical)		
+				tracks = models.TrackCache.gql(query_genre, utils.genre_classical)		
 			else: 
-				tracks = models.TrackCache.gql("ORDER BY __key__ DESC LIMIT "+str(settings.FRONTEND_TRACKS_LIMIT)) 
+				tracks = models.TrackCache.gql(query_all) 
+				has_been_query_for_all = True
+				
 			 
 		elif re.search("location", self.request.uri):
 			lat = split_uri[-3]
@@ -85,17 +89,25 @@ class MainHandler(webapp.RequestHandler):
 			tracks = models.TrackCache.gql("WHERE location_lat = :1 AND location_lng = :2", lat, lng) 
 			                                                                                          
 		else:
-			tracks = models.TrackCache.gql("ORDER BY __key__ DESC LIMIT "+str(settings.FRONTEND_TRACKS_LIMIT))   
+			tracks = models.TrackCache.gql(query_all)
+			has_been_query_for_all = True   
 			                 
 		track_array = []
 		used_locations = set()
 		for track in tracks:
-			# a distinct location may only be on the map once because marker on same position aren't displayed properly
+			# a distinct location may only be on the map once because marker on the same position aren't displayed properly
 			location = str(track.location_lat) + "/" + str(track.location_lng)
 			if location in used_locations: continue
 			used_locations.add(location)
 			
 			location_track_counter = models.LocationTracksCounter.get_by_key_name(location)																											
+			
+			# keep track of the top cities 
+			if has_been_query_for_all:
+				try:
+					utils.top_cities.remove(track.city.strip())
+				except ValueError:
+					pass                    
 			
 			track_array.append({  'track_id' : track.track_id,
 														'title' : track.title,
@@ -112,7 +124,13 @@ class MainHandler(webapp.RequestHandler):
 														'created_minutes_ago' : track.created_minutes_ago(),
 														'waveform_url' : track.waveform_url,
 														'stream_url': track.stream_url})
-														
+		
+		# if not all top cities are included, try to add them
+		if has_been_query_for_all: 
+			if utils.top_cities:
+				for city in utils.top_cities:
+					 models.TrackCache.gql("WHERE city = :1 ORDER BY __key__ DESC LIMIT 1", city) 
+		 											    
 		tracks_json = json.dumps(track_array)
 		self.response.out.write(tracks_json)
 
