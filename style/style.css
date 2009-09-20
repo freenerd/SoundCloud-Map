@@ -39,14 +39,33 @@ a:hover {
 #map_canvas {
   height: 100%;
 }
+
 #bubble-template{
   display:none;
 }
 
 .bubble {
   clear: both;
-  width: 280px;
+  width: 350px;
 }
+
+.bubble .artwork {
+  width: 100px;
+  height: 100px;
+  float: left;
+}
+
+.bubble .artwork img {
+  position: absolute;
+  z-index: 10000;
+}
+
+.bubble .artwork .play-button {
+  position: absolute;
+  z-index: 100000;
+  background: #f05;
+}
+
 
 .bubble .title {
   display:block;
@@ -64,28 +83,14 @@ a:hover {
   padding: 0 0 0px 0;
 }
 
-.bubble .info ul {
-  height: 105px;
+.bubble .info ul li {
+  margin-bottom: 5px;
 }
 
-.bubble .info ul li span{
-  color: #06c;
-}
-
-.bubble .play-button {
-  outline: 0;
-  font-size: 16px;
+.bubble .info ul li span.artist {
   font-weight: bold;
-  color: #209AE4;
-  margin: 0px 0px 0 0px;
-  border: 1px solid #209AE4;
-  padding: 5px 0px;
-  text-decoration: none;
-  display: block;
-  text-align: center;
-  background-color: #DAE8F6;
-  -moz-border-radius: 6px;
 }
+
 
 .bubble .avatar {
   float: left;
@@ -97,8 +102,21 @@ a:hover {
 
 .bubble ul {
   list-style-type:none;
-  margin:0 5px 0 110px;
-  padding:0;
+  clear: left;
+}
+
+.bubble ul li {
+  float: left;
+}
+
+.bubble ul li.previous, .bubble ul li.next {
+  text-indent: -9999px;
+  background: #ccc;
+  width: 20px;
+  }
+
+.bubble ul.track-list li {
+  height: 100px;
 }
 
 .bubble h5 {
