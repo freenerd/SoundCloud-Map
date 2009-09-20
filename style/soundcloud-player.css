@@ -39,6 +39,7 @@
   -webkit-border-radius: 7px;  
   text-indent: -9999px;
   background: #d6d6d6 url('../images/controls.png') 0 -51px repeat-x;
+  cursor: pointer;
 }
 
 #player .prev {

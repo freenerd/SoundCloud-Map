@@ -273,7 +273,8 @@ def update_location_tracks_counter(track, increase = True):
 			location_track_counter.counter -= 1 
 		location_track_counter.put() 
  		logging.info("Updated Location Track Counter for location %s / %s (city: %s) to %i" % \
- 									(location_track_counter.location_lat, location_track_counter.location_lng, location_track_counter.city, location_track_counter.counter))
+ 									(location_track_counter.location_lat, location_track_counter.location_lng, \
+									 location_track_counter.city, location_track_counter.counter))
 	else:
 		new_location_track_counter = models.LocationTracksCounter( \
 			key_name = unicode(track['location_lat'] + "/" + track['location_lng']),

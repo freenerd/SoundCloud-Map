@@ -30,14 +30,16 @@ soundManager.url = "/scripts/soundmanager2_flash9.swf";
 // soundManager.useHighPerformance = false;
 
 /* Initialize Google Maps */
-var map; 
-var icon1;
-var icon2;
-var icon3;
 $(function() {
+  var map;
+  var icon1;
+  var icon2;
+  var icon3;
+
   if (GBrowserIsCompatible()) {
     map = new GMap2($("#map_canvas")[0]);
     $("#map_canvas").height($(window).height()-40);
+    map.checkResize();
 		map.addControl(new GSmallMapControl());
 		map.addControl(new GMapTypeControl());
     map.setCenter(new GLatLng(46.437857, -42.011719), 3);				
@@ -45,16 +47,17 @@ $(function() {
 	
 	$(window).resize(function() {
     $("#map_canvas").height($(window).height()-(playerIsVisible ? 140 : 40));
+    map.checkResize();
 	});
 	
 	// Different Sized Icons for the Marker. 1 is small. 3 is big
-	
 	var icon1 = new GIcon(G_DEFAULT_ICON);
   icon1.image = "images/sc_marker_1.png";
   icon1.iconSize = new GSize(17, 17);
   icon1.shadow = null;
   icon1.iconAnchor = new GPoint(10, 29);
   icon1.infoWindowAnchor = new GPoint(17, 0);
+	icon1.imageMap = [ 8,12, 5,11, 3,8, 5,5, 8,3, 18,2, 12,5, 13,8, 11,11 ]; 
 	markerOptions1 = { icon:icon1 };
 	
 	var icon2 = new GIcon(G_DEFAULT_ICON);
@@ -62,7 +65,8 @@ $(function() {
   icon2.iconSize = new GSize(26, 26);
   icon2.shadow = null;
   icon2.iconAnchor = new GPoint(10, 29);
-  icon2.infoWindowAnchor = new GPoint(26, 0);
+  icon2.infoWindowAnchor = new GPoint(26, 0); 
+	icon2.imageMap = [ 12,22, 6,19, 3,13, 5,5, 12,3, 19,6, 22,12, 19,20 ]; 
 	markerOptions2 = { icon:icon2 };   
 	
 	var icon3 = new GIcon(G_DEFAULT_ICON);
@@ -71,10 +75,9 @@ $(function() {
   icon3.shadow = null;
   icon3.iconAnchor = new GPoint(10, 29);
   icon3.infoWindowAnchor = new GPoint(43, 0);
+	icon3.imageMap = [ 20,37, 9,32, 4,21, 9,9, 20,5, 30,8, 37,20, 32,32 ];
 	markerOptions3 = { icon:icon3 };        
 
-//  var markers = new Object(); // all markers
-//  var html = new Object(); // all html blobs for tracks
 	var tracks; // all tracks
 
   var loading = $("#player .loading");
@@ -205,7 +208,9 @@ $(function() {
     if(!playerIsVisible) { // show player if it's hidden
       playerIsVisible = true;
       $("#player-container").slideDown();
-      $("#map_canvas").animate({height:$(window).height()-140},500);
+      $("#map_canvas").animate({height:$(window).height()-140},500,function() {
+        map.checkResize();
+      });
     }
 
     var track = (e.data ? e.data : e);
