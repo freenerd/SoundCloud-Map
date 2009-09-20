@@ -42,7 +42,7 @@ class MainHandler(webapp.RequestHandler):
 	This script returns JSON-formatted tracks.
 	""" 
 	
-	def add_to_track_array(self, track, track_array, location = None):
+	def add_to_track_array(self, track, track_array, location = None): 
 		if not location:
 			 location =  str(track.location_lat) + "/" + str(track.location_lng) 
 		location_track_counter = models.LocationTracksCounter.get_by_key_name(location)	 
@@ -65,6 +65,7 @@ class MainHandler(webapp.RequestHandler):
 	
 	def get(self): 
 		
+		track_array = [] 
 		split_uri = (self.request.uri).split('/')
 		query_all = "ORDER BY __key__ DESC LIMIT " + str(settings.FRONTEND_TRACKS_LIMIT)
 		has_been_query_for_all = False
@@ -110,12 +111,15 @@ class MainHandler(webapp.RequestHandler):
 			limit = split_uri[-2]
 			limit = '3'
 			tracks = models.TrackCache.gql("WHERE location_lat = :1 AND location_lng = :2 ORDER BY __key__ DESC LIMIT " + limit, lat, lng) 
-			                                                                                          
+			logging.info(tracks.fetch(10))    
+			for track in tracks:
+				self.add_to_track_array(track, track_array, lat + "/" + lng) 
+			tracks_json = json.dumps(track_array)
+			self.response.out.write(tracks_json) # finished processing script                                                                                      
 		else:
 			tracks = models.TrackCache.gql(query_all)
 			has_been_query_for_all = True   
 			                 
-		track_array = []
 		used_locations = set()
 		for track in tracks:
 			# a distinct location may only be on the map once because marker on the same position aren't displayed properly
@@ -131,13 +135,13 @@ class MainHandler(webapp.RequestHandler):
 					pass                    
 			self.add_to_track_array(track, track_array, location)
 		
-		# if not all top cities are included, try to add them
-		# if has_been_query_for_all: 
-		# 	if utils.top_cities:
-		# 		for city in utils.top_cities:
-		# 			 new_track = models.TrackCache.gql("WHERE city = :1 ORDER BY __key__ DESC LIMIT 1", city).get()
-		# 			 if new_track:
-		# 				  add_to_track_array(track, track_array)  
+		#if not all top cities are included, try to add them
+		if has_been_query_for_all: 
+			if utils.top_cities:
+				for city in utils.top_cities:
+					 new_track = models.TrackCache.gql("WHERE city = :1 ORDER BY __key__ DESC LIMIT 1", city).get()
+					 if new_track:
+						  self.add_to_track_array(track, track_array)     
 		 											    
 		tracks_json = json.dumps(track_array)
 		self.response.out.write(tracks_json)

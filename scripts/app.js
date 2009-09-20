@@ -40,9 +40,9 @@ $(function() {
     map = new GMap2($("#map_canvas")[0]);
     $("#map_canvas").height($(window).height()-40);
     map.checkResize();
-		map.addControl(new GSmallMapControl());
-		map.addControl(new GMapTypeControl());
+		map.addControl(new GSmallZoomControl());
     map.setCenter(new GLatLng(-10.973349, 26.875), 2);
+		map.setMapType(G_PHYSICAL_MAP);        
 	}                                          
 	
 	$(window).resize(function() {
@@ -140,8 +140,8 @@ $(function() {
         
         // load more tracks from the same city
         GEvent.addListener(track.marker, "infowindowopen", function() {
-//          $.getJSON("/frontend-json/location/" + track.location_lat + "/" + track.location_lng + "/50/",function(data) {
-          $.getJSON("/frontend-json/genre/techno",function(data) {
+          $.getJSON("/frontend-json/location/" + track.location_lat + "/" + track.location_lng + "/50/",function(data) {
+//          $.getJSON("/frontend-json/genre/techno",function(data) {
             var extraTracks = data;
             // clear the tracks list
             $("#bubble" + track.track_id).find('.tracks-list').html("");
@@ -298,12 +298,12 @@ $(function() {
     showPlayer(tracks[rand]);
 	}   
 	
-	function fuzzyTime(minutes) {
+	function fuzzyTime(minutes) { 
 		if(minutes <= 60) return minutes.toString() + " minutes";
-		if(minutes > 60 & minutes <= 1440) return (Math.floor(minutes/60)).toString() + " hours";
-		if(minutes > 1440 & minutes <= 10080) return (Math.floor(minutes/(60*24))).toString() + " days";
-		if(minutes > 10080 & minutes <= 70560) return str(Math.floor(minutes/(60*24*7))).toString() + " weeks";
-		if(minutes > 70560) return str(Math.floor(minutes/(60*24*30))).toString() + " months";       		
+		if(minutes > 60 && minutes <= 1440) return (Math.floor(minutes/60)).toString() + " hours";
+		if(minutes > 1440 && minutes <= 10080) return (Math.floor(minutes/(60*24))).toString() + " days";
+		if(minutes > 10080 && minutes <= 70560) return (Math.floor(minutes/(60*24*7))).toString() + " weeks";
+		if(minutes > 70560) return (Math.floor(minutes/(60*24*30))).toString() + " months";       		
 	}
 
 	// start the app

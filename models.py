@@ -50,8 +50,8 @@ class TrackCache(db.Model):
 	entry_created_at = db.DateTimeProperty(auto_now_add=True)
 	
 	def created_minutes_ago(self):
-		timedelta = datetime.datetime.now() - self.created_at
-		return (timedelta.seconds / 60)    
+		timedelta = datetime.datetime.now() - self.created_at 		
+		return ((timedelta.seconds + timedelta.days*86400) / 60)    
 		
 class LocationTracksCounter(db.Model):
 	

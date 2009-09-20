@@ -7,7 +7,7 @@ SOUNDCLOUD_API_URL = "http://api.soundcloud.com"
 SOUNDCLOUD_TIMEZONE_ADJUSTMENT = 0 # in hours behind server timezone
 
 # How many tracks shall be displayed in FrontEnd?
-FRONTEND_TRACKS_LIMIT = 100
+FRONTEND_TRACKS_LIMIT = 200
 
 # How old shall the oldest track in the cache be?
 CLEANUP_INTERVAL = 1440 # in minutes
