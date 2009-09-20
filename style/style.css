@@ -233,6 +233,15 @@ a:hover {
   -webkit-border-radius: 3px;
 }
 
+.toam { 
+  position: absolute;
+  left: 10px;
+  top: 6px;
+  color: #333;
+  padding-left: 75px;
+  background: transparent url('../images/world.png')  top left no-repeat;
+}
+
 .options .jump-to {
   position: relative;
   height: 35px;
