@@ -154,7 +154,14 @@ $(function() {
               $("#bubble" + track.track_id)
                 .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background:url(" + (t.artwork_url ? t.artwork_url : t.avatar_url) + ")'>track</a></li>").end()
                 .find('.tracks-list .mini-artwork:last a').click(function() {
-                  console.log('tracks');
+
+                  $("#bubble" + track.track_id)
+                    .find('.title').html(t.title).end()
+                    .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.avatar_url)).end()
+                    .find('ul li span.artist').html("<a href='http://soundcloud.com/" + t.user_permalink + "'>" + t.username + "</a>").end()
+                    .find('ul li span.time').html(fuzzyTime(t.created_minutes_ago) + " ago").end()
+                    .find('a.play-button').bind('click',t,showPlayer).end();
+                  
                   return false;
                 });              
             });
