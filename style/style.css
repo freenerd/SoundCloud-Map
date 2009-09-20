@@ -236,10 +236,13 @@ a:hover {
   background: #d6d6d6 url('../images/bg.png') 0 -51px repeat-x;
 }
 
-.options .jump-to form {
+.options .jump-to a.powered-by {
   position: absolute;
   right: 10px;
-  top: 4px;
+  top: 6px;
+  color: #999;
+  padding-right: 55px;
+  background: transparent url('../images/small-cloud.png')  100% 48% no-repeat;
 }
 
 .footer {
