@@ -46,26 +46,26 @@ $(function() {
 	
 	var icon1 = new GIcon(G_DEFAULT_ICON);
   icon1.image = "images/sc_marker_1.png";
-  icon1.iconSize = new GSize(12, 23);
+  icon1.iconSize = new GSize(17, 17);
   icon1.shadow = null;
   icon1.iconAnchor = new GPoint(10, 29);
-  icon1.infoWindowAnchor = new GPoint(10, 14);
+  icon1.infoWindowAnchor = new GPoint(17, 0);
 	markerOptions1 = { icon:icon1 };
 	
 	var icon2 = new GIcon(G_DEFAULT_ICON);
   icon2.image = "images/sc_marker_2.png";
-  icon2.iconSize = new GSize(18, 27);
+  icon2.iconSize = new GSize(26, 26);
   icon2.shadow = null;
   icon2.iconAnchor = new GPoint(10, 29);
-  icon2.infoWindowAnchor = new GPoint(10, 14);
+  icon2.infoWindowAnchor = new GPoint(26, 0);
 	markerOptions2 = { icon:icon2 };   
 	
 	var icon3 = new GIcon(G_DEFAULT_ICON);
   icon3.image = "images/sc_marker_3.png";
-  icon3.iconSize = new GSize(22, 31);
+  icon3.iconSize = new GSize(43, 43);
   icon3.shadow = null;
   icon3.iconAnchor = new GPoint(10, 29);
-  icon3.infoWindowAnchor = new GPoint(10, 14);
+  icon3.infoWindowAnchor = new GPoint(43, 0);
 	markerOptions3 = { icon:icon3 };        
 
 //  var markers = new Object(); // all markers
@@ -83,7 +83,7 @@ $(function() {
 	  if($(this).attr("data") == 'all') {
   	  loadTracks('frontend-json/');
 	  } else {
-	    loadTracks('frontend-json/' + $(this).attr("data"));
+	    loadTracks('frontend-json/genre/' + $(this).attr("data"));
 	  }
 	  return false;
 	});
@@ -115,7 +115,7 @@ $(function() {
           .attr('id', 'bubble' + track.track_id)
           .find('.title').html(track.title).end()
           .find('.avatar').attr("src",track.avatar_url).end()
-          .find('ul li span.artist').html("<a href='http://soundcloud.com/" + track.username + "'>" + track.username + "</a>").end()
+          .find('ul li span.artist').html("<a href='http://soundcloud.com/" + track.user_permalink + "'>" + track.username + "</a>").end()
           .find('ul li span.time').html(track.created_minutes_ago + " minutes ago").end()
           .find('a.play-button').bind('click',track,showPlayer).end();
 
