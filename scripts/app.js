@@ -257,7 +257,7 @@ $(function() {
       window.soundManager.stopAll();
     };
     
-    $("#player-container .metadata").html(track.title + " uploaded by " + track.username);
+    $("#player-container .metadata").html("<a href='http://soundcloud.com/" + track.user_permalink + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a href='" + track.user_permalink + "'>" + track.username + "</a>");
     
     sound = soundManager.createSound({
       id: track.track_id,
