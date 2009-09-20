@@ -52,6 +52,7 @@ class MainHandler(webapp.RequestHandler):
 													'username' : track.username,
 													'user_permalink' : track.user_permalink,
 													'avatar_url' : track.avatar_url,
+													'artwork_url' : track.artwork_url,
 													'location_lng' : track.location_lng,
 													'location_lat' : track.location_lat,                                 
 													'city' : track.city,
