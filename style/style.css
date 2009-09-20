@@ -141,7 +141,7 @@ a:hover {
 
 .bubble ul li.previous, .bubble ul li.next {
   text-indent: -9999px;
-  background: #ccc;
+  background: white;
   width: 0px;
   margin: 0;
   }
@@ -161,7 +161,6 @@ a:hover {
 }
 
 .bubble ul.track-list li {
-  height: 100px;
 }
 
 .bubble ul.tracks-list {
