@@ -30,14 +30,16 @@ soundManager.url = "/scripts/soundmanager2_flash9.swf";
 // soundManager.useHighPerformance = false;
 
 /* Initialize Google Maps */
-var map; 
-var icon1;
-var icon2;
-var icon3;
 $(function() {
+  var map;
+  var icon1;
+  var icon2;
+  var icon3;
+
   if (GBrowserIsCompatible()) {
     map = new GMap2($("#map_canvas")[0]);
     $("#map_canvas").height($(window).height()-40);
+    map.checkResize();
 		map.addControl(new GSmallMapControl());
 		map.addControl(new GMapTypeControl());
     map.setCenter(new GLatLng(46.437857, -42.011719), 3);				
@@ -45,10 +47,10 @@ $(function() {
 	
 	$(window).resize(function() {
     $("#map_canvas").height($(window).height()-(playerIsVisible ? 140 : 40));
+    map.checkResize();
 	});
 	
 	// Different Sized Icons for the Marker. 1 is small. 3 is big
-	
 	var icon1 = new GIcon(G_DEFAULT_ICON);
   icon1.image = "images/sc_marker_1.png";
   icon1.iconSize = new GSize(17, 17);
@@ -73,8 +75,6 @@ $(function() {
   icon3.infoWindowAnchor = new GPoint(43, 0);
 	markerOptions3 = { icon:icon3 };        
 
-//  var markers = new Object(); // all markers
-//  var html = new Object(); // all html blobs for tracks
 	var tracks; // all tracks
 
   var loading = $("#player .loading");
@@ -205,7 +205,9 @@ $(function() {
     if(!playerIsVisible) { // show player if it's hidden
       playerIsVisible = true;
       $("#player-container").slideDown();
-      $("#map_canvas").animate({height:$(window).height()-140},500);
+      $("#map_canvas").animate({height:$(window).height()-140},500,function() {
+        map.checkResize();
+      });
     }
 
     var track = (e.data ? e.data : e);
