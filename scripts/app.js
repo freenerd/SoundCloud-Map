@@ -36,12 +36,12 @@ $(function() {
   var icon2;
   var icon3;
   
-  var FOOTER_HEIGHT = 160;
+  var FOOTER_HEIGHT = 180;
   var PLAYER_HEIGHT = 80;
 
   if (GBrowserIsCompatible()) {
     map = new GMap2($("#map_canvas")[0]);
-    $("#map_canvas").height($(window).height()-40);
+    $("#map_canvas").height($(window).height()-PLAYER_HEIGHT);
     map.checkResize();
 		map.addControl(new GSmallZoomControl());
     map.setCenter(new GLatLng(-10.973349, 26.875), 2);
@@ -296,9 +296,8 @@ $(function() {
     };
     
     $("#player-container .show-on-map").click(function() {
-      console.log(parseFloat(track.location_lng),parseFloat(track.location_lat))
       map.panTo(new GLatLng(parseFloat(track.location_lng),parseFloat(track.location_lat)));
-      //track.marker.openInfoWindow(track.html[0]);
+      track.marker.openInfoWindow(track.html[0]);
       return false;
     });
     
