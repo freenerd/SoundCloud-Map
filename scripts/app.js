@@ -55,6 +55,7 @@ $(function() {
   icon1.shadow = null;
   icon1.iconAnchor = new GPoint(10, 29);
   icon1.infoWindowAnchor = new GPoint(17, 0);
+	icon1.imageMap = [ 8,12, 5,11, 3,8, 5,5, 8,3, 18,2, 12,5, 13,8, 11,11 ]; 
 	markerOptions1 = { icon:icon1 };
 	
 	var icon2 = new GIcon(G_DEFAULT_ICON);
@@ -62,7 +63,8 @@ $(function() {
   icon2.iconSize = new GSize(26, 26);
   icon2.shadow = null;
   icon2.iconAnchor = new GPoint(10, 29);
-  icon2.infoWindowAnchor = new GPoint(26, 0);
+  icon2.infoWindowAnchor = new GPoint(26, 0); 
+	icon2.imageMap = [ 12,22, 6,19, 3,13, 5,5, 12,3, 19,6, 22,12, 19,20 ]; 
 	markerOptions2 = { icon:icon2 };   
 	
 	var icon3 = new GIcon(G_DEFAULT_ICON);
@@ -71,6 +73,7 @@ $(function() {
   icon3.shadow = null;
   icon3.iconAnchor = new GPoint(10, 29);
   icon3.infoWindowAnchor = new GPoint(43, 0);
+	icon3.imageMap = [ 20,37, 9,32, 4,21, 9,9, 20,5, 30,8, 37,20, 32,32 ];
 	markerOptions3 = { icon:icon3 };        
 
 //  var markers = new Object(); // all markers

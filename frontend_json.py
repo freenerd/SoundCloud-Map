@@ -40,12 +40,31 @@ import settings
 class MainHandler(webapp.RequestHandler):
 	"""
 	This script returns JSON-formatted tracks.
-	"""
+	""" 
+	
+	def add_to_track_array(self, track, track_array, location = None):
+		if not location:
+			 location =  str(track.location_lat) + "/" + str(track.location_lng) 
+		location_track_counter = models.LocationTracksCounter.get_by_key_name(location)	 
+		track_array.append({  'track_id' : track.track_id,
+													'title' : track.title,
+													'permalink' : track.permalink,
+													'username' : track.username,
+													'user_permalink' : track.user_permalink,
+													'avatar_url' : track.avatar_url,
+													'location_lng' : track.location_lng,
+													'location_lat' : track.location_lat,                                 
+													'city' : track.city,
+													'country' : track.country,
+													'tracks_in_location' : getattr(location_track_counter, 'counter', 1), 
+													'created_at' : "new Date(\"%s\")" % track.created_at.ctime(),
+													'created_minutes_ago' : track.created_minutes_ago(),
+													'waveform_url' : track.waveform_url,
+													'stream_url': track.stream_url})	
 	
 	def get(self): 
 		
-		split_uri = (self.request.uri).split('/')             
-		logging.info("Split URI: %s" % split_uri)
+		split_uri = (self.request.uri).split('/')
 		query_all = "ORDER BY __key__ DESC LIMIT " + str(settings.FRONTEND_TRACKS_LIMIT)
 		has_been_query_for_all = False
 				
@@ -98,38 +117,23 @@ class MainHandler(webapp.RequestHandler):
 			# a distinct location may only be on the map once because marker on the same position aren't displayed properly
 			location = str(track.location_lat) + "/" + str(track.location_lng)
 			if location in used_locations: continue
-			used_locations.add(location)
-			
-			location_track_counter = models.LocationTracksCounter.get_by_key_name(location)																											
+			used_locations.add(location) 																									
 			
 			# keep track of the top cities 
-			if has_been_query_for_all:
+			if has_been_query_for_all and track.city:
 				try:
 					utils.top_cities.remove(track.city.strip())
 				except ValueError:
 					pass                    
-			
-			track_array.append({  'track_id' : track.track_id,
-														'title' : track.title,
-														'permalink' : track.permalink,
-														'username' : track.username,
-														'user_permalink' : track.user_permalink,
-														'avatar_url' : track.avatar_url,
-														'location_lng' : track.location_lng,
-														'location_lat' : track.location_lat,                                 
-														'city' : track.city,
-														'country' : track.country,
-														'tracks_in_location' : getattr(location_track_counter, 'counter', 1), 
-														'created_at' : "new Date(\"%s\")" % track.created_at.ctime(),
-														'created_minutes_ago' : track.created_minutes_ago(),
-														'waveform_url' : track.waveform_url,
-														'stream_url': track.stream_url})
+			self.add_to_track_array(track, track_array, location)
 		
 		# if not all top cities are included, try to add them
 		if has_been_query_for_all: 
 			if utils.top_cities:
 				for city in utils.top_cities:
-					 models.TrackCache.gql("WHERE city = :1 ORDER BY __key__ DESC LIMIT 1", city) 
+					 new_track = models.TrackCache.gql("WHERE city = :1 ORDER BY __key__ DESC LIMIT 1", city).get()
+					 if new_track:
+						  add_to_track_array(track, track_array)
 		 											    
 		tracks_json = json.dumps(track_array)
 		self.response.out.write(tracks_json)
