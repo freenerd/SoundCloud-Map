@@ -119,6 +119,8 @@ $(function() {
 				};
 	
         track.marker = new GMarker(new GPoint(track.location_lat, track.location_lng), option);
+        
+				if (track.city == null) track.city = track.country;
 
         track.html = $('#bubble-template')
           .clone()
