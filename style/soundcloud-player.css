@@ -62,6 +62,22 @@
   background-position: 8px -55px;
 }
 
+#player .time {
+  position: absolute;
+  top: 12px;
+  right: 85px;
+  z-index: 100000;
+  font-size: 11px;
+  background: #fff;
+  opacity: 0.65;
+  -moz-opacity: 0.65;
+  filter: alpha(opacity=65);  
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  padding: 1px;
+}
+
 #player .waveform {
   height: 50px;
   background: #ccc;

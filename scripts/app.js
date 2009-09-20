@@ -225,7 +225,7 @@ $(function() {
       window.soundManager.stopAll();
     };
     
-    $("#player-container .metadata").html(track.username + " - " + track.title);
+    $("#player-container .metadata").html(track.title + " uploaded by " + track.username);
     
     sound = soundManager.createSound({
       id: track.track_id,
