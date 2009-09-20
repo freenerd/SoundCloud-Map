@@ -73,16 +73,24 @@ a:hover {
   outline: 0;
 }
 
-.bubble .play-button-smaller {
+.bubble .play-button.smaller {
   display: block;
-  font-size: 15px;
-  margin-top: 10px;
-  padding: 5px;
-  
+  font-size: 18px;
+  margin: 10px 0 0 110px;
+  padding: 2px 5px 5px 5px;
+  outline: 0;
+  background: #f60;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  width: 100px;
+  color: #fff;
+  font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 .bubble .title {
-  display:block;
+  display: block;
+  color: #333;
 }
 
 .bubble .city {
@@ -90,6 +98,10 @@ a:hover {
   margin: -5px 0 5px 0;
   padding: 0 0 3px 0;
   width: 345px;
+}
+
+.bubble .city .city-name {
+  font-weight: bold;
 }
 
 .bubble .info {
@@ -135,6 +147,11 @@ a:hover {
 .bubble ul li.current {
   width: 350px;
   margin-right: 0;
+  color: #999;
+}
+
+.bubble ul li.current a {
+  color: #999;
 }
 
 .bubble ul.track-list li.next, .bubble ul.tracks-list li.next {
@@ -156,6 +173,8 @@ a:hover {
   margin-right: 5px;
   background: #efefef;
   text-indent: -9999px;
+  outline: 0;
+  background: #f60;
 }
 
 .bubble h5 {
