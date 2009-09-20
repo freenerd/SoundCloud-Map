@@ -126,7 +126,7 @@ $(function() {
           .find('.title').html(track.title).end()
           .find('.avatar').attr("src",(track.artwork_url ? track.artwork_url : track.avatar_url)).end()
           .find('ul li span.artist').html("<a href='http://soundcloud.com/" + track.user_permalink + "'>" + track.username + "</a>").end()
-          .find('ul li span.time').html(track.created_minutes_ago + " minutes ago").end()
+          .find('ul li span.time').html(fuzzyTime(track.created_minutes_ago) + " ago").end()
           .find('a.play-button').bind('click',track,showPlayer).end();
         
         // hide avatar if default user image is shown
@@ -274,6 +274,14 @@ $(function() {
 	  var rand = Math.floor(Math.random()*tracks.length);
     tracks[rand].marker.openInfoWindow(tracks[rand].html[0]);
     showPlayer(tracks[rand]);
+	}   
+	
+	function fuzzyTime(minutes) {
+		if(minutes <= 60) return minutes.toString() + " minutes";
+		if(minutes > 60 & minutes <= 1440) return (Math.floor(minutes/60)).toString() + " hours";
+		if(minutes > 1440 & minutes <= 10080) return (Math.floor(minutes/(60*24))).toString() + " days";
+		if(minutes > 10080 & minutes <= 70560) return str(Math.floor(minutes/(60*24*7))).toString() + " weeks";
+		if(minutes > 70560) return str(Math.floor(minutes/(60*24*30))).toString() + " months";       		
 	}
 
 	// start the app
