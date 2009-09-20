@@ -42,7 +42,7 @@ $(function() {
     map.checkResize();
 		map.addControl(new GSmallMapControl());
 		map.addControl(new GMapTypeControl());
-    map.setCenter(new GLatLng(-10.973349, 26.875), 2);				
+    map.setCenter(new GLatLng(-10.973349, 26.875), 2);
 	}                                          
 	
 	$(window).resize(function() {
@@ -137,6 +137,28 @@ $(function() {
         GEvent.addListener(track.marker, "click", function() {
           track.marker.openInfoWindow(track.html[0]);
         });
+        
+        // load more tracks from the same city
+        GEvent.addListener(track.marker, "infowindowopen", function() {
+//          $.getJSON("/frontend-json/location/" + track.location_lat + "/" + track.location_lng + "/50/",function(data) {
+          $.getJSON("/frontend-json/genre/techno",function(data) {
+            var extraTracks = data;
+            // clear the tracks list
+            $("#bubble" + track.track_id).find('.tracks-list').html("");
+            
+            // add the new ones
+            $.each(extraTracks,function(i,t) {
+              $("#bubble" + track.track_id)
+                .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background:url(" + (t.artwork_url ? t.artwork_url : t.avatar_url) + ")'>track</a></li>").end()
+                .find('.tracks-list .mini-artwork:last a').click(function() {
+                  console.log('tracks');
+                  return false;
+                });              
+            });
+            
+          });
+        });
+        
         map.addOverlay(track.marker);
       });
 		});
