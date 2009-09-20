@@ -154,6 +154,10 @@ $(function() {
               $("#bubble" + track.track_id)
                 .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background:url(" + (t.artwork_url ? t.artwork_url : t.avatar_url) + ")'>track</a></li>").end()
                 .find('.tracks-list .mini-artwork:last a').click(function() {
+                  
+                  // highlight current image                  
+                  $(this).parents("ul.tracks-list").find(".mini-artwork a").removeClass("active");
+                  $(this).addClass("active");
 
                   $("#bubble" + track.track_id)
                     .find('.title').html(t.title).end()
@@ -165,6 +169,9 @@ $(function() {
                   return false;
                 });              
             });
+            
+            // highlight the first mini image
+            $("#bubble" + track.track_id).find('.tracks-list .mini-artwork:first a').addClass("active");
             
           });
         });
