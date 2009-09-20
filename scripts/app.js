@@ -35,6 +35,9 @@ $(function() {
   var icon1;
   var icon2;
   var icon3;
+  
+  var FOOTER_HEIGHT = 160;
+  var PLAYER_HEIGHT = 80;
 
   if (GBrowserIsCompatible()) {
     map = new GMap2($("#map_canvas")[0]);
@@ -46,7 +49,7 @@ $(function() {
 	}                                          
 	
 	$(window).resize(function() {
-    $("#map_canvas").height($(window).height()-(playerIsVisible ? 140 : 40));
+    $("#map_canvas").height($(window).height()-(playerIsVisible ? FOOTER_HEIGHT : PLAYER_HEIGHT));
     map.checkResize();
 	});
 	
@@ -152,7 +155,8 @@ $(function() {
             // add the new ones
             $.each(extraTracks,function(i,t) {
               $("#bubble" + track.track_id)
-                .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background:url(" + (t.artwork_url ? t.artwork_url : t.avatar_url) + ")'>track</a></li>").end()
+                .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background-image:" + artworkBgImage(t) + "'>track</a></li>").end()
+
                 .find('.tracks-list .mini-artwork:last a').click(function() {
                   
                   // highlight current image                  
@@ -167,11 +171,16 @@ $(function() {
                     .find('a.play-button').bind('click',t,showPlayer).end();
                   
                   return false;
-                });              
+                });
             });
             
             // highlight the first mini image
             $("#bubble" + track.track_id).find('.tracks-list .mini-artwork:first a').addClass("active");
+            
+            // if there's only one, then hide it
+            if($("#bubble" + track.track_id).find('.tracks-list .mini-artwork a').length == 1) {
+              $("#bubble" + track.track_id).find('.tracks-list .mini-artwork:first a').hide();              
+            }
             
           });
         });
@@ -180,6 +189,19 @@ $(function() {
       });
 		});
 	}
+
+  function artworkBgImage(t) {
+    
+    var artwork = (t.artwork_url ? t.artwork_url.replace(/large/,"small") : t.avatar_url.replace(/large/,"small"));
+    // hide avatar if default user image is shown
+    if(artwork.search(/default/) != -1) {
+      artwork = "none";
+    } else {
+      artwork = "url(" + artwork + ")";
+    }
+    
+    return artwork;
+  }
 
   // throttling function to minimize redraws caused by soundmanager
   function throttle(delay, fn) {
@@ -261,7 +283,7 @@ $(function() {
     if(!playerIsVisible) { // show player if it's hidden
       playerIsVisible = true;
       $("#player-container").slideDown();
-      $("#map_canvas").animate({height:$(window).height()-140},500,function() {
+      $("#map_canvas").animate({height:$(window).height()-FOOTER_HEIGHT},500,function() {
         map.checkResize();
       });
     }
