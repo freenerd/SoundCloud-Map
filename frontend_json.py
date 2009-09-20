@@ -103,10 +103,13 @@ class MainHandler(webapp.RequestHandler):
 				has_been_query_for_all = True
 				
 			 
-		elif re.search("location", self.request.uri):
-			lat = split_uri[-3]
-			lng = split_uri[-2]
-			tracks = models.TrackCache.gql("WHERE location_lat = :1 AND location_lng = :2", lat, lng) 
+		elif re.search("location", self.request.uri): 
+			# typical location uri is http://localhost:8080/frontend-json/location/-0.1262362/51.5001524/50/
+			lat = split_uri[-4]
+			lng = split_uri[-3]
+			limit = split_uri[-2]
+			limit = '3'
+			tracks = models.TrackCache.gql("WHERE location_lat = :1 AND location_lng = :2 ORDER BY __key__ DESC LIMIT " + limit, lat, lng) 
 			                                                                                          
 		else:
 			tracks = models.TrackCache.gql(query_all)
@@ -129,12 +132,12 @@ class MainHandler(webapp.RequestHandler):
 			self.add_to_track_array(track, track_array, location)
 		
 		# if not all top cities are included, try to add them
-		if has_been_query_for_all: 
-			if utils.top_cities:
-				for city in utils.top_cities:
-					 new_track = models.TrackCache.gql("WHERE city = :1 ORDER BY __key__ DESC LIMIT 1", city).get()
-					 if new_track:
-						  add_to_track_array(track, track_array)
+		# if has_been_query_for_all: 
+		# 	if utils.top_cities:
+		# 		for city in utils.top_cities:
+		# 			 new_track = models.TrackCache.gql("WHERE city = :1 ORDER BY __key__ DESC LIMIT 1", city).get()
+		# 			 if new_track:
+		# 				  add_to_track_array(track, track_array)  
 		 											    
 		tracks_json = json.dumps(track_array)
 		self.response.out.write(tracks_json)
