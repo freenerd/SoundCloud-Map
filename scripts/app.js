@@ -115,7 +115,7 @@ $(function() {
           .attr('id', 'bubble' + track.track_id)
           .find('.title').html(track.title).end()
           .find('.avatar').attr("src",track.avatar_url).end()
-          .find('ul li span.artist').html("<a href='http://soundcloud.com/" + track.username + "'>" + track.username + "</a>").end()
+          .find('ul li span.artist').html("<a href='http://soundcloud.com/" + track.user_permalink + "'>" + track.username + "</a>").end()
           .find('ul li span.time').html(track.created_minutes_ago + " minutes ago").end()
           .find('a.play-button').bind('click',track,showPlayer).end();
 
