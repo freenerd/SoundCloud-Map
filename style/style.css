@@ -42,6 +42,41 @@ a:hover {
 
 #bubble-template{
   display:none;
+}     
+
+#about-box, .share-playlist {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -190px;
+  margin-top: -250px;
+  width: 445px;
+  background: white;
+  border: 5px solid rgb(170,170,170);
+  -webkit-box-shadow : 3px 3px 5px rgba(0,0,0,0.3);
+  -moz-box-shadow : 3px 3px 5px rgba(0,0,0,0.3);
+  color: #555;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  padding: 20px;
+  display: none;
+  z-index: 20;
+} 
+
+#about-box a.close {
+  text-decoration: none;
+  float: right;
+  margin-right: -5px;
+  margin-top: -5px;
+  text-decoration: none;
+	font-size: 20px;
+/*  text-indent: -9999px;*/
+  width: 11px;
+  height: 11px;
+  display: block;
+/*  background: transparent url(/images/icons.png) no-repeat -289px -6px;*/
+  outline: 0;
 }
 
 .bubble {
@@ -235,7 +270,7 @@ a:hover {
   -webkit-border-radius: 3px;
 }
 
-.toam { 
+.toam a{ 
   position: absolute;
   left: 10px;
   top: 6px;

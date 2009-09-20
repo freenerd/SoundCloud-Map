@@ -80,13 +80,26 @@ $(function() {
   icon3.infoWindowAnchor = new GPoint(43, 0);
 	icon3.imageMap = [ 20,37, 9,32, 4,21, 9,9, 20,5, 30,8, 37,20, 32,32 ];
 	markerOptions3 = { icon:icon3 };        
-
+  
+	/* Google Maps initialized */
+	
 	var tracks; // all tracks
 
   var loading = $("#player .loading");
   var progress = $("#player .progress");
   var sound;
   var playerIsVisible = false;
+
+   // about box closable
+  $("#about-box a.close").click(function(ev) {
+    $("#about-box").fadeOut();
+    ev.preventDefault();
+  });    
+
+  $("a#about").click(function(ev) {
+    $("#about-box").fadeIn();
+    ev.preventDefault();
+  });
 
 	// genre buttons
 	$(".genres a").click(function(ev) {
@@ -350,6 +363,9 @@ $(function() {
 		if(minutes > 10080 && minutes <= 70560) return (Math.floor(minutes/(60*24*7))).toString() + " weeks";
 		if(minutes > 70560) return (Math.floor(minutes/(60*24*30))).toString() + " months";       		
 	}
+  
+	// show about box
+  $("#about-box").fadeIn();
 
 	// start the app
   loadTracks('frontend-json/');
