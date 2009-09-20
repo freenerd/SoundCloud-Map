@@ -120,6 +120,7 @@ $(function() {
 	
         track.marker = new GMarker(new GPoint(track.location_lat, track.location_lng), option);
         
+        // hack to fix
 				if (track.city == null) track.city = track.country;
 
         track.html = $('#bubble-template')
@@ -145,11 +146,9 @@ $(function() {
         // load more tracks from the same city
         GEvent.addListener(track.marker, "infowindowopen", function() {
           $.getJSON("/frontend-json/location/" + track.location_lat + "/" + track.location_lng + "/50/",function(extraTracks) {
-//          $.getJSON("/frontend-json/genre/techno",function(data) {
-            //var extraTracks = data;
             // clear the tracks list
             $("#bubble" + track.track_id).find('.tracks-list').html("");
-            
+                        
             // add the new ones
             $.each(extraTracks,function(i,t) {
               $("#bubble" + track.track_id)
@@ -260,7 +259,7 @@ $(function() {
       window.soundManager.stopAll();
     };
     
-    $("#player-container .metadata").html(track.title + " uploaded by " + track.username);
+    $("#player-container .metadata").html("<a href='http://soundcloud.com/" + track.user_permalink + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a href='" + track.user_permalink + "'>" + track.username + "</a>");
     
     sound = soundManager.createSound({
       id: track.track_id,
