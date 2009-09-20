@@ -109,14 +109,13 @@ class MainHandler(webapp.RequestHandler):
 			lat = split_uri[-4]
 			lng = split_uri[-3]
 			limit = split_uri[-2]
-			limit = '3'
-			tracks = models.TrackCache.gql("WHERE location_lat = :1 AND location_lng = :2 ORDER BY __key__ DESC LIMIT " + limit, lat, lng) 
-			logging.info(tracks.fetch(10))    
-			for track in tracks:
+			tracks = models.TrackCache.gql("WHERE location_lat = :1 AND location_lng = :2 ORDER BY __key__ DESC LIMIT " + limit, lat, lng)   
+			for track in tracks.fetch(int(limit)):
 				self.add_to_track_array(track, track_array, lat + "/" + lng) 
-			tracks_json = json.dumps(track_array)
+			tracks_json = json.dumps(track_array)                          
 			self.response.out.write(tracks_json) # finished processing script 
-			exit()                                                                                     
+			return
+			                                                                                     
 		else:
 			tracks = models.TrackCache.gql(query_all)
 			has_been_query_for_all = True   
@@ -146,6 +145,7 @@ class MainHandler(webapp.RequestHandler):
 		 											    
 		tracks_json = json.dumps(track_array)
 		self.response.out.write(tracks_json)
+		return
 
 def main():
   application = webapp.WSGIApplication([('/frontend-json/', MainHandler),
