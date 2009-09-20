@@ -83,7 +83,8 @@ a:hover {
   -moz-border-radius: 3px;
   border-radius: 3px;
   -webkit-border-radius: 3px;
-  width: 100px;
+  width: 120px;
+  text-align: center;
   color: #fff;
   font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
 }
@@ -91,6 +92,7 @@ a:hover {
 .bubble .title {
   display: block;
   color: #333;
+  margin-bottom: 4px;
 }
 
 .bubble .city {
@@ -164,15 +166,19 @@ a:hover {
 
 .bubble ul.tracks-list {
   padding-top: 10px;
-  height: 30px;
   margin-left: -2px;
+}
+  
+.bubble ul.tracks-list li {
+  height: 36px;
+  width: 39px;
 }
 
 .bubble ul.tracks-list li.mini-artwork a {
   display: block;
-  width: 30px;
-  height: 30px;
-  margin-right: 3px;
+  width: 32px;
+  height: 32px;
+  margin-right: 0px;
   background: #efefef;
   text-indent: -9999px;
   outline: 0;
@@ -235,10 +241,13 @@ a:hover {
   background: #d6d6d6 url('../images/bg.png') 0 -51px repeat-x;
 }
 
-.options .jump-to form {
+.options .jump-to a.powered-by {
   position: absolute;
   right: 10px;
-  top: 4px;
+  top: 6px;
+  color: #999;
+  padding-right: 55px;
+  background: transparent url('../images/small-cloud.png')  100% 48% no-repeat;
 }
 
 .footer {
