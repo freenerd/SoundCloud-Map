@@ -87,6 +87,8 @@ $(function() {
 
 	// genre buttons
 	$(".genres a").click(function(ev) {
+	  $(".genres .active").removeClass("active");
+	  $(this).addClass("active");
 	  removeAllMarkers();
 	  if($(this).attr("data") == 'all') {
   	  loadTracks('frontend-json/');
@@ -209,6 +211,13 @@ $(function() {
     }
   };
 
+  // format millis into MM.SS
+  var formatMs = function(ms) {
+    var s = Math.floor((ms/1000) % 60);
+    if (s < 10) { s = "0"+s; }
+    return Math.floor(ms/60000) + "." + s;
+  };
+
   function showPlayer(e) {
     if(!playerIsVisible) { // show player if it's hidden
       playerIsVisible = true;
@@ -235,8 +244,8 @@ $(function() {
       }),
       whileplaying : throttle(100,function() {
         progress.css('width',(sound.position/sound.durationEstimate)*100+"%");
-        // $('.position',dom).html(formatMs(sound.position));
-        // $('.duration',dom).html(formatMs(sound.durationEstimate));
+        $('#player .position').html(formatMs(sound.position));
+        $('#player .duration').html(formatMs(sound.durationEstimate));
       }),
       onfinish : function() {
         $("body").removeClass("playing");
