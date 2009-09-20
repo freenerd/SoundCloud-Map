@@ -83,7 +83,8 @@ a:hover {
   -moz-border-radius: 3px;
   border-radius: 3px;
   -webkit-border-radius: 3px;
-  width: 100px;
+  width: 120px;
+  text-align: center;
   color: #fff;
   font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
 }

@@ -28,6 +28,13 @@
   font-size: 15px;
 }
 
+a.show-on-map {
+  position: absolute;
+  right: 30px;
+  top: 15px;
+  color: #333;
+}
+
 #player .prev, #player .pause, #player .next, #player .play {
   position: absolute;
   top: 7px;
