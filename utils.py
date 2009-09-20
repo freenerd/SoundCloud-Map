@@ -36,6 +36,7 @@ genre_ambient = ['ambient']
 genre_jazz = ['jazz', 'free jazz', 'nu-jazz', 'nu jazz']
 genre_classical = ['classical', 'classic']
 
+top_cities = ['Berlin', 'Paris', 'London', 'New York', 'Los Angeles', 'Tokyo', 'Stockholm', 'Barcelona', 'Istanbul', 'Manchester', 'Hamburg', 'Seattle', 'Miami']
 
 def in_development_enviroment():
 	return os.environ["SERVER_SOFTWARE"] != "Google Apphosting/1.0"
