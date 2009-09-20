@@ -42,7 +42,7 @@ $(function() {
     map.checkResize();
 		map.addControl(new GSmallMapControl());
 		map.addControl(new GMapTypeControl());
-    map.setCenter(new GLatLng(46.437857, -42.011719), 3);				
+    map.setCenter(new GLatLng(-10.973349, 26.875), 2);				
 	}                                          
 	
 	$(window).resize(function() {
@@ -55,16 +55,16 @@ $(function() {
   icon1.image = "images/sc_marker_1.png";
   icon1.iconSize = new GSize(17, 17);
   icon1.shadow = null;
-  icon1.iconAnchor = new GPoint(10, 29);
+  icon1.iconAnchor = new GPoint(8, 8);
   icon1.infoWindowAnchor = new GPoint(17, 0);
-	icon1.imageMap = [ 8,12, 5,11, 3,8, 5,5, 8,3, 18,2, 12,5, 13,8, 11,11 ]; 
+	icon1.imageMap = [ 8,14, 4,11, 3,8, 4,4, 8,3, 12,5, 13,8, 12,12 ]; 
 	markerOptions1 = { icon:icon1 };
 	
 	var icon2 = new GIcon(G_DEFAULT_ICON);
   icon2.image = "images/sc_marker_2.png";
   icon2.iconSize = new GSize(26, 26);
   icon2.shadow = null;
-  icon2.iconAnchor = new GPoint(10, 29);
+  icon2.iconAnchor = new GPoint(13, 	13);
   icon2.infoWindowAnchor = new GPoint(26, 0); 
 	icon2.imageMap = [ 12,22, 6,19, 3,13, 5,5, 12,3, 19,6, 22,12, 19,20 ]; 
 	markerOptions2 = { icon:icon2 };   
@@ -73,7 +73,7 @@ $(function() {
   icon3.image = "images/sc_marker_3.png";
   icon3.iconSize = new GSize(43, 43);
   icon3.shadow = null;
-  icon3.iconAnchor = new GPoint(10, 29);
+  icon3.iconAnchor = new GPoint(21, 21);
   icon3.infoWindowAnchor = new GPoint(43, 0);
 	icon3.imageMap = [ 20,37, 9,32, 4,21, 9,9, 20,5, 30,8, 37,20, 32,32 ];
 	markerOptions3 = { icon:icon3 };        
@@ -109,7 +109,7 @@ $(function() {
 				if (track.tracks_in_location < 10) {
 					option = markerOptions1;
 				} else {
-				 	if (track.tracks_in_location < 100) {
+				 	if (track.tracks_in_location < 30) {
 						option = markerOptions2;
 					} else {
 					 	option = markerOptions3;
