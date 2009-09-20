@@ -27,12 +27,12 @@ h3 {
 }
 
 a {
-  color: #06c;
+  color: #f60;
   text-decoration: none;
 }
 
 a:hover {
-  color: #f60;
+  color: #f30;
   text-decoration: none;
 }
 
@@ -141,7 +141,7 @@ a:hover {
 
 .bubble ul li.previous, .bubble ul li.next {
   text-indent: -9999px;
-  background: #ccc;
+  background: white;
   width: 0px;
   margin: 0;
   }
@@ -161,7 +161,6 @@ a:hover {
 }
 
 .bubble ul.track-list li {
-  height: 100px;
 }
 
 .bubble ul.tracks-list {
@@ -182,7 +181,7 @@ a:hover {
   background: #efefef;
   text-indent: -9999px;
   outline: 0;
-  background: #f60;
+  background: #f3b892;
   border: 2px solid #fff;
 }
 
