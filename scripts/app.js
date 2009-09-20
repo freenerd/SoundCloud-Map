@@ -123,6 +123,8 @@ $(function() {
         track.html = $('#bubble-template')
           .clone()
           .attr('id', 'bubble' + track.track_id)
+					.find('.city span.city-track-counter').html(track.tracks_in_location).end()
+					.find('.city span.city-name').html(track.city).end()
           .find('.title').html(track.title).end()
           .find('.avatar').attr("src",(track.artwork_url ? track.artwork_url : track.avatar_url)).end()
           .find('ul li span.artist').html("<a href='http://soundcloud.com/" + track.user_permalink + "'>" + track.username + "</a>").end()
