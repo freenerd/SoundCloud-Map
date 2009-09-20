@@ -199,7 +199,7 @@ a:hover {
 .options {
   position: absolute;
   bottom: 0;
-  height: 40px;
+  height: 80px;
   width: 100%;
   background: #efefef;
   font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
@@ -229,7 +229,6 @@ a:hover {
 }
 
 .options .jump-to {
-  display: none;
   position: relative;
   height: 35px;
   padding: 5px 10px 0 10px;
