@@ -273,6 +273,12 @@ $(function() {
       window.soundManager.stopAll();
     };
     
+    $("#player-container .show-on-map").click(function() {
+      map.panTo(new GLatLng(parseInt(track.location_lat), parseInt(track.location_lng)));
+      track.marker.openInfoWindow(track.html[0]);
+      return false;
+    });
+    
     $("#player-container .metadata").html("<a href='http://soundcloud.com/" + track.user_permalink + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a href='" + track.user_permalink + "'>" + track.username + "</a>");
     
     sound = soundManager.createSound({
