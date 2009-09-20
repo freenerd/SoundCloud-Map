@@ -37,7 +37,6 @@ a:hover {
 }
 
 #map_canvas {
-  float: right;
 }
 #bubble-template{
   display:none;
@@ -147,4 +146,8 @@ a:hover {
   position: absolute;
   right: 10px;
   top: 4px;
+}
+
+.footer {
+  height: 200px;
 }
