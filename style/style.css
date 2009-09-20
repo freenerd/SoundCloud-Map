@@ -101,6 +101,8 @@ a:hover {
 .bubble ul {
   list-style-type:none;
   clear: left;
+  margin: 0;
+  padding: 0;
 }
 
 .bubble ul li {
@@ -113,12 +115,18 @@ a:hover {
   width: 20px;
   }
 
-.bubble ul.tracks-list li.current {
-  width: 300px;
+.bubble ul li.current {
+  width: 290px;
+  margin-right: 0;
+}
 
+.bubble ul.track-list li.next, .bubble ul.tracks-list li.next {
+  margin-right: 0;
+}
 
 .bubble ul.track-list li {
   height: 100px;
+  margin-right: 10px;
 }
 
 .bubble h5 {
