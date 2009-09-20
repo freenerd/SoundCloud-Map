@@ -91,6 +91,7 @@ a:hover {
 .bubble .title {
   display: block;
   color: #333;
+  margin-bottom: 4px;
 }
 
 .bubble .city {
