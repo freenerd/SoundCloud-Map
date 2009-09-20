@@ -166,6 +166,8 @@ a:hover {
 .bubble ul.tracks-list {
   padding-top: 10px;
   margin-left: -2px;
+  height: 38px;
+  overflow: hidden;
 }
   
 .bubble ul.tracks-list li {
