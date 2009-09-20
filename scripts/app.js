@@ -296,9 +296,8 @@ $(function() {
     };
     
     $("#player-container .show-on-map").click(function() {
-      console.log(parseFloat(track.location_lng),parseFloat(track.location_lat))
       map.panTo(new GLatLng(parseFloat(track.location_lng),parseFloat(track.location_lat)));
-      //track.marker.openInfoWindow(track.html[0]);
+      track.marker.openInfoWindow(track.html[0]);
       return false;
     });
     
