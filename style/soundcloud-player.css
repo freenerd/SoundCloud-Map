@@ -52,9 +52,13 @@
   background-position: 10px -172px;
 }
 
+body.playing #player .pause {
+  background-position: 8px -107px;
+}
+
 #player .pause {
   left: 60px;
-  background-position: 8px -107px;
+  background-position: 10px -172px;
 }
 
 #player .next {

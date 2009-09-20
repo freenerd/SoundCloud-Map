@@ -54,6 +54,7 @@ a:hover {
   height: 100px;
   float: left;
   margin-right: 10px;
+  background: #f60;
 }
 
 .bubble .artwork img {
@@ -64,7 +65,19 @@ a:hover {
 .bubble .artwork .play-button {
   position: absolute;
   z-index: 100000;
-  background: #f05;
+  width: 100px;
+  height: 100px;
+  display: block;
+  text-indent: -9999px;
+  background: transparent url('../images/play.png') 40px 30px no-repeat;
+  outline: 0;
+}
+
+.bubble .play-button-smaller {
+  display: block;
+  font-size: 15px;
+  margin-top: 10px;
+  padding: 5px;
 }
 
 .bubble .title {
