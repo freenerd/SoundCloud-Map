@@ -53,6 +53,7 @@ a:hover {
   width: 100px;
   height: 100px;
   float: left;
+  margin-right: 10px;
 }
 
 .bubble .artwork img {
@@ -127,6 +128,12 @@ a:hover {
 .bubble ul.track-list li {
   height: 100px;
   margin-right: 10px;
+}
+
+.bubble ul.tracks-list  {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #efefef;
 }
 
 .bubble h5 {
