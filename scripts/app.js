@@ -179,7 +179,7 @@ $(function() {
             
             // if there's only one, then hide it
             if($("#bubble" + track.track_id).find('.tracks-list .mini-artwork a').length == 1) {
-              $("#bubble" + track.track_id).find('.tracks-list .mini-artwork:first a').hide();              
+              $("#bubble" + track.track_id).find('.tracks-list').hide();              
             }
             
           });
