@@ -166,15 +166,19 @@ a:hover {
 
 .bubble ul.tracks-list {
   padding-top: 10px;
-  height: 30px;
   margin-left: -2px;
+}
+  
+.bubble ul.tracks-list li {
+  height: 36px;
+  width: 39px;
 }
 
 .bubble ul.tracks-list li.mini-artwork a {
   display: block;
-  width: 30px;
-  height: 30px;
-  margin-right: 3px;
+  width: 32px;
+  height: 32px;
+  margin-right: 0px;
   background: #efefef;
   text-indent: -9999px;
   outline: 0;
