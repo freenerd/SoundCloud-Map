@@ -115,7 +115,8 @@ class MainHandler(webapp.RequestHandler):
 			for track in tracks:
 				self.add_to_track_array(track, track_array, lat + "/" + lng) 
 			tracks_json = json.dumps(track_array)
-			self.response.out.write(tracks_json) # finished processing script                                                                                      
+			self.response.out.write(tracks_json) # finished processing script 
+			exit()                                                                                     
 		else:
 			tracks = models.TrackCache.gql(query_all)
 			has_been_query_for_all = True   

@@ -140,9 +140,9 @@ $(function() {
         
         // load more tracks from the same city
         GEvent.addListener(track.marker, "infowindowopen", function() {
-          $.getJSON("/frontend-json/location/" + track.location_lat + "/" + track.location_lng + "/50/",function(data) {
+          $.getJSON("/frontend-json/location/" + track.location_lat + "/" + track.location_lng + "/50/",function(extraTracks) {
 //          $.getJSON("/frontend-json/genre/techno",function(data) {
-            var extraTracks = data;
+            //var extraTracks = data;
             // clear the tracks list
             $("#bubble" + track.track_id).find('.tracks-list').html("");
             
