@@ -29,7 +29,6 @@ soundManager.defaultOptions.multiShot = false;
 soundManager.url = "/scripts/soundmanager2_flash9.swf";
 // soundManager.useHighPerformance = false;
 
-
 /* Initialize Google Maps */
 var map; 
 var icon1;
@@ -47,26 +46,26 @@ $(function() {
 	
 	var icon1 = new GIcon(G_DEFAULT_ICON);
   icon1.image = "images/sc_marker_1.png";
-  icon1.iconSize = new GSize(12, 23);
+  icon1.iconSize = new GSize(17, 17);
   icon1.shadow = null;
   icon1.iconAnchor = new GPoint(10, 29);
-  icon1.infoWindowAnchor = new GPoint(10, 14);
+  icon1.infoWindowAnchor = new GPoint(17, 0);
 	markerOptions1 = { icon:icon1 };
 	
 	var icon2 = new GIcon(G_DEFAULT_ICON);
   icon2.image = "images/sc_marker_2.png";
-  icon2.iconSize = new GSize(18, 27);
+  icon2.iconSize = new GSize(26, 26);
   icon2.shadow = null;
   icon2.iconAnchor = new GPoint(10, 29);
-  icon2.infoWindowAnchor = new GPoint(10, 14);
+  icon2.infoWindowAnchor = new GPoint(26, 0);
 	markerOptions2 = { icon:icon2 };   
 	
 	var icon3 = new GIcon(G_DEFAULT_ICON);
   icon3.image = "images/sc_marker_3.png";
-  icon3.iconSize = new GSize(22, 31);
+  icon3.iconSize = new GSize(43, 43);
   icon3.shadow = null;
   icon3.iconAnchor = new GPoint(10, 29);
-  icon3.infoWindowAnchor = new GPoint(10, 14);
+  icon3.infoWindowAnchor = new GPoint(43, 0);
 	markerOptions3 = { icon:icon3 };        
 
 //  var markers = new Object(); // all markers
@@ -76,6 +75,7 @@ $(function() {
   var loading = $("#player .loading");
   var progress = $("#player .progress");
   var sound;
+  var playerIsVisible = false;
 
 	// genre buttons
 	$(".genres a").click(function(ev) {
@@ -115,7 +115,7 @@ $(function() {
           .attr('id', 'bubble' + track.track_id)
           .find('.title').html(track.title).end()
           .find('.avatar').attr("src",track.avatar_url).end()
-          .find('ul li span.artist').html("<a href='http://soundcloud.com/" + track.username + "'>" + track.username + "</a>").end()
+          .find('ul li span.artist').html("<a href='http://soundcloud.com/" + track.user_permalink + "'>" + track.username + "</a>").end()
           .find('ul li span.time').html(track.created_minutes_ago + " minutes ago").end()
           .find('a.play-button').bind('click',track,showPlayer).end();
 
@@ -128,7 +128,7 @@ $(function() {
 	}
 
   // throttling function to minimize redraws caused by soundmanager
-  var throttle = function(delay, fn) {
+  function throttle(delay, fn) {
     var last = null,
         partial = fn;
 
@@ -164,14 +164,42 @@ $(function() {
       playRandom();
       return false;
   });
+  
+  // next random track
+  $('#player .pause').click(function(e) {
+      togglePlay();
+      return false;
+  });
+  
+  $("#player .waveform").click(function(ev) {
+    var percent = (ev.clientX-$("#player .waveform").offset().left)/($("#player .waveform").width());
+    if(sound.durationEstimate*percent < sound.durationEstimate) {
+      sound.setPosition(sound.durationEstimate*percent);        
+    }
+  });
 
-  var play = function() {
+  function play() {
     if(sound) {
       sound.paused ? sound.resume() : sound.play();
+      $('body').addClass("playing");
+    }
+  };
+
+  function togglePlay() {
+    $('body').hasClass("playing") ? stop() : play();
+  };
+
+  function stop() {
+    if(sound) {
+      sound.pause();
+      $('body').removeClass("playing");
     }
   };
 
   function showPlayer(e) {
+    if(!playerIsVisible) { // show player if it's hidden
+      $("#player-container").slideDown();
+    }
 
     var track = (e.data ? e.data : e);
     
@@ -184,11 +212,11 @@ $(function() {
     
     sound = soundManager.createSound({
       id: track.track_id,
-      url: "http://media.soundcloud.com/stream/KcoNolQWb1bB",
-      whileloading : throttle(200,function() {
+      url: track.stream_url + "?oauth_consumer_key=FhPCTC6rJGetkMIcLwI9A",
+      whileloading : throttle(100,function() {
         loading.css('width',(sound.bytesLoaded/sound.bytesTotal)*100+"%");
       }),
-      whileplaying : throttle(200,function() {
+      whileplaying : throttle(100,function() {
         progress.css('width',(sound.position/sound.durationEstimate)*100+"%");
         // $('.position',dom).html(formatMs(sound.position));
         // $('.duration',dom).html(formatMs(sound.durationEstimate));
@@ -202,21 +230,8 @@ $(function() {
       // }
     });
 
-    
     play();
     
-
-    //$('#player').html("");
-    //$('<a class="soundcloud-player" href="' + track.permalink + '">Play</a>').appendTo("#player");
-    //$('#player .soundcloud-player').scPlayer({width:700, collapse:false, autoplay:true});
-    //$('<img class="waveform" src="' + track.waveform_url + '" />').appendTo('#player .sc-player');
-    // append next button
-    // $('<a class="button-next" href="#">Next</a>')
-    //   .click(function(e) {
-    //     playRandom();
-    //     return false;
-    //   })
-    //   .appendTo("#player");
     return false;
   }
 
@@ -229,7 +244,7 @@ $(function() {
 	}
 
 	function playRandom() {
-	  var rand = Math.floor(Math.random()*50);
+	  var rand = Math.floor(Math.random()*tracks.length);
     tracks[rand].marker.openInfoWindow(tracks[rand].html[0]);
     showPlayer(tracks[rand]);
 	}
