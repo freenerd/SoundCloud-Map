@@ -29,7 +29,6 @@ soundManager.defaultOptions.multiShot = false;
 soundManager.url = "/scripts/soundmanager2_flash9.swf";
 // soundManager.useHighPerformance = false;
 
-
 /* Initialize Google Maps */
 var map; 
 var icon1;
@@ -76,6 +75,7 @@ $(function() {
   var loading = $("#player .loading");
   var progress = $("#player .progress");
   var sound;
+  var playerIsVisible = false;
 
 	// genre buttons
 	$(".genres a").click(function(ev) {
@@ -128,7 +128,7 @@ $(function() {
 	}
 
   // throttling function to minimize redraws caused by soundmanager
-  var throttle = function(delay, fn) {
+  function throttle(delay, fn) {
     var last = null,
         partial = fn;
 
@@ -164,14 +164,42 @@ $(function() {
       playRandom();
       return false;
   });
+  
+  // next random track
+  $('#player .pause').click(function(e) {
+      togglePlay();
+      return false;
+  });
+  
+  $("#player .waveform").click(function(ev) {
+    var percent = (ev.clientX-$("#player .waveform").offset().left)/($("#player .waveform").width());
+    if(sound.durationEstimate*percent < sound.durationEstimate) {
+      sound.setPosition(sound.durationEstimate*percent);        
+    }
+  });
 
-  var play = function() {
+  function play() {
     if(sound) {
       sound.paused ? sound.resume() : sound.play();
+      $('body').addClass("playing");
+    }
+  };
+
+  function togglePlay() {
+    $('body').hasClass("playing") ? stop() : play();
+  };
+
+  function stop() {
+    if(sound) {
+      sound.pause();
+      $('body').removeClass("playing");
     }
   };
 
   function showPlayer(e) {
+    if(!playerIsVisible) { // show player if it's hidden
+      $("#player-container").slideDown();
+    }
 
     var track = (e.data ? e.data : e);
     
@@ -185,10 +213,10 @@ $(function() {
     sound = soundManager.createSound({
       id: track.track_id,
       url: track.stream_url + "?oauth_consumer_key=FhPCTC6rJGetkMIcLwI9A",
-      whileloading : throttle(200,function() {
+      whileloading : throttle(100,function() {
         loading.css('width',(sound.bytesLoaded/sound.bytesTotal)*100+"%");
       }),
-      whileplaying : throttle(200,function() {
+      whileplaying : throttle(100,function() {
         progress.css('width',(sound.position/sound.durationEstimate)*100+"%");
         // $('.position',dom).html(formatMs(sound.position));
         // $('.duration',dom).html(formatMs(sound.durationEstimate));
@@ -202,21 +230,8 @@ $(function() {
       // }
     });
 
-    
     play();
     
-
-    //$('#player').html("");
-    //$('<a class="soundcloud-player" href="' + track.permalink + '">Play</a>').appendTo("#player");
-    //$('#player .soundcloud-player').scPlayer({width:700, collapse:false, autoplay:true});
-    //$('<img class="waveform" src="' + track.waveform_url + '" />').appendTo('#player .sc-player');
-    // append next button
-    // $('<a class="button-next" href="#">Next</a>')
-    //   .click(function(e) {
-    //     playRandom();
-    //     return false;
-    //   })
-    //   .appendTo("#player");
     return false;
   }
 
@@ -229,7 +244,7 @@ $(function() {
 	}
 
 	function playRandom() {
-	  var rand = Math.floor(Math.random()*50);
+	  var rand = Math.floor(Math.random()*tracks.length);
     tracks[rand].marker.openInfoWindow(tracks[rand].html[0]);
     showPlayer(tracks[rand]);
 	}
