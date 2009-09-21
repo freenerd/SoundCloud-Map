@@ -298,3 +298,7 @@ a:hover {
 .footer {
   height: 200px;
 }
+
+.waveform .loading {
+	background: #d6d6d6 url('../images/bg.png') 0 -51px repeat-x;
+}

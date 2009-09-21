@@ -124,10 +124,10 @@ $(function() {
       
       $.each( tracks,	function( intIndex, track ) {                     
 				var option;
-				if (track.tracks_in_location < 10) {
+				if (track.tracks_in_location < 20) {
 					option = markerOptions1;
 				} else {
-				 	if (track.tracks_in_location < 30) {
+				 	if (track.tracks_in_location < 50) {
 						option = markerOptions2;
 					} else {
 					 	option = markerOptions3;
@@ -316,6 +316,8 @@ $(function() {
     
     $("#player-container .metadata").html("<a href='http://soundcloud.com/" + track.user_permalink + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a href='http://soundcloud.com/" + track.user_permalink + "'>" + track.username + "</a>");
     
+		$("#player-container #player .waveform img").attr("src", track.waveform_url);
+		
     sound = soundManager.createSound({
       id: track.track_id,
       url: track.stream_url + "?oauth_consumer_key=FhPCTC6rJGetkMIcLwI9A",
