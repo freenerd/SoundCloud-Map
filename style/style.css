@@ -17,7 +17,6 @@ body, html {
   line-height: 1.3em;
   font-family: "Lucida Grande", Verdana, Arial;
   color: #333;
-  overflow: hidden;
 }
   
 h3 {
@@ -296,5 +295,4 @@ a:hover {
 }
 
 .footer {
-  height: 200px;
 }
