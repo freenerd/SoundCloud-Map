@@ -22,9 +22,8 @@
 from google.appengine.ext import db
 
 import datetime
-import logging
 
-class TrackCache(db.Model):
+class Tracks(db.Model):
 	
 	track_id = db.IntegerProperty(required=True)
 	track_permalink = db.StringProperty()
@@ -58,21 +57,17 @@ class TrackCache(db.Model):
   duration = db.IntegerProperty()
 	description = db.TextProperty()
 
-	location = db.GeoPtProperty()
-	city = db.StringProperty()
-	country = db.StringProperty()
- 
-	
+	location = db.ReferenceProperty(reference_class=Locations)
+  	
 	entry_created_at = db.DateTimeProperty(auto_now_add=True)
 	
 	def created_minutes_ago(self):
 		timedelta = datetime.datetime.now() - self.created_at 		
 		return ((timedelta.seconds + timedelta.days*86400) / 60)    
 		
-class LocationTracksCounter(db.Model):
+class Locations(db.Model):
 	
-	location_lng = db.StringProperty(required=True)
-	location_lat = db.StringProperty(required=True)
+	location = db.GeoPtProperty(required=True)
 	city = db.StringProperty()
 	country = db.StringProperty()                  
-	counter = db.IntegerProperty(required=True)	
+	track_counter = db.IntegerProperty()	

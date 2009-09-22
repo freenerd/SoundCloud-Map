@@ -39,7 +39,7 @@ def open_soundcloud_api(query):
 	So we have to do it more often sometimes ...
 	"""
 
-	logging.info("SoundCloud API request url: %s" %	settings.SOUNDCLOUD_API_URL + query)
+	logging.info("SoundCloud API request uri: %s" %	settings.SOUNDCLOUD_API_URL + query)
 
 	i = 0
 	while True:

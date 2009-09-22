@@ -38,7 +38,7 @@ def main():
 	try:
 		logging.info("Backend Update Started")
 		
-		logging.info("Starting to read data from Soundcloud")
+		logging.info("Fetching latest tracks from SoundCloud")
 		tracks = backend_utils.get_latest_tracks_from_soundcloud()
 		logging.info("Got Data from Soundcloud API")
 		logging.info("Fetched %i tracks from Soundcloud" % len(tracks))
