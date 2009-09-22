@@ -45,7 +45,8 @@ $(function() {
     map.checkResize();
 		map.addControl(new GSmallZoomControl());
     map.setCenter(new GLatLng(-10.973349, 26.875), 2);
-		map.setMapType(G_PHYSICAL_MAP);        
+		map.setMapType(G_PHYSICAL_MAP);  
+		map.enableScrollWheelZoom();	      
 	}                                          
 	
 	$(window).resize(function() {
@@ -95,11 +96,25 @@ $(function() {
     $("#about-box").fadeOut();
     ev.preventDefault();
   });    
-
+                        
+	// about box openable
   $("a#about").click(function(ev) {
     $("#about-box").fadeIn();
     ev.preventDefault();
-  });
+  });  
+     
+	// about box closes when action on myp
+	GEvent.addListener(map, "movestart", function() {
+	  $("#about-box").fadeOut();
+	}); 
+
+	GEvent.addListener(map, "click", function() {
+	  $("#about-box").fadeOut();
+	});	                          
+	
+	GEvent.addListener(map, "zoomend", function() {
+	  $("#about-box").fadeOut();
+	});
 
 	// genre buttons
 	$(".genres a").click(function(ev) {
