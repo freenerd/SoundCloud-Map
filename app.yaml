@@ -12,15 +12,18 @@ handlers:
 
 - url: /backend-update
   script: backend_update.py
+  login: admin
 
 - url: /backend-cleanup
   script: backend_cleanup.py
+  login: admin
 
 - url: /frontend-json/.*
   script: frontend_json.py 
   
 - url: /backend-update-counter/.*
   script: backend_update_counter.py
+  login: admin
 
 - url: /images
   static_dir: images
