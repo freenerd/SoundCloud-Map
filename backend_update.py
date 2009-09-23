@@ -22,6 +22,8 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from google.appengine.runtime import DeadlineExceededError
+from google.appengine.api.labs import taskqueue 
+from google.appengine.api import memcache
 import logging
 import time
 import os
@@ -31,32 +33,29 @@ import backend_utils
 
 def main():
 	"""
-	This script queries the SoundCloud API, fetches the latest tracks having been uploaded
-	since the last backend update, geocodes them and writes them to the database cache.
+	This method queries the SoundCloud API, fetches the latest tracks having been uploaded
+	since the last backend update, and adds them to the task queue for further processing.
 	It is intended to be called by a cronjob on a short basis, like every 3 minutes.
 	"""
 	try:
-		logging.info("Backend Update Started")
+		logging.info("Backend update started")
 		
 		logging.info("Fetching latest tracks from SoundCloud")
 		tracks = backend_utils.get_latest_tracks_from_soundcloud()
-		logging.info("Got Data from Soundcloud API")
 		logging.info("Fetched %i tracks from Soundcloud" % len(tracks))
 		if len(tracks) > 0:
-			logging.info("Latest track is \"%s\" by \"%s\" (%s)." % \
-									 (tracks[0]['title'], tracks[0]['user']['username'], tracks[0]['created_at']))		
-			tracks = backend_utils.remove_duplicate_users(tracks)
-			tracks = backend_utils.remove_unusable_tracks(tracks)			
-			tracks = backend_utils.add_complete_user_data(tracks)
-			logging.info("Found %i new tracks" % len(tracks))	
-			logging.info("Finished reading data from Soundcloud")
-			
-			logging.info("Going to write %i new tracks to DB." % len(tracks))	
-			counter_write = backend_utils.write_tracks_to_cache(tracks)
-			logging.info("Written %i new tracks to DB." % counter_write)
+			counter = 0    
+			for track in tracks:  
+				track['id'] = unicode(track['id'])
+				if not memcache.add(track['id'], track, namespace="backend_update_track"):
+					logging.error("Setting Memcache failed for track \"%s\" by \"%s\" (id: %s, created at: %s)." % \
+											(track['title'], track['user']['username'], track['id'], track['created_at']))
+				taskqueue.add(url='/backend-update/track', params={'track_id': track['id']})
+				counter += 1
+			logging.info("Added %i tracks to the taskqueue" % counter)
+		else:
+			logging.info("Backend update finished without new tracks") 
 		
-		logging.info("Backend Update Finished")
-
 	except DeadlineExceededError:
 		logging.warning("Backend Update has been canceled due to Deadline Exceeded")
 		for name in os.environ.keys():

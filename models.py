@@ -23,6 +23,13 @@ from google.appengine.ext import db
 
 import datetime
 
+class Locations(db.Model):
+	
+	location = db.GeoPtProperty(required=True)
+	city = db.StringProperty()
+	country = db.StringProperty()                  
+	track_counter = db.IntegerProperty()
+
 class Tracks(db.Model):
 	
 	track_id = db.IntegerProperty(required=True)
@@ -43,8 +50,8 @@ class Tracks(db.Model):
 	purchase_url = db.LinkProperty()    
 			
 	created_at = db.DateTimeProperty()
-  downloadable = db.BooleanProperty()
-  original_format = db.StringProperty()
+	downloadable = db.BooleanProperty()
+	original_format = db.StringProperty()
 	release_date = db.DateProperty()
 	release = db.StringProperty()
 	iscr = db.StringProperty()   
@@ -54,7 +61,7 @@ class Tracks(db.Model):
 	genre = db.StringProperty()
 	bpm = db.FloatProperty()
 	key_signature = db.StringProperty()
-  duration = db.IntegerProperty()
+	duration = db.IntegerProperty()
 	description = db.TextProperty()
 
 	location = db.ReferenceProperty(reference_class=Locations)
@@ -63,11 +70,4 @@ class Tracks(db.Model):
 	
 	def created_minutes_ago(self):
 		timedelta = datetime.datetime.now() - self.created_at 		
-		return ((timedelta.seconds + timedelta.days*86400) / 60)    
-		
-class Locations(db.Model):
-	
-	location = db.GeoPtProperty(required=True)
-	city = db.StringProperty()
-	country = db.StringProperty()                  
-	track_counter = db.IntegerProperty()	
+		return ((timedelta.seconds + timedelta.days*86400) / 60)     
