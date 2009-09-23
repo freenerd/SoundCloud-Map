@@ -76,11 +76,11 @@ class FetchTrackInfo(webapp.RequestHandler):
 			# check if user is already in the datastore 		
 			user = models.User.all().filter('user_id', int(track['user_id'])).get()
 			if user:
-				logging.info("User is already in datastore as user_id: %i permalink: %s" % \
-																																(user.user_id, user.permalink))
+				logging.info("User is already in datastore as permalink: %s user_id: %i" % \
+																																(user.permalink, user.user_id))
 				# update location data
 				location = user.location
-				location.track_counter =+ 1
+				location.track_counter += 1
 				location.last_time_updated = datetime.datetime.now()																												
 				track['user'] = user
 			else:
@@ -99,18 +99,29 @@ class FetchTrackInfo(webapp.RequestHandler):
 				else:
 
 					try:                             
-						logging.info("Location is not in the datastore yet. Fetching it ...")
-						gecached_location = backend_utils.get_location(track['user']['city'], track['user']['country'])	  
-					 	location = models.Location( \
-												location = gecached_location['location'],
-												city = unicode(gecached_location['city']),
-												country = unicode(gecached_location['country']),   
-												track_counter = 1,
-												last_time_updated=datetime.datetime.now())					
-						logging.info("Saving location for user \"%s\" lat/lon %s/%s in city/country %s/%s to datastore ..." % \
-												(track['user']['username'], location.location.lat, location.location.lon, location.city, location.country))
-						location.put()
-						logging.info("Location saved to datastore.")
+						logging.info("Looks as if location is not in the datastore yet. Fetching it ...")
+						gecached_location = backend_utils.get_location(track['user']['city'], track['user']['country'])	
+						# check again, if location not in datastore already
+						location = models.Location.all().filter('location', gecached_location['location']).get()
+						if location:    
+							logging.info("Location has yet already been in datastore. Updating it.")
+							location.track_counter += 1
+							location.last_time_updated = datetime.datetime.now()
+							logging.info("Updating location for user \"%s\" lat/lon %s/%s in city: %s country: %s and track_count: %i to datastore ..." % \
+													(track['user']['username'], location.location.lat, location.location.lon, location.city, location.country, location.track_counter))							
+							location.put()                                                                                                                                              
+							logging.info("Updated location.")
+						else:
+					 	 	location = models.Location( \
+													location = gecached_location['location'],
+													city = unicode(gecached_location['city']),
+													country = unicode(gecached_location['country']),   
+													track_counter = 1,
+													last_time_updated=datetime.datetime.now())					
+							logging.info("Saving new location for user \"%s\" lat/lon %s/%s in city/country %s/%s to datastore ..." % \
+													(track['user']['username'], location.location.lat, location.location.lon, location.city, location.country))
+							location.put()
+							logging.info("New location saved to datastore.") 
 		                  
 					except RuntimeError:
 						logging.info("No Location for User \"%s\" with City/Country: \"%s / %s\"." % \
