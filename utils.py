@@ -21,20 +21,21 @@
 
 import os
 
-genre_house = ['house', 'tech house', 'deep house', 'progressive house', 'tech-house', \
-							 'electro house', 'techhouse', 'minimal house', 'funky house', 'dance']
-genre_techno = ['techno', 'techno minimal', 'minimal techno']
-genre_dubstep = ['dubstep', 'dub step']
-genre_hiphop = ['hip hop', 'hip-hop', 'hiphop', 'rap', 'r&b']
-genre_electronic = ['electronic', 'electro', 'electronica', 'minimal', 'idm']
-genre_drumandbass = ['drum & bass', 'drum and bass', 'drum n bass', 'dnb', 'drum\'n\'bass', 'breakbeat', 'drum&bass', 'breaks']   
-genre_trance = ['trance', 'progressive_trance']
-genre_rock = ['rock']
-genre_indie = ['indie', 'alternative', 'acoustic']
-genre_pop = ['pop']
-genre_ambient = ['ambient']
-genre_jazz = ['jazz', 'free jazz', 'nu-jazz', 'nu jazz']
-genre_classical = ['classical', 'classic']
+genres = {}
+genres.update({'house': ['house', 'tech house', 'deep house', 'progressive house', 'tech-house', \
+							 					 'electro house', 'techhouse', 'minimal house', 'funky house', 'dance']}) 
+genres.update({'techno': ['techno', 'techno minimal', 'minimal techno', 'minimal-techno']})														
+genres.update({'dubstep': ['dubstep', 'dub step']})
+genres.update({'hiphop': ['hip hop', 'hip-hop', 'hiphop', 'rap', 'r&b', 'rnb', 'r\'n\'b']})
+genres.update({'electronic': ['electronic', 'electro', 'electronica', 'minimal', 'idm']})
+genres.update({'drumandbass': ['drum & bass', 'drum and bass', 'drum n bass', 'dnb', 'drum\'n\'bass', 'breakbeat', 'drum&bass', 'breaks']})
+genres.update({'trance': ['trance', 'progressive_trance', 'progessive trance', 'psy trance', 'goa']})
+genres.update({'rock': ['rock']})
+genres.update({'indie': ['indie', 'alternative', 'acoustic']})
+genres.update({'pop': ['pop']})
+genres.update({'ambient': ['ambient']})
+genres.update({'jazz': ['jazz', 'free jazz', 'nu-jazz', 'nu jazz', 'swing']})
+genres.update({'classical': ['classical', 'classic']})
 
 top_cities = ['Berlin', 'Paris', 'London', 'New York', 'Los Angeles', 'Tokyo', 'Stockholm', 'Barcelona', 'Istanbul', 'Manchester', 'Hamburg', 'Seattle', 'Miami']
 

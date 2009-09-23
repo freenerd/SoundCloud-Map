@@ -34,7 +34,7 @@ def main():
 	try:
 		logging.info("Backend Cleanup Started")
 			
-		counter_delete = backend_utils.cleanup_cache()
+		counter_delete = cleanup_cache()
 		logging.info("Deleted %i old tracks from DB." % counter_delete)
 		
 		logging.info("Backend Cleanup Finished")
@@ -45,4 +45,22 @@ def main():
 			logging.info("%s = %s" % (name, os.environ[name]))
 			
 if __name__ == '__main__':
-  main()
+  main()  
+
+
+def cleanup_cache():
+	"""
+	Remove all old tracks from database
+	"""
+	delete_older_than = datetime.datetime.now()
+	delete_older_than -= datetime.timedelta(hours=settings.SOUNDCLOUD_TIMEZONE_ADJUSTMENT)
+	delete_older_than -= datetime.timedelta(minutes=settings.CLEANUP_INTERVAL)
+	logging.info("Cleaning Up Everything Before %s" % delete_older_than.isoformat())	
+
+	query = models.TrackCache.gql("WHERE entry_created_at < :1", delete_older_than)
+	counter = 0
+	for track in query:
+		logging.info("Deleting from DB: Track \"%s\" by \"%s\" (%s)." % (track.title, track.username, track.created_at))
+		track.delete()
+		counter += 1	
+	return counter

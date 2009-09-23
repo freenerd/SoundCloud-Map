@@ -95,7 +95,7 @@ class FetchTrackInfo(webapp.RequestHandler):
 		 		location = models.Location.all().filter('city', track['user']['city']).filter('country', track['user']['country']).get()
 				if location:
 						logging.info("Location is already in datastore: city: %s country: %s lat / lon: %s / %s" % \
-												(track['user']['city'], track['user']['country'], location.location.lat, location.location.long))
+												(track['user']['city'], track['user']['country'], location.location.lat, location.location.lon))
 				else:
 
 					try:                             
