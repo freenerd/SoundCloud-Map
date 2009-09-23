@@ -22,31 +22,66 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from google.appengine.runtime import DeadlineExceededError
+from google.appengine.api.labs import taskqueue 
+from google.appengine.ext import webapp
+from google.appengine.ext import db		 
+import wsgiref.handlers 
 import logging
 import os
 
 import backend_utils
+import models
+
+class DropDatabase(webapp.RequestHandler):
+
+	def get(self): 
+		if self.request.get('db') == 'track':
+			data = data = models.Track.all()
+		if self.request.get('db') == 'trackcache':
+			data = data = models.TrackCache.all()		
+		if self.request.get('db') == 'location': 
+			data = data = models.Location.all()					
+		if self.request.get('db') == 'user':
+			data = data = models.User.all()
+		if self.request.get('db') == 'locationtrackscounter':
+			data = data = models.LocationTracksCounter.all()									
+			
+		try: 
+			for x in data:
+				 keys = db.query_descendants(x).fetch(100)
+				 while keys:
+						db.delete(keys)
+						keys = db.query_descendants(x).fetch(100)
+				 x.delete()
+		except DeadlineExceededError:
+				queue = taskqueue.Queue()
+				queue.add(taskqueue.Task(url='/backend-cleanup/?db='+ self.request.get('db'), method='GET'))
+				self.response.out.write("Ran out of time, need to delete more!")																	 
 
 def main():
+	wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([
+		('/backend-cleanup/.*', DropDatabase),
+	]))			
+
+if __name__ == '__main__':
+	main()	
+
+def main_old():
 	"""
 	This script is inteded to be called by a cronjob to purge all the old tracks from the database cache.
 	"""
 	try:
 		logging.info("Backend Cleanup Started")
-			
+
 		counter_delete = cleanup_cache()
 		logging.info("Deleted %i old tracks from DB." % counter_delete)
-		
+
 		logging.info("Backend Cleanup Finished")
 
 	except DeadlineExceededError:
 		logging.warning("Backend Cleanup has been canceled due to Deadline Exceeded")
 		for name in os.environ.keys():
 			logging.info("%s = %s" % (name, os.environ[name]))
-			
-if __name__ == '__main__':
-  main()  
-
 
 def cleanup_cache():
 	"""

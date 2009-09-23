@@ -27,9 +27,9 @@ class Location(db.Model):
 	
 	location = db.GeoPtProperty(required=True)
 	city = db.StringProperty()
-	country = db.StringProperty()                  
+	country = db.StringProperty()									 
 	track_counter = db.IntegerProperty()
-	last_time_updated = db.DateTimeProperty()	     
+	last_time_updated = db.DateTimeProperty()			 
 	
 class User(db.Model):
 	user_id = db.IntegerProperty(required=True)
@@ -50,16 +50,16 @@ class Track(db.Model):
 	stream_url = db.LinkProperty()
 	waveform_url = db.LinkProperty()
 	artwork_url = db.LinkProperty() 
-	purchase_url = db.LinkProperty()    
+	purchase_url = db.LinkProperty()		
 			
 	created_at = db.DateTimeProperty()
 	downloadable = db.BooleanProperty()
 	original_format = db.StringProperty()
 	release_date = db.DateProperty()
 	release = db.StringProperty()
-	isrc = db.StringProperty()   
+	isrc = db.StringProperty()	 
 	label_name = db.StringProperty()
-	label_id = db.IntegerProperty()  
+	label_id = db.IntegerProperty()	 
 	license = db.StringProperty()
 	genre = db.StringProperty()
 	bpm = db.FloatProperty()
@@ -71,5 +71,5 @@ class Track(db.Model):
 	entry_created_at = db.DateTimeProperty(auto_now_add=True)
 	
 	def created_minutes_ago(self):
-		timedelta = datetime.datetime.now() - self.created_at 		
-		return ((timedelta.seconds + timedelta.days*86400) / 60)     
+		timedelta = datetime.datetime.now() - self.created_at			
+		return ((timedelta.seconds + timedelta.days*86400) / 60)

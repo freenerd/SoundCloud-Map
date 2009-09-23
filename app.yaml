@@ -18,7 +18,7 @@ handlers:
   script: backend_update.py
   login: admin
 
-- url: /backend-cleanup
+- url: /backend-cleanup/.*
   script: backend_cleanup.py
   login: admin
 
