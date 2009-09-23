@@ -206,8 +206,8 @@ class TracksHandler(webapp.RequestHandler):
 			return
 			
 		# Processing for api/tracks/?genre={genre_name} 
-		
-		if self.request.get('genre'):
+		if self.request.get('genre') and not \
+			 (self.request.get('location') or self.request.get('location_lan') or self.request.get('location_lan')):
 			genre = self.request.get('genre')
 			if genre not in utils.genres:
 				error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
@@ -222,6 +222,10 @@ class TracksHandler(webapp.RequestHandler):
 				else:
 					error_response(self, 'no_tracks_in_genre', 'There are no tracks of the genre %s in the datastore.' % genre)
 				return					 
+		
+		# Processing for api/tracks/?location=location_id
+		if self.request.get('location'):
+			location = models.Location.all().filter('track_id', int(self.request.get('track_id'))).get() 
 				
 class LocationsHandler(webapp.RequestHandler):
 	"""

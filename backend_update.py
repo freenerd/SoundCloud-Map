@@ -49,11 +49,11 @@ def main():
 				track['id'] = unicode(track['id'])
 				if memcache.add(track['id'], track, time=1800, namespace="backend_update_track"):
 					taskqueue.add(url='/backend-update/track', params={'track_id': track['id']})
-					logging.info("Added track_id %s to memcache and traskqueue." % track['id'])					
+					logging.info("Added track_id %s to memcache and traskqueue." % track['id'])
+					counter += 1					
 				else:
 					logging.error("Setting Memcache failed for track \"%s\" by \"%s\" (id: %s, created at: %s)." % \
 											(track['title'], track['user']['username'], track['id'], track['created_at']))
-				counter += 1
 			logging.info("Added %i tracks to the taskqueue" % counter)
 		else:
 			logging.info("Backend update finished without new tracks") 
