@@ -29,7 +29,14 @@ class Location(db.Model):
 	city = db.StringProperty()
 	country = db.StringProperty()									 
 	track_counter = db.IntegerProperty()
-	last_time_updated = db.DateTimeProperty()			 
+	last_time_updated = db.DateTimeProperty()	     
+
+class LocationGenreLastUpdate(db.Model):
+	
+	location = db.ReferenceProperty(reference_class=Location)
+	genre = db.StringProperty()
+	track_counter = db.IntegerProperty()
+	last_time_updated = db.DateTimeProperty()
 	
 class User(db.Model):
 	user_id = db.IntegerProperty(required=True)
@@ -68,6 +75,7 @@ class Track(db.Model):
 	description = db.TextProperty()
 	
 	user = db.ReferenceProperty(reference_class=User)
+	location = db.ReferenceProperty(reference_class=Location)
 	entry_created_at = db.DateTimeProperty(auto_now_add=True)
 	
 	def created_minutes_ago(self):

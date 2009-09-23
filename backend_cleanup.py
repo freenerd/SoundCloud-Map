@@ -45,6 +45,8 @@ class DropDatabase(webapp.RequestHandler):
 			data = data = models.User.all()
 		if self.request.get('db') == 'locationtrackscounter':
 			data = data = models.LocationTracksCounter.all()									
+		if self.request.get('db') == 'locationgenrelastupdate':
+			data = data = models.LocationGenreLastUpdate.all()
 			
 		try: 
 			for x in data:
