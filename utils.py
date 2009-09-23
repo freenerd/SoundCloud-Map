@@ -23,7 +23,7 @@ import os
 
 genres = {}
 genres.update({'house': ['house', 'tech house', 'deep house', 'progressive house', 'tech-house', \
-							 					 'electro house', 'techhouse', 'minimal house', 'funky house', 'dance']}) 
+							 					 'electro house', 'techhouse', 'minimal house', 'minimal-house' 'funky house', 'dance']}) 
 genres.update({'techno': ['techno', 'techno minimal', 'minimal techno', 'minimal-techno']})														
 genres.update({'dubstep': ['dubstep', 'dub step']})
 genres.update({'hiphop': ['hip hop', 'hip-hop', 'hiphop', 'rap', 'r&b', 'rnb', 'r\'n\'b']})

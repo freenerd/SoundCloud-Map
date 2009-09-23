@@ -37,17 +37,21 @@ import models
 import utils
 import settings
 
+def create_location_dict(location):
+	 location_dict = {'lon': location.location.lon,
+	 								 'lat': location.location.lat,
+									 'id' : location.key().id(),
+									 'city': location.city,
+									 'country': location.country,
+									 'track_counter': location.track_counter,
+									 'last_time_updated': location.last_time_updated.isoformat(' ')}   
+	 return location_dict
+
 def add_to_track_array(track, track_array): 
 	"""
 		filling an array with all the track, location and user data per track 
 	"""
-	location_dict = {'lon': track.user.location.location.lon,
-	 								 'lat': track.user.location.location.lat,
-									 'id' : track.user.location.key().id(),
-									 'city': track.user.location.city,
-									 'country': track.user.location.country,
-									 'track_counter': track.user.location.track_counter,
-									 'last_time_updated': track.user.location.last_time_updated.isoformat(' ')}
+	location_dict = create_location_dict(track.user.location)
 	
 	user_dict = {'user_id': track.user.user_id,
 							 'permalink': track.user.permalink,
@@ -179,7 +183,33 @@ class LocationsHandler(webapp.RequestHandler):
 		Fetching tracks. Returning json
 	"""
 	def get(self):
-		pass
+		# initializing
+		locations_array = []
+		if self.request.get('limit'):
+			limit = int(self.request.get('limit'))
+		else:
+			limit = settings.FRONTEND_TRACKS_LIMIT
+		genre = self.request.get('genre')
+		
+		if genre:
+		 	if genre not in utils.genres:
+				error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
+				return                                                                                   
+			location_genres = models.LocationGenreLastUpdate.all().order('-last_time_updated').filter('genre', genre).fetch(limit)
+			for location_genre in location_genres:              
+				locations_array.append(create_location_dict(location_genre.location))
+			self.response.out.write(json.dumps(locations_array))	
+		
+		if not genre:
+			locations = models.Location.all().order('-last_time_updated').fetch(limit)
+			if locations:
+				for location in locations:
+					locations_array.append(create_location_dict(location))
+				self.response.out.write(json.dumps(locations_array))
+			else:
+				error_response(self, 'no_locations', 'There are no locations in the datastore.')
+			return 
+		
 
 def main():
   application = webapp.WSGIApplication([('/api/tracks/.*', TracksHandler),

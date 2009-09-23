@@ -56,13 +56,6 @@ class FetchTrackInfo(webapp.RequestHandler):
 			logging.info("Received the track \"%s\" by \"%s\" (id: %s, created at: %s)." % \
 									(track['title'], track['user']['username'], track['id'], track['created_at']))
 			
-			# check if track is already in the datastore
-			if models.Track.all().filter('track_id', int(track['id'])).count() != 0: 
-				logging.info("The track already is in the datastore.")
- 				logging.info("End of track update, because the track is already in the datastore.")				
-				self.response.out.write("done") # finished processing script        					
-				return # return 200. task gets deleted from task queue
-
 			# check if track meets our needs
 			if not track['streamable'] or track['sharing'] != 'public':
 				logging.info("The track does not match our needs. Will not be used.")
@@ -72,55 +65,54 @@ class FetchTrackInfo(webapp.RequestHandler):
  				logging.info("End of track update, because track didn't fit our needs.")					
 				self.response.out.write("done") # finished processing script        	
 				return # return 200. task gets deleted from task queue
+
+			# check if track is already in the datastore
+			if models.Track.all().filter('track_id', int(track['id'])).count() != 0: 
+				logging.info("The track already is in the datastore.")
+ 				logging.info("End of track update, because the track is already in the datastore.")				
+				self.response.out.write("done") # finished processing script        					
+				return # return 200. task gets deleted from task queue
       
 			# check if user is already in the datastore 		
 			user = models.User.all().filter('user_id', int(track['user_id'])).get()
 			if user:
 				logging.info("User is already in datastore as permalink: %s user_id: %i" % \
 																																(user.permalink, user.user_id))
-				# update location data
-				location = user.location
-				location.track_counter += 1
-				location.last_time_updated = datetime.datetime.now()																												
-				track['user'] = user
+				location = user.location																												
+				backend_utils.update_location_data(track, location) 																									
 			else:
  		 		# fetch complete user data
 				logging.info("User is not in the datastore yet. Fetching user data.")
 				track['user'] = backend_utils.open_remote_api("/users/%s.json" % \
 																								track['user']['permalink'], "soundcloud") 
 																								
-				logging.info("User data fetched.")  
-                    
- 				# fetching location
-		 		location = models.Location.all().filter('city', track['user']['city']).filter('country', track['user']['country']).get()
+				logging.info("User data fetched.")              
+ 				# determining location
+		 		location = models.Location.all().filter('city', unicode(track['user']['city'])).filter('country', unicode(track['user']['country'])).get()
 				if location:
 						logging.info("Location is already in datastore: city: %s country: %s lat / lon: %s / %s" % \
-												(track['user']['city'], track['user']['country'], location.location.lat, location.location.lon))
+												(track['user']['city'], track['user']['country'], location.location.lat, location.location.lon)) 
+						backend_utils.update_location_data(track, location)						
 				else:
-
 					try:                             
 						logging.info("Looks as if location is not in the datastore yet. Fetching it ...")
 						gecached_location = backend_utils.get_location(track['user']['city'], track['user']['country'])	
 						# check again, if location not in datastore already
 						location = models.Location.all().filter('location', gecached_location['location']).get()
 						if location:    
-							logging.info("Location has yet already been in datastore. Updating it.")
-							location.track_counter += 1
-							location.last_time_updated = datetime.datetime.now()
-							logging.info("Updating location for user \"%s\" lat/lon %s/%s in city: %s country: %s and track_count: %i to datastore ..." % \
-													(track['user']['username'], location.location.lat, location.location.lon, location.city, location.country, location.track_counter))							
-							location.put()                                                                                                                                              
-							logging.info("Updated location.")
+							logging.info("Location has yet already been in datastore. Updating it.") 
+							backend_utils.update_location_data(track, location)                                                                                                                                           
 						else:
 					 	 	location = models.Location( \
 													location = gecached_location['location'],
 													city = unicode(gecached_location['city']),
 													country = unicode(gecached_location['country']),   
 													track_counter = 1,
-													last_time_updated=datetime.datetime.now())					
+													last_time_updated=datetime.datetime.now()) 								
 							logging.info("Saving new location for user \"%s\" lat/lon %s/%s in city/country %s/%s to datastore ..." % \
 													(track['user']['username'], location.location.lat, location.location.lon, location.city, location.country))
 							location.put()
+						 	backend_utils.update_location_genre_data(track, location)
 							logging.info("New location saved to datastore.") 
 		                  
 					except RuntimeError:
@@ -145,7 +137,7 @@ class FetchTrackInfo(webapp.RequestHandler):
 				user.put()
 				logging.info("User saved to datastore.")     
 
-			backend_utils.write_track_to_cache(track, user)
+			backend_utils.write_track_to_datastore(track, user, location)
 				
 			if not memcache.delete(track_id, namespace="backend_update_track"):
 				logging.error("Deletion from Memcache was not successfull.")

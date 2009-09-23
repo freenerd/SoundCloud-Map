@@ -76,8 +76,41 @@ def get_latest_tracks_from_soundcloud():
 	query = "/tracks.json?created_at[from]=%s&duration[to]=%s" % (created_at_time.isoformat(), settings.DURATION_LIMIT)
 	tracks = open_remote_api(query, "soundcloud")
 	return tracks	
-	
-def write_track_to_cache(track, user):
+
+def update_location_genre_data(track, location):
+	# determine genre for track
+	track_genre = None
+	for genre in utils.genres.iteritems():
+		if track['genre'].strip().lower() in genre[1]: track_genre = genre[0]
+	# update LocationGenreLastUpdate	
+	if track_genre:
+		location_genre = models.LocationGenreLastUpdate.all().filter('location', location.key()).filter('genre', track_genre).get()
+		if location_genre:
+			location_genre.last_time_updated = datetime.datetime.now() 
+			location_genre.track_counter += 1
+			location_genre.put()
+		else:
+			location_genre = models.LocationGenreLastUpdate( \
+										 					location = location.key(),
+															genre = track_genre,
+															track_counter = 1,
+															last_time_updated = datetime.datetime.now())
+			location_genre.put()
+		logging.info("Updated location genre for genre %s and track_count: %i in location lat/lon %s/%s in city: %s country: %s." % \
+								(track_genre, location_genre.track_counter, location.location.lat, location.location.lon, location.city, location.country))	
+	return
+
+def update_location_data(track, location):
+	# update Location
+	location.track_counter += 1
+	location.last_time_updated = datetime.datetime.now()
+	location.put()                
+	logging.info("Updated location lat/lon %s/%s in city: %s country: %s and track_count: %i." % \
+							(location.location.lat, location.location.lon, location.city, location.country, location.track_counter))
+	update_location_genre_data(track, location)
+	return
+
+def write_track_to_datastore(track, user, location):
 	"""
 	Get a list of tracks and save them to the database
 	Return the number of track saved
@@ -112,15 +145,16 @@ def write_track_to_cache(track, user):
 		duration = track['duration'],
 		description = track['description'],
     \
-		user = user.key())			   
+		user = user.key(),
+		location = location.key())			   
 	new_track.put()
 	logging.info("Track saved to datastore.")
 	#update_location_tracks_counter(track)                                      
 			
 def get_location(city, country):
 	"""
-	Get a city and a country and try to get a location via the Google Maps API
-	Returns a tuple (latitude, longitude)
+	Get a city and a country and try to find out the location via the Google Maps API
+	Returns a dictionary with location, country and city
 	"""
 	if not city and not country:
 		raise RuntimeError, "Cannot be localized"
