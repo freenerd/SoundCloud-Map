@@ -26,27 +26,35 @@ from django.utils import simplejson as json
 import logging
 import datetime, time
 
-import models
+import models     
+import db
 import utils
 import settings
 import urllib
-
-def open_soundcloud_api(query):
-	"""
-	Calls the Soundcloud API and appends the query. Returns plaintext result.
-	Query needs a leading Slash / like "/tracks"
+      
+def open_remote_api(query, api):
+  """
+	Calls a remote API with a query. Returns plaintext result.
 	Google App Enging sometimes fails to open the URL properly resulting in a DownloadError.
 	So we have to do it more often sometimes ...
 	"""
-
-	logging.info("SoundCloud API request uri: %s" %	settings.SOUNDCLOUD_API_URL + query)
+	if api == "soundcloud":
+		api_url = settings.SOUNDCLOUD_API_URL
+		api_name = "SoundCloud API"
+	if api == "googlemaps":
+		api_url = settings.GOOGLE_MAPS_API_URL
+		api_name = "Google Maps API"
+	
+	query = api_url + query
+	
+	logging.info("Requesting %s with uri: %s" %	(api_name, query)
 
 	i = 0
 	while True:
 		if (i >= settings.API_RETRIES):
 			break
 		try:
-			result = urlfetch.fetch(settings.SOUNDCLOUD_API_URL + query, deadline=10) # raises DownloadError sometimes
+			result = urlfetch.fetch(query, deadline=10) # raises DownloadError sometimes
 			i = 0
 			break
 		except DownloadError:
@@ -54,8 +62,8 @@ def open_soundcloud_api(query):
 		i += 1
 
 	if i != 0:
-		logging.error("Connection to SoundCloud API failed with URL %s" % (settings.SOUNDCLOUD_API_URL + query))
-		raise DownloadError("Connection to SoundCloud API failed.")
+		logging.error("Connection to %s failed." % api_name)
+		raise DownloadError("Connection to %s failed." % api_name)
 	return result.content
 
 def get_latest_tracks_from_soundcloud():
@@ -65,68 +73,20 @@ def get_latest_tracks_from_soundcloud():
 	created_at_time = datetime.datetime.now()
 	created_at_time -= datetime.timedelta(hours=settings.SOUNDCLOUD_TIMEZONE_ADJUSTMENT)
 	created_at_time -= datetime.timedelta(minutes=settings.API_QUERY_INTERVAL)
-	tracks = open_soundcloud_api("/tracks.json?created_at[from]=%s&duration[to]=%s" % (created_at_time.isoformat(), settings.DURATION_LIMIT))
+	query = "/tracks.json?created_at[from]=%s&duration[to]=%s" % (created_at_time.isoformat(), settings.DURATION_LIMIT)
+	tracks = open_remote_api(query, "soundcloud")
 	tracks = json.loads(tracks)
-	return tracks
-	
-	
-def remove_duplicate_users(tracks):
-	"""
-	Takes a list of tracks and searches for tracks by the same user. 
-	If a user has uploaded several tracks, only the most recent will be returned.
-	Returns a list of tracks from distinct users.
-	"""
-	done_tracks_permalinks = set()
-	done_tracks = []
-	i = 0
-	
-	for track in tracks:
-		if track['user']['permalink'] in done_tracks_permalinks:
-			i += 1
-			continue
-		else:
-			done_tracks_permalinks.add(track['user']['permalink'])
-			done_tracks.append(track)
-	
-	logging.info("%i duplicates by user removed" % i)
-	return done_tracks
-		
+	return tracks	
 
-def remove_unusable_tracks(tracks):
-	"""
-	Removes Tracks that do not fit our quality needs
-	"""
-	done_tracks = []
-	i = 0
-	
-	for track in tracks:
-		if not track['streamable'] or track['sharing'] != 'public':
-			i += 1
-			continue
-		else:
-			done_tracks.append(track)
-
-	logging.info("%i tracks removed because they did not fit our quality needs." % i)
-	return done_tracks
-
-
-def add_complete_user_data(tracks):
+def add_complete_user_data(track):
 	"""
 	Takes a list of tracks.	Adds the complete user data for the track.
 	Returns a list with all new tracks and user data in track['user']
 	This makes a query to the Soundcloud API and Google Maps for every track!
 	"""		
-	new_tracks = []
-	logging.info("Having a look at %i tracks for Complete User Data." % len(tracks))
-	counter = {'no_location':0}
-	for track in tracks:	
-		# fetch user data
-		userdata = open_soundcloud_api("/users/%s.json" % track['user']['permalink'])
-		userdata = json.loads(userdata)
-		track['user'] = userdata                                                                                    
-		logging.info("user: %s", track)
-		# logging.info("Having a look at the complete user data of track %s by user %s (city: %s / country: %s)" % )
-		# localize
+                                                                                   
+	logging.info("Having a look at the complete user data of track %s by user %s (city: %s / country: %s)" % )
+	# localize
 		try:        
 			location = get_location(track['user']['city'], track['user']['country'])
 			track['location_lat'] = location['lat']
@@ -205,27 +165,11 @@ def get_location(city, country):
 	if not city and not country:
 		raise RuntimeError, "Cannot be localized"
 
-	location = (city or '') + " " + (country or '')
-	location = urllib.quote(location.strip().encode('utf-8'))
-	url = "http://maps.google.com/maps/geo?key=%s&q=%s&output=json&oe=utf8" % (settings.GOOGLE_MAPS_API_KEY, location)
-
-	logging.info("Google Maps API request url: %s" % url)
-
-	# Sometimes urlfetch.fetch fails, so we try several times
-	i = 0
-	while True:
-		if (i >= settings.API_RETRIES):
-			break
-		try:
-			position = urlfetch.fetch(url, deadline=10) # raises DownloadError sometimes
-			i = 0
-			break
-		except DownloadError:
-			pass
-		i += 1
-		
-	if i != 0:
-		logging.error("Connection to Google Maps API failed with URL %s" % (url))
+	location_query = (city or '') + " " + (country or '')
+	location_query = urllib.quote(location.strip().encode('utf-8'))
+	query = "&q=%s&output=json&oe=utf8" % location_query)
+ 
+	position = open_remote_api(query, "googlemaps")
 
 	if position:
 		lng = lat = 0
@@ -234,8 +178,8 @@ def get_location(city, country):
 				
 		if position_object['Status']['code'] == 200:
 			# 200 = "Success"
-			lng = unicode(position_object['Placemark'][0]['Point']['coordinates'][1])
-			lat = unicode(position_object['Placemark'][0]['Point']['coordinates'][0]) 
+			lon = unicode(position_object['Placemark'][0]['Point']['coordinates'][0])
+			lat = unicode(position_object['Placemark'][0]['Point']['coordinates'][1]) 
 			from_api_country = position_object['Placemark'][0]['AddressDetails']['Country']    
 			try:
 				country = unicode(from_api_country['CountryName'])
@@ -250,7 +194,7 @@ def get_location(city, country):
 				 city = None
 				
 			time.sleep(1) # wait to avoid Google Maps' 620 "Too many requests" error in next query
-			return {'lng': lng, 'lat': lat, 'country': country, 'city': city}
+			return {'location': db.GeoPt(lat,lon), 'country': country, 'city': city}
 			
 		if position_object['Status']['code'] in (602, 603):
 			# 602 and 603 = "Address could not be localized"

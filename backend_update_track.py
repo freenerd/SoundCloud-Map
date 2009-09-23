@@ -43,21 +43,72 @@ class FetchTrackInfo(webapp.RequestHandler):
 		"""
 
 		try:  
-			logging.info(self.request.get('track_id'))       
-			track = memcache.get(self.request.get('track_id'), namespace="backend_update_track")
-			logging.info(track)
+			track_id = self.request.get('track_id')       
+			track = memcache.get(track_id, namespace="backend_update_track")
+			if track is None:
+				logging.error("Fetching memcache item %s failed in backend track update" % track_id)  
+				# return error code
+					
 			logging.info("Backend update started for track \"%s\" by \"%s\" (%s)." % \
-									(track['title'], track['user']['username'], track['created_at']))		
-			# tracks = backend_utils.remove_duplicate_users(tracks)
-			# tracks = backend_utils.remove_unusable_tracks(tracks)			
-			# tracks = backend_utils.add_complete_user_data(tracks)
-			# logging.info("Found %i new tracks" % len(tracks)) 
-			# logging.info("Finished reading data from Soundcloud")
-			# 
-			# logging.info("Going to write %i new tracks to DB." % len(tracks)) 
-			# counter_write = backend_utils.write_tracks_to_cache(tracks)
-			# logging.info("Written %i new tracks to DB." % counter_write)	
+									(track['title'], track['user']['username'], track['created_at']))
+			
+			if not track['streamable'] or track['sharing'] != 'public':
+				logging.info("The track does not match our needs. Will not be used.")
+				if memcache.delete(track_id, namespace="backend_update_track"):
+					logging.error("Deletion from Memcache was not successfull.")
+					# return error code
+				# return 200
 
+			# fetch complete user data
+			userdata = open_soundcloud_api("/users/%s.json" % track['user']['permalink'])
+			userdata = json.loads(userdata)
+			track['user'] = userdata  
+
+			# geolocate user
+			# see if city / country already in database 
+			try: 
+				gecached_location = backend_utils.get_location(track['user']['city'], track['user']['country'])
+			  
+			 	location = models.Location( \
+										location = gecached_location['location'],
+										city = unicode(gecached_location['city']),
+										country = unicode(gecached_location['country']),   
+										track_counter = 1)
+							
+				#logging.info("Location for User \"%s\" is %s / %s." % (track['user']['username'], track['location_lat'], track['location_lng']))
+				
+				location.put()
+				                  
+			except RuntimeError:
+				logging.info("No Location for User \"%s\" with City/Country: \"%s / %s\"." % \
+										(track['user']['username'], track['user']['city'], track['user']['country']))
+ 				if memcache.delete(track_id, namespace="backend_update_track"):
+					logging.error("Deletion from Memcache was not successfull.") 
+				# return 200
+				
+			backend_utils.write_track_to_cache(track, location)
+				
+			if memcache.delete(track_id, namespace="backend_update_track"):
+				logging.error("Deletion from Memcache was not successfull.")
+			
+								# tracks = backend_utils.remove_unusable_tracks(tracks)			
+								# tracks = backend_utils.add_complete_user_data(tracks)
+								# logging.info("Found %i new tracks" % len(tracks)) 
+								# logging.info("Finished reading data from Soundcloud")
+								# 
+								# logging.info("Going to write %i new tracks to DB." % len(tracks)) 
+								# counter_write = backend_utils.write_tracks_to_cache(tracks)
+								# logging.info("Written %i new tracks to DB." % counter_write) 
+								
+		else:
+			
+			
+			
+
+       
+
+
+			
 		except DeadlineExceededError:
 			logging.warning("Backend Update has been canceled due to Deadline Exceeded")
 			for name in os.environ.keys():

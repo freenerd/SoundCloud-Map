@@ -23,14 +23,14 @@ from google.appengine.ext import db
 
 import datetime
 
-class Locations(db.Model):
+class Location(db.Model):
 	
 	location = db.GeoPtProperty(required=True)
 	city = db.StringProperty()
 	country = db.StringProperty()                  
 	track_counter = db.IntegerProperty()
 
-class Tracks(db.Model):
+class Track(db.Model):
 	
 	track_id = db.IntegerProperty(required=True)
 	track_permalink = db.StringProperty()
