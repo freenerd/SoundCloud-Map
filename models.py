@@ -28,7 +28,8 @@ class Location(db.Model):
 	location = db.GeoPtProperty(required=True)
 	city = db.StringProperty()
 	country = db.StringProperty()                  
-	track_counter = db.IntegerProperty()     
+	track_counter = db.IntegerProperty()
+	last_time_updated = db.DateTimeProperty()	     
 	
 class User(db.Model):
 	user_id = db.IntegerProperty(required=True)

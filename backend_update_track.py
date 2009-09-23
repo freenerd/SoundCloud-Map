@@ -29,6 +29,7 @@ import wsgiref.handlers
 import logging
 import time
 import os
+import datetime
 
 import models
 import backend_utils
@@ -77,6 +78,10 @@ class FetchTrackInfo(webapp.RequestHandler):
 			if user:
 				logging.info("User is already in datastore as user_id: %i permalink: %s" % \
 																																(user.user_id, user.permalink))
+				# update location data
+				location = user.location
+				location.track_counter =+ 1
+				location.last_time_updated = datetime.datetime.now()																												
 				track['user'] = user
 			else:
  		 		# fetch complete user data
@@ -100,7 +105,8 @@ class FetchTrackInfo(webapp.RequestHandler):
 												location = gecached_location['location'],
 												city = unicode(gecached_location['city']),
 												country = unicode(gecached_location['country']),   
-												track_counter = 1)					
+												track_counter = 1,
+												last_time_updated=datetime.datetime.now())					
 						logging.info("Saving location for user \"%s\" lat/lon %s/%s in city/country %s/%s to datastore ..." % \
 												(track['user']['username'], location.location.lat, location.location.lon, location.city, location.country))
 						location.put()
