@@ -35,6 +35,8 @@ $(function() {
   var icon1;
   var icon2;
   var icon3;
+  var icon4;
+  var icon5;
   
   var FOOTER_HEIGHT = 180;
   var PLAYER_HEIGHT = 80;
@@ -57,29 +59,29 @@ $(function() {
 	// Different Sized Icons for the Marker. 1 is small. 3 is big
 	var icon1 = new GIcon(G_DEFAULT_ICON);
   icon1.image = "images/sc_marker_1.png";
-  icon1.iconSize = new GSize(17, 17);
+  icon1.iconSize = new GSize(6, 6);
   icon1.shadow = null;
   icon1.iconAnchor = new GPoint(8, 8);
-  icon1.infoWindowAnchor = new GPoint(17, 0);
-	icon1.imageMap = [ 8,14, 4,11, 3,8, 4,4, 8,3, 12,5, 13,8, 12,12 ]; 
+  icon1.infoWindowAnchor = new GPoint(4, 0);
+	icon1.imageMap = [ 0,0, 6,0, 6,6, 0,6 ]; 
 	markerOptions1 = { icon:icon1 };
 	
 	var icon2 = new GIcon(G_DEFAULT_ICON);
   icon2.image = "images/sc_marker_2.png";
-  icon2.iconSize = new GSize(26, 26);
+  icon2.iconSize = new GSize(11, 11);
   icon2.shadow = null;
   icon2.iconAnchor = new GPoint(13, 	13);
-  icon2.infoWindowAnchor = new GPoint(26, 0); 
-	icon2.imageMap = [ 12,22, 6,19, 3,13, 5,5, 12,3, 19,6, 22,12, 19,20 ]; 
+  icon2.infoWindowAnchor = new GPoint(6, 0); 
+	icon2.imageMap = [ 0,0, 11,0, 11,11, 0,11 ]; 
 	markerOptions2 = { icon:icon2 };   
 	
 	var icon3 = new GIcon(G_DEFAULT_ICON);
   icon3.image = "images/sc_marker_3.png";
-  icon3.iconSize = new GSize(43, 43);
+  icon3.iconSize = new GSize(17, 17);
   icon3.shadow = null;
   icon3.iconAnchor = new GPoint(21, 21);
-  icon3.infoWindowAnchor = new GPoint(43, 0);
-	icon3.imageMap = [ 20,37, 9,32, 4,21, 9,9, 20,5, 30,8, 37,20, 32,32 ];
+  icon3.infoWindowAnchor = new GPoint(11, 0);
+	icon3.imageMap = [ 0,0, 17,0, 17,17, 0,17 ];
 	markerOptions3 = { icon:icon3 };        
   
 	/* Google Maps initialized */

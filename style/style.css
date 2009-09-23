@@ -26,12 +26,12 @@ h3 {
 }
 
 a {
-  color: #f60;
+  color: #f06;
   text-decoration: none;
 }
 
 a:hover {
-  color: #f30;
+  color: #f06;
   text-decoration: none;
 }
 
@@ -88,7 +88,7 @@ a:hover {
   height: 100px;
   float: left;
   margin-right: 10px;
-  background: #f60;
+  background: #f06;
 }
 
 .bubble .artwork img {
@@ -113,7 +113,7 @@ a:hover {
   margin: 10px 0 0 110px;
   padding: 2px 5px 5px 5px;
   outline: 0;
-  background: #f60;
+  background: #f06;
   -moz-border-radius: 3px;
   border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -214,15 +214,14 @@ a:hover {
   width: 32px;
   height: 32px;
   margin-right: 0px;
-  background: #efefef;
   text-indent: -9999px;
   outline: 0;
-  background: #f3b892;
+  background: #ff99c2;
   border: 2px solid #fff;
 }
 
 .bubble ul.tracks-list li.mini-artwork a.active {
-  border: 2px solid #f60;
+  border: 2px solid #f06;
 }
 
 .bubble h5 {
@@ -263,7 +262,7 @@ a:hover {
 
 .options .genres a.active {
   color: #fff;
-  background: #f60;
+  background: #f06;
   -moz-border-radius: 3px;
   border-radius: 3px;
   -webkit-border-radius: 3px;
