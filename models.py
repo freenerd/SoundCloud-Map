@@ -28,24 +28,26 @@ class Location(db.Model):
 	location = db.GeoPtProperty(required=True)
 	city = db.StringProperty()
 	country = db.StringProperty()                  
-	track_counter = db.IntegerProperty()
+	track_counter = db.IntegerProperty()     
+	
+class User(db.Model):
+	ID = db.IntegerProperty(required=True)
+	permalink = db.StringProperty()
+	permalink_url = db.LinkProperty()
+	username = db.StringProperty()
+	fullname = db.StringProperty()
+	avatar_url = db.LinkProperty()			
+	location = db.ReferenceProperty(reference_class=Location) 
 
 class Track(db.Model):
 	
-	track_id = db.IntegerProperty(required=True)
-	track_permalink = db.StringProperty()
-	track_permalink_url = db.LinkProperty()
+	ID = db.IntegerProperty(required=True)
+	permalink = db.StringProperty()
+	permalink_url = db.LinkProperty()
 	title = db.StringProperty()
 	
-	user_id = db.IntegerProperty()
-	user_permalink = db.StringProperty()
-	user_permalink_url = db.LinkProperty()
-	user_name = db.StringProperty()
-	user_fullname = db.StringProperty()
-
 	stream_url = db.LinkProperty()
 	waveform_url = db.LinkProperty()
-	avatar_url = db.LinkProperty() 
 	artwork_url = db.LinkProperty() 
 	purchase_url = db.LinkProperty()    
 			
@@ -54,8 +56,8 @@ class Track(db.Model):
 	original_format = db.StringProperty()
 	release_date = db.DateProperty()
 	release = db.StringProperty()
-	iscr = db.StringProperty()   
-	label = db.StringProperty()
+	isrc = db.StringProperty()   
+	label_name = db.StringProperty()
 	label_id = db.IntegerProperty()  
 	license = db.StringProperty()
 	genre = db.StringProperty()
@@ -63,9 +65,8 @@ class Track(db.Model):
 	key_signature = db.StringProperty()
 	duration = db.IntegerProperty()
 	description = db.TextProperty()
-
-	location = db.ReferenceProperty(reference_class=Locations)
-  	
+	
+	user = db.ReferenceProperty(reference_class=User)
 	entry_created_at = db.DateTimeProperty(auto_now_add=True)
 	
 	def created_minutes_ago(self):

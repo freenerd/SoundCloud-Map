@@ -21,20 +21,20 @@
 
 from google.appengine.api.urlfetch_errors import DownloadError
 from google.appengine.api import urlfetch
+from google.appengine.ext import db 
 from django.utils import simplejson as json
 
 import logging
 import datetime, time
 
 import models     
-import db
 import utils
 import settings
 import urllib
-      
+			
 def open_remote_api(query, api):
-  """
-	Calls a remote API with a query. Returns plaintext result.
+	"""
+	Calls a remote API with a query. Returns json.
 	Google App Enging sometimes fails to open the URL properly resulting in a DownloadError.
 	So we have to do it more often sometimes ...
 	"""
@@ -47,7 +47,7 @@ def open_remote_api(query, api):
 	
 	query = api_url + query
 	
-	logging.info("Requesting %s with uri: %s" %	(api_name, query)
+	logging.info("Requesting %s with uri: %s" % (api_name, query))
 
 	i = 0
 	while True:
@@ -64,7 +64,7 @@ def open_remote_api(query, api):
 	if i != 0:
 		logging.error("Connection to %s failed." % api_name)
 		raise DownloadError("Connection to %s failed." % api_name)
-	return result.content
+	return json.loads(result.content)
 
 def get_latest_tracks_from_soundcloud():
 	"""
@@ -75,69 +75,45 @@ def get_latest_tracks_from_soundcloud():
 	created_at_time -= datetime.timedelta(minutes=settings.API_QUERY_INTERVAL)
 	query = "/tracks.json?created_at[from]=%s&duration[to]=%s" % (created_at_time.isoformat(), settings.DURATION_LIMIT)
 	tracks = open_remote_api(query, "soundcloud")
-	tracks = json.loads(tracks)
 	return tracks	
-
-def add_complete_user_data(track):
-	"""
-	Takes a list of tracks.	Adds the complete user data for the track.
-	Returns a list with all new tracks and user data in track['user']
-	This makes a query to the Soundcloud API and Google Maps for every track!
-	"""		
-                                                                                   
-	logging.info("Having a look at the complete user data of track %s by user %s (city: %s / country: %s)" % )
-	# localize
-		try:        
-			location = get_location(track['user']['city'], track['user']['country'])
-			track['location_lat'] = location['lat']
-			track['location_lng'] = location['lng']
-			track['city'] = location['city'] or track.get('city', None)
-			track['country'] = location['country'] or track.get('country', None) 						
-			logging.info("Location for User \"%s\" is %s / %s." % (track['user']['username'], track['location_lat'], track['location_lng']))
-		except RuntimeError:
-			logging.info("No Location for User \"%s\" with City/Country: \"%s / %s\"." % (track['user']['username'], track['user']['city'], track['user']['country']))
-			counter['no_location'] += 1			
-			continue # does not need to be added to new_tracks because no localization data
-		new_tracks.append(track)
-		logging.info("Userdata for User \"%s\" from \"%s / %s\" fetched." % (track['user']['username'], track['user']['city'], track['user']['country']))	
-	logging.info("%i new tracks could not be localized." % counter['no_location'])	
-	return new_tracks
 	
-	
-def write_tracks_to_cache(tracks):
+def write_track_to_cache(track, user):
 	"""
 	Get a list of tracks and save them to the database
 	Return the number of track saved
 	"""
-	counter = 0
-	for track in tracks:
-		created_at = datetime.datetime.strptime(track['created_at'], "%Y/%m/%d %H:%M:%S +0000")		
-		new_track = models.TrackCache( \
-			track_id = int(track['id']),
-			title = track['title'],
-			permalink = track['permalink'],
-			permalink_url = track['permalink_url'],
-			created_at = created_at,
-			stream_url = track['stream_url'],
-			waveform_url = track['waveform_url'],
-			downloadable = track['downloadable'],
-			artwork_url = track['artwork_url'],
-			genre = track['genre'].strip().lower(),
-			username = track['user']['username'],
-			fullname = track['user']['full_name'],
-			location_lng = (track['location_lng'] or ''),
-			location_lat = (track['location_lat'] or ''),
-			city = track['city'],
-			country = track['country'],					
-			user_id = track['user']['id'],
-			user_permalink = track['user']['permalink'],
-			avatar_url = track['user']['avatar_url'])			
-		logging.info("Saving to DB: Track \"%s\" by \"%s\" (%s)." % (track['title'], track['user']['username'], track['created_at']))	   
-		new_track.put()
-		update_location_tracks_counter(track)
-		
-	counter += 1 	
-	return counter
+	created_at = datetime.datetime.strptime(track['created_at'], "%Y/%m/%d %H:%M:%S +0000")
+	release_date = datetime.date(year=int(track['release_year'] or 1900), month=int(track['release_month'] or 1), day=int(track['release_day'] or 1))		
+	new_track = models.Track( \
+		ID = int(track['id']), 
+		permalink = track['permalink'], 
+		permalink_url = track['permalink_url'],				
+		title = track['title'],
+		\
+		stream_url = track['stream_url'],
+		waveform_url = track['waveform_url'],
+		artwork_url = track['artwork_url'],
+		purchase_url = track['purchase_url'],
+		\
+		created_at = created_at,
+		downloadable = track['downloadable'],        
+		original_format = track['original_format'],
+		release_date = release_date,
+		release = track['release'],
+		isrc = track['isrc'],
+		label_name = track['label_name'],
+		label_id = track['label_id'],
+		license = track['license'],
+		genre = track['genre'].strip().lower(),
+		bpm = track['bpm'],
+		key_signature = track['key_signature'],
+		duration = track['duration'],
+		description = track['description'],
+    \
+		user = user.key())			
+	logging.info("Saving to DB: Track \"%s\" by \"%s\" (%s)." % (track['title'], user.username, track['created_at']))	   
+	new_track.put()
+	#update_location_tracks_counter(track)                                      
 		
 def cleanup_cache():
 	"""
@@ -166,21 +142,20 @@ def get_location(city, country):
 		raise RuntimeError, "Cannot be localized"
 
 	location_query = (city or '') + " " + (country or '')
-	location_query = urllib.quote(location.strip().encode('utf-8'))
-	query = "&q=%s&output=json&oe=utf8" % location_query)
+	location_query = urllib.quote(location_query.strip().encode('utf-8'))
+	query = "&q=%s&output=json&oe=utf8" % location_query
  
 	position = open_remote_api(query, "googlemaps")
 
 	if position:
 		lng = lat = 0
-		position_object = json.loads(position.content)
-		logging.info("Returned object from api is: %s" % unicode(dict(position_object)))
+		logging.info("Returned object from api is: %s" % unicode(dict(position)))
 				
-		if position_object['Status']['code'] == 200:
+		if position['Status']['code'] == 200:
 			# 200 = "Success"
-			lon = unicode(position_object['Placemark'][0]['Point']['coordinates'][0])
-			lat = unicode(position_object['Placemark'][0]['Point']['coordinates'][1]) 
-			from_api_country = position_object['Placemark'][0]['AddressDetails']['Country']    
+			lon = unicode(position['Placemark'][0]['Point']['coordinates'][0])
+			lat = unicode(position['Placemark'][0]['Point']['coordinates'][1]) 
+			from_api_country = position['Placemark'][0]['AddressDetails']['Country']    
 			try:
 				country = unicode(from_api_country['CountryName'])
 			except KeyError:
@@ -196,13 +171,13 @@ def get_location(city, country):
 			time.sleep(1) # wait to avoid Google Maps' 620 "Too many requests" error in next query
 			return {'location': db.GeoPt(lat,lon), 'country': country, 'city': city}
 			
-		if position_object['Status']['code'] in (602, 603):
+		if position['Status']['code'] in (602, 603):
 			# 602 and 603 = "Address could not be localized"
 			raise RuntimeError, "Cannot be localized"
 			
 		else:
 			# Something worse must have happened than just not being able to find an address
-			logging.error("Localization via maps.google.com failed with error code %i" % position_object['Status']['code'])
+			logging.error("Localization via maps.google.com failed with error code %i" % position['Status']['code'])
 			
 	raise RuntimeError, "Cannot be localized"    
 	
