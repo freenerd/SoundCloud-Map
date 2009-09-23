@@ -81,11 +81,13 @@ def write_track_to_cache(track, user):
 	"""
 	Get a list of tracks and save them to the database
 	Return the number of track saved
-	"""
+	""" 
+	logging.info("Saving track \"%s\" by \"%s\" (id: %s, created at: %s) to datastore ..." % \
+							(track['title'], user.username, track['id'], track['created_at']))		
 	created_at = datetime.datetime.strptime(track['created_at'], "%Y/%m/%d %H:%M:%S +0000")
 	release_date = datetime.date(year=int(track['release_year'] or 1900), month=int(track['release_month'] or 1), day=int(track['release_day'] or 1))		
 	new_track = models.Track( \
-		ID = int(track['id']), 
+		track_id = int(track['id']), 
 		permalink = track['permalink'], 
 		permalink_url = track['permalink_url'],				
 		title = track['title'],
@@ -110,9 +112,9 @@ def write_track_to_cache(track, user):
 		duration = track['duration'],
 		description = track['description'],
     \
-		user = user.key())			
-	logging.info("Saving to DB: Track \"%s\" by \"%s\" (%s)." % (track['title'], user.username, track['created_at']))	   
+		user = user.key())			   
 	new_track.put()
+	logging.info("Track saved to datastore.")
 	#update_location_tracks_counter(track)                                      
 		
 def cleanup_cache():
@@ -149,24 +151,24 @@ def get_location(city, country):
 
 	if position:
 		lng = lat = 0
-		logging.info("Returned object from api is: %s" % unicode(dict(position)))
 				
 		if position['Status']['code'] == 200:
 			# 200 = "Success"
 			lon = unicode(position['Placemark'][0]['Point']['coordinates'][0])
-			lat = unicode(position['Placemark'][0]['Point']['coordinates'][1]) 
-			from_api_country = position['Placemark'][0]['AddressDetails']['Country']    
-			try:
-				country = unicode(from_api_country['CountryName'])
+			lat = unicode(position['Placemark'][0]['Point']['coordinates'][1])     
+			try:                                                               
+				country = unicode(position['Placemark'][0]['AddressDetails']['Country']['CountryName'])
 			except KeyError:
+				logging.info("No Country found in %s" % unicode(dict(position)))
 				country = None  
 			try:
-				if 'SubAdministrativeArea' in from_api_country['AdministrativeArea']:                                            
-					city = 	unicode(from_api_country['AdministrativeArea']['SubAdministrativeArea']['Locality']['LocalityName'])
+				if 'SubAdministrativeArea' in position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']:                                            
+					city = 	unicode(position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']['SubAdministrativeArea']['Locality']['LocalityName'])
 				else:
-					city = 	unicode(from_api_country['AdministrativeArea']['Locality']['LocalityName']) 
+					city = 	unicode(position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']['Locality']['LocalityName']) 
 			except KeyError:
-				 city = None
+				logging.info("No City found in %s" % unicode(dict(position)))
+				city = None
 				
 			time.sleep(1) # wait to avoid Google Maps' 620 "Too many requests" error in next query
 			return {'location': db.GeoPt(lat,lon), 'country': country, 'city': city}

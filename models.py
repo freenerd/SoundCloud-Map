@@ -31,7 +31,7 @@ class Location(db.Model):
 	track_counter = db.IntegerProperty()     
 	
 class User(db.Model):
-	ID = db.IntegerProperty(required=True)
+	user_id = db.IntegerProperty(required=True)
 	permalink = db.StringProperty()
 	permalink_url = db.LinkProperty()
 	username = db.StringProperty()
@@ -41,7 +41,7 @@ class User(db.Model):
 
 class Track(db.Model):
 	
-	ID = db.IntegerProperty(required=True)
+	track_id = db.IntegerProperty(required=True)
 	permalink = db.StringProperty()
 	permalink_url = db.LinkProperty()
 	title = db.StringProperty()
