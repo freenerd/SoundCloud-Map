@@ -47,7 +47,7 @@ def main():
 			counter = 0    
 			for track in tracks:  
 				track['id'] = unicode(track['id'])
-				if memcache.add(track['id'], track, namespace="backend_update_track"):
+				if memcache.add(track['id'], track, time=1800, namespace="backend_update_track"):
 					taskqueue.add(url='/backend-update/track', params={'track_id': track['id']})
 					logging.info("Added track_id %s to memcache and traskqueue." % track['id'])					
 				else:

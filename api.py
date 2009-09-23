@@ -37,31 +37,52 @@ import models
 import utils
 import settings
 
+def add_to_track_array(track, track_array):
+	location_dict = {'lon': track.user.location.location.lon,
+	 								 'lat': track.user.location.location.lat,
+									 'city': track.user.location.city,
+									 'country': track.user.location.country,
+									 'track_counter': track.user.location.track_counter,
+									 'last_time_updated': track.user.location.last_time_updated.isoformat(' ')}
+	
+	user_dict = {'user_id': track.user.user_id,
+							 'permalink': track.user.permalink,
+							 'permalink_url': track.user.permalink_url,
+							 'username': track.user.username,
+							 'fullname': track.user.fullname,
+							 'avatar_url': track.user.avatar_url}
+	 
+	track_array.append({	'error': False,
+												'track_id': track.track_id,
+												'permalink': track.permalink, 
+												'permalink_url': track.permalink_url, 
+												'title': track.title,
+												\
+												'waveform_url': track.waveform_url,
+												'stream_url': track.stream_url, 
+												'artwork_url': track.artwork_url,
+												\
+												'created_at': track.created_at.isoformat(' '),
+												'created_minutes_ago': track.created_minutes_ago(),
+												'downloadable': track.downloadable,
+												'license': track.license,
+												'genre': track.genre,
+												'duration': track.duration,
+												\
+												'location': location_dict,
+												'user': user_dict})	  			 
+
+def error_response(self, error_name, error_description):
+	"""
+		Output error as json  
+	"""
+	error_response = {'error': True, 'error_name': error_name, 'error_description': error_description}
+	self.response.out.write(json.dumps(error_response))
+	
 class MainHandler(webapp.RequestHandler):
 	"""
 	This script returns JSON-formatted tracks.
 	""" 
-	
-	def add_to_track_array(self, track, track_array, location = None): 
-		if not location:
-			 location =  str(track.location_lat) + "/" + str(track.location_lng) 
-		location_track_counter = models.LocationTracksCounter.get_by_key_name(location)	 
-		track_array.append({  'track_id' : track.track_id,
-													'title' : track.title,
-													'permalink' : track.permalink,
-													'username' : track.username,
-													'user_permalink' : track.user_permalink,
-													'avatar_url' : track.avatar_url,
-													'artwork_url' : track.artwork_url,
-													'location_lng' : track.location_lng,
-													'location_lat' : track.location_lat,                                 
-													'city' : track.city,
-													'country' : track.country,
-													'tracks_in_location' : getattr(location_track_counter, 'counter', 1), 
-													'created_at' : "new Date(\"%s\")" % track.created_at.ctime(),
-													'created_minutes_ago' : track.created_minutes_ago(),
-													'waveform_url' : track.waveform_url,
-													'stream_url': track.stream_url})	
 	
 	def get(self): 
 		
@@ -147,9 +168,71 @@ class MainHandler(webapp.RequestHandler):
 		self.response.out.write(tracks_json)
 		return
 
+
+class TracksHandler(webapp.RequestHandler):
+	"""
+		Fetching tracks. Returning json
+	"""
+	def get(self):
+		
+		# initializing
+		track_array = []
+		if self.request.get('limit'):
+			limit = self.request.get('limit')
+		else:
+			limit = str(settings.FRONTEND_TRACKS_LIMIT)
+		main_query = 'ORDER BY __key__ DESC LIMIT ' + limit
+		
+		# Processing for api/tracks/?track_id=track_id
+		if self.request.get('track_id'):
+			track = models.Track.all().filter('track_id', int(self.request.get('track_id'))).get() 
+			if track:
+				add_to_track_array(track, track_array)
+				self.response.out.write(track_array)
+			else:
+				error_response(self, 'track_not_found', 'The track with the track_id %s is not in the datastore.' % self.request.get('track_id'))
+			return
+		
+		# Processing for api/tracks/ and api/tracks/?genre=all
+		if self.request.get('genre') == 'all' or \
+			 (not self.request.get('genre') and not self.request.get('location')):
+			tracks = models.Track.gql(main_query)
+			if tracks:													 
+				for track in tracks:
+					add_to_track_array(track, track_array)
+				self.response.out.write(track_array)
+			else:
+				error_response(self, 'no_tracks', 'There are no tracks in the datastore.') 
+			return
+			
+		# Processing for api/tracks/?genre={genre_name} 
+		
+		if self.request.get('genre'):
+			genre = self.request.get('genre')
+			if genre not in utils.genres:
+				error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
+				return
+			else:
+				genre_query = 'WHERE genre IN :1 ' + main_query
+				tracks = models.Track.gql(genre_query, utils.genres.get(genre)).fetch(int(limit))
+				if tracks:													 
+					for track in tracks:
+						add_to_track_array(track, track_array)
+					self.response.out.write(track_array)
+				else:
+					error_response(self, 'no_tracks_in_genre', 'There are no tracks of the genre %s in the datastore.' % genre)
+				return					 
+				
+class LocationsHandler(webapp.RequestHandler):
+	"""
+		Fetching tracks. Returning json
+	"""
+	def get(self):
+		pass
+
 def main():
-  application = webapp.WSGIApplication([('/frontend-json/', MainHandler),
-																				('/frontend-json/.*', MainHandler),], debug=utils.in_development_enviroment())
+  application = webapp.WSGIApplication([('/api/tracks/.*', TracksHandler),
+																				('/api/locations/.*', LocationsHandler),], debug=utils.in_development_enviroment())
   run_wsgi_app(application)
 
 if __name__ == '__main__':

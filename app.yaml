@@ -22,8 +22,8 @@ handlers:
   script: backend_cleanup.py
   login: admin
 
-- url: /frontend-json/.*
-  script: frontend_json.py 
+- url: /api/.*
+  script: api.py 
 
 - url: /images
   static_dir: images

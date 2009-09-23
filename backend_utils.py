@@ -116,25 +116,7 @@ def write_track_to_cache(track, user):
 	new_track.put()
 	logging.info("Track saved to datastore.")
 	#update_location_tracks_counter(track)                                      
-		
-def cleanup_cache():
-	"""
-	Remove all old tracks from database
-	"""
-	delete_older_than = datetime.datetime.now()
-	delete_older_than -= datetime.timedelta(hours=settings.SOUNDCLOUD_TIMEZONE_ADJUSTMENT)
-	delete_older_than -= datetime.timedelta(minutes=settings.CLEANUP_INTERVAL)
-	logging.info("Cleaning Up Everything Before %s" % delete_older_than.isoformat())	
-	
-	query = models.TrackCache.gql("WHERE entry_created_at < :1", delete_older_than)
-	counter = 0
-	for track in query:
-		logging.info("Deleting from DB: Track \"%s\" by \"%s\" (%s)." % (track.title, track.username, track.created_at))
-		track.delete()
-		counter += 1	
-	return counter
-	
-	
+			
 def get_location(city, country):
 	"""
 	Get a city and a country and try to get a location via the Google Maps API
@@ -182,30 +164,4 @@ def get_location(city, country):
 			logging.error("Localization via maps.google.com failed with error code %i" % position['Status']['code'])
 			
 	raise RuntimeError, "Cannot be localized"    
-	
-def update_location_tracks_counter(track, increase = True):	
-	location_track_counter = models.LocationTracksCounter.gql("WHERE location_lng = :1 AND location_lat = :2", \
-																														unicode(track['location_lng']), unicode(track['location_lat'])).get()																											
-																																																									
-	if hasattr(location_track_counter, 'counter'):  
-		if increase:
-			location_track_counter.counter += 1
-		else:
-			location_track_counter.counter -= 1 
-		location_track_counter.put() 
- 		logging.info("Updated Location Track Counter for location %s / %s (city: %s) to %i" % \
- 									(location_track_counter.location_lat, location_track_counter.location_lng, \
-									 location_track_counter.city, location_track_counter.counter))
-	else:
-		new_location_track_counter = models.LocationTracksCounter( \
-			key_name = unicode(track['location_lat'] + "/" + track['location_lng']),
-			location_lat = unicode(track['location_lat']), 
-			location_lng = unicode(track['location_lng']),
-			city = unicode(track['city']),
-			country = unicode(track['country']),
-			counter = 1)
-		new_location_track_counter.put()
- 		logging.info("Inserted new Location Track Counter for location %s / %s (city: %s) to %i" % \
- 									(new_location_track_counter.location_lat, new_location_track_counter.location_lng, new_location_track_counter.city, new_location_track_counter.counter))
-		
 			
