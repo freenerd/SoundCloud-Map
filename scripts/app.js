@@ -337,7 +337,6 @@ soundManager.onload = function() {
     $("#player-container .show-on-map").unbind('click');
     $("#player-container .show-on-map").click(function() {
       map.panTo(new GLatLng(track.location.lat,track.location.lon));
-      console.log('SHOW')
       GEvent.trigger(track.loc.marker,'click');
       return false;
     });
@@ -356,7 +355,6 @@ soundManager.onload = function() {
         loading.css('width',(sound.bytesLoaded/sound.bytesTotal)*100+"%");
       }),
       whileplaying : throttle(100,function() {
-        console.log(sound.position)
         progress.css('width',(sound.position/track.duration)*100+"%");
         $('#player .position').html(formatMs(sound.position));
         $('#player .duration').html(formatMs(track.duration));
