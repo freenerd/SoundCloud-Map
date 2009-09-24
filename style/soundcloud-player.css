@@ -7,6 +7,7 @@
 	height: 80px;
 	position: absolute;
 	bottom: 80px;
+	overflow: hidden;
 	repeat-x scroll 0% 0%;
 	-moz-background-clip: -moz-initial;
 	-moz-background-origin: -moz-initial;
@@ -113,8 +114,8 @@ body.playing #player .pause {
 #player .waveform .progress {
   height: 50px;
   width: 0;
-  background: #f60;
-  border-right: 1px solid #f30;
+  background: #f06;
+  border-right: 1px solid #f06;
   position: absolute;
   top: 0;
   opacity: 0.45;

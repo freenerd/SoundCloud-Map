@@ -99,15 +99,18 @@ class TracksHandler(webapp.RequestHandler):
 			limit = int(self.request.get('limit'))
 		else:
 			limit = settings.FRONTEND_TRACKS_LIMIT          
-				
-		# Processing for api/tracks/?track_id=track_id
-		if self.request.get('track_id'):
-			track = models.Track.get_by_id(int(self.request.get('track_id')))
+		if self.request.get('offset'):
+			offset = int(self.request.get('offset'))
+		else:
+			offset = 0 		
+		# Processing for api/tracks/?track=track_id
+		if self.request.get('track'):
+			track = models.Track.get_by_id(int(self.request.get('track')))
 			if track:
 				add_to_track_array(track, track_array)
 				self.response.out.write(json.dumps(track_array))
 			else:
-				error_response(self, 'track_not_found', 'The track with the track_id %s is not in the datastore.' % self.request.get('track_id'))
+				error_response(self, 'track_not_found', 'The track with the track_id %s is not in the datastore.' % self.request.get('track'))
 			return
 		
 		# Processing for api/tracks/?genre={genre_name} 
@@ -118,7 +121,7 @@ class TracksHandler(webapp.RequestHandler):
 				error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
 				return
 			else:
-				tracks = models.Track.all().filter('genre IN', utils.genres.get(genre)).order('-created_at').fetch(limit)
+				tracks = models.Track.all().filter('genre IN', utils.genres.get(genre)).order('-created_at').fetch(limit, offset)
 				if tracks:													 
 					for track in tracks:
 						add_to_track_array(track, track_array)
@@ -133,10 +136,10 @@ class TracksHandler(webapp.RequestHandler):
 			if not location:
 				error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
 			else:
-				users = models.User.all().filter('location', location.key()).fetch(limit)
+				users = models.User.all().filter('location', location.key()).fetch(limit, offset)
 				if users:
 					for user in users:                     
-						tracks = models.Track.all().filter('user', user.key()).fetch(limit)
+						tracks = models.Track.all().filter('user', user.key()).fetch(limit, offset)
 						for track in tracks:
 							add_to_track_array(track, track_array)
 					self.response.out.write(json.dumps(track_array))
@@ -155,7 +158,7 @@ class TracksHandler(webapp.RequestHandler):
 				error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
 				return
 			else:
-				users = models.User.all().filter('location', location.key()).fetch(limit)
+				users = models.User.all().filter('location', location.key()).fetch(limit, offset)
 				if users:
 					for user in users:                     
 						tracks = models.Track.all().filter('user', user.key()).filter('genre IN', utils.genres.get(genre)).fetch(int(limit))
@@ -169,7 +172,7 @@ class TracksHandler(webapp.RequestHandler):
 		# Processing for api/tracks/ and api/tracks/?genre=all
 		if (self.request.get('genre') == 'all' or not self.request.get('genre')) and not \
 		 	 (self.request.get('location') or self.request.get('location_lat') or self.request.get('location_lon')): 
-			tracks = models.Track.all().order('-created_at').fetch(limit)
+			tracks = models.Track.all().order('-created_at').fetch(limit, offset)
 			if tracks:													 
 				for track in tracks:
 					add_to_track_array(track, track_array)
@@ -183,25 +186,41 @@ class LocationsHandler(webapp.RequestHandler):
 		Fetching tracks. Returning json
 	"""
 	def get(self):
-		# initializing
+		# initialization
 		locations_array = []
+		genre = self.request.get('genre') 
+		
 		if self.request.get('limit'):
 			limit = int(self.request.get('limit'))
 		else:
 			limit = settings.FRONTEND_TRACKS_LIMIT
-		genre = self.request.get('genre')
+		if self.request.get('offset'):
+			offset = int(self.request.get('offset'))
+		else:
+			offset = 0
+
+		if self.request.get('location'):
+			location = models.Location.get_by_id(int(self.request.get('location')))
+			if location:
+				locations_array.append(create_location_dict(location))
+				self.response.out.write(json.dumps(locations_array))
+			else:
+				error_response(self, 'location_not_found', 'The location with the location_id %s is not in the datastore.' % self.request.get('location_id'))
+			return
 		
 		if genre:
 		 	if genre not in utils.genres:
 				error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
 				return                                                                                   
-			location_genres = models.LocationGenreLastUpdate.all().order('-last_time_updated').filter('genre', genre).fetch(limit)
-			for location_genre in location_genres:              
+			location_genres = models.LocationGenreLastUpdate.all().order('-last_time_updated').filter('genre', genre).fetch(limit, offset)
+			for location_genre in location_genres:
+				location_genre.location.track_counter = location_genre.track_counter							
 				locations_array.append(create_location_dict(location_genre.location))
 			self.response.out.write(json.dumps(locations_array))	
+			return 
 		
 		if not genre:
-			locations = models.Location.all().order('-last_time_updated').fetch(limit)
+			locations = models.Location.all().order('-last_time_updated').fetch(limit, offset)
 			if locations:
 				for location in locations:
 					locations_array.append(create_location_dict(location))
