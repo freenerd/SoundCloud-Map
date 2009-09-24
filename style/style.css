@@ -17,6 +17,8 @@ body, html {
   line-height: 1.3em;
   font-family: "Lucida Grande", Verdana, Arial;
   color: #333;
+  -moz-user-select : none;
+  -khtml-user-select : none;
 }
   
 h3 {
