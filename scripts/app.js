@@ -37,6 +37,9 @@ soundManager.onload = function() {
 	var locations = []; // all locations
   var loading = $("#player .loading");
   var progress = $("#player .progress");
+  var position = $('#player .position');
+  var duration = $('#player .duration');
+
   var sound = null;
   var playerIsVisible = false;
   var genre = "";
@@ -356,8 +359,8 @@ soundManager.onload = function() {
       }),
       whileplaying : throttle(100,function() {
         progress.css('width',(sound.position/track.duration)*100+"%");
-        $('#player .position').html(formatMs(sound.position));
-        $('#player .duration').html(formatMs(track.duration));
+        position.html(formatMs(sound.position));
+        duration.html(formatMs(track.duration));
       }),
       onfinish : function() {
         $("body").removeClass("playing");
@@ -401,6 +404,18 @@ soundManager.onload = function() {
 		if(minutes > 10080 && minutes <= 70560) return (Math.floor(minutes/(60*24*7))).toString() + " weeks";
 		if(minutes > 70560) return (Math.floor(minutes/(60*24*30))).toString() + " months";       		
 	}
+
+  // main keyboard listener
+  $(window).keydown(function(ev) {
+    if(ev.keyCode === 32) { // start/stop play
+      togglePlay();
+    } else if (ev.keyCode === 39) { // arrow next, play next if playing
+      stop();
+      playRandom();
+    } else if (ev.keyCode === 37) { // arrow prev, play prev if playing
+      // not implemented
+    }
+  });
   
 	// show about box
   $("#about-box").fadeIn();
