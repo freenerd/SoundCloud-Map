@@ -28,9 +28,18 @@ soundManager.debugMode = false;
 soundManager.defaultOptions.multiShot = false;
 soundManager.url = "/scripts/soundmanager2_flash9.swf";
 
-/* Initialize Google Maps */
-$(function() {
+soundManager.onload = function() {
+  // soundManager is ready to use (create sounds and so on)
+  // init the player app
   var map;
+	var markerOptions = [];
+	var icons = [];
+	var locations = []; // all locations
+  var loading = $("#player .loading");
+  var progress = $("#player .progress");
+  var sound = null;
+  var playerIsVisible = false;
+  var genre = "";
   
   var FOOTER_HEIGHT = 180;
   var PLAYER_HEIGHT = 80;
@@ -45,13 +54,11 @@ $(function() {
 		map.enableScrollWheelZoom();	      
 	}                                          
 	
+	// window resize handler
 	$(window).resize(function() {
     $("#map_canvas").height($(window).height()-(playerIsVisible ? FOOTER_HEIGHT : PLAYER_HEIGHT));
     map.checkResize();
-	});
-	
-	var markerOptions = [];
-	var icons = [];
+	});	
 
 	// Different Sized Icons for the Marker. 1 is small. 3 is big
 	icons[0] = new GIcon(G_DEFAULT_ICON);
@@ -80,16 +87,6 @@ $(function() {
   icons[2].infoWindowAnchor = new GPoint(11, 0);
 	icons[2].imageMap = [ 0,0, 17,0, 17,17, 0,17 ];
 	markerOptions[2] = { icon:icons[2] };
-  
-	/* Google Maps initialized */
-	
-	locations = null; // all tracks
-
-  var loading = $("#player .loading");
-  var progress = $("#player .progress");
-  var sound;
-  var playerIsVisible = false;
-  var genre = "";
 
    // about box closable
   $("#about-box a.close").click(function(ev) {
@@ -125,102 +122,108 @@ $(function() {
 	  return false;
 	});
 	
+	// load all locations for a given genre
 	function loadLocations(g) {
 	  genre = g;
     $.getJSON("/api/locations/?genre=" + genre,function(locs) {
-      locations = locs;
-      $.each(locations,function(i,l) {
-        
-        // set the size of the dot based on how many tracks found in the location
-				var option = 0;
-				if (l.track_counter < 50) {
-					option = 1;
-				} else {
-				 	option = 2;
-				};
-				
-				// if city field is empty, replace it with country
-				if (l.city == "None") {
-				  l.city = l.country;
-				};
-				
-        // add the location marker
-        l.marker = new GMarker(new GPoint(l.lon,l.lat), markerOptions[option]);
-        GEvent.addListener(l.marker, "click", function() {
-          // load all tracks in the location
-      	  $.getJSON("/api/tracks/?genre=" + genre + "&location=" + l.id + "&limit=1",function(tracks) {
-      	    l.first_track = tracks[0];
-      	    tracks[0].loc = l;
-      	    
-            l.html = $('#bubble-template')
-              .clone()
-              .attr('id', 'bubble' + tracks[0].track_id)
-    					.find('.city span.city-track-counter').html(l.track_counter).end()
-    					.find('.city span.city-name').html(l.city).end()
-              .find('.title').html(tracks[0].title).end()
-              .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
-              .find('ul li span.artist').html("<a href='" + tracks[0].user.permalink_url + "'>" + tracks[0].user.username + "</a>").end()
-              .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
-              .find('a.play-button').bind('click',tracks[0],showPlayer).end();
-
-            // hide avatar if default user image is shown
-            if(l.html.find(".avatar").attr("src").search(/default/) != -1) {
-              l.html.find(".avatar").hide();
-            }
-
-            // load more tracks from the same city
-            GEvent.addListener(l.marker, "infowindowopen", function() {
-              $.getJSON("/api/tracks/?location=" + l.id + "&genre=" + genre + "&limit=10",function(extraTracks) {
-                // clear the tracks list
-                $("#bubble" + l.first_track.track_id).find('.tracks-list').html("");
-
-                // add the new ones
-                $.each(extraTracks,function(i,t) {
-                  $("#bubble" + l.first_track.track_id)
-                    .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background-image:" + artworkBgImage(t) + "'>track</a></li>").end()
-
-                    .find('.tracks-list .mini-artwork:last a').click(function() {
-
-                      // highlight current image                  
-                      $(this).parents("ul.tracks-list").find(".mini-artwork a").removeClass("active");
-                      $(this).addClass("active");
-                      
-                      
-                      $("#bubble" + l.first_track.track_id)
-                        .find('.title').html(t.title).end()
-                        .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.user.avatar_url)).end()
-                        .find('ul li span.artist').html("<a href='" + t.user.permalink_url + "'>" + t.user.username + "</a>").end()
-                        .find('ul li span.time').html(fuzzyTime(t.created_minutes_ago) + " ago").end()
-                        .find('a.play-button').bind('click',t,showPlayer).end();
-                      return false;
-                    });
-                });
-
-                // highlight the first mini image
-                $("#bubble" + l.first_track.track_id).find('.tracks-list .mini-artwork:first a').addClass("active");
-
-                // if there's only one, then hide it
-                if($("#bubble" + l.first_track.track_id).find('.tracks-list .mini-artwork a').length == 1) {
-                  $("#bubble" + l.first_track.track_id).find('.tracks-list').hide();              
-                }
-
-              });
-            });
-
-            // auto-play the first track
-            stop();
-            $("a.play-button:first",l.html).click();
-
-            l.marker.openInfoWindow(locations[i].html[0]);
-
-      	  });
-          
-        });
-        map.addOverlay(l.marker);        
+      $.each(locs,function(i,l) {
+        setupLocation(l);
       });
     });
 	}
 
+  // set up an individual locations marker + popup
+  function setupLocation(l) {
+    // set the size of the dot based on how many tracks found in the location
+		var option = 0;
+		if (l.track_counter < 50) {
+			option = 1;
+		} else {
+		 	option = 2;
+		};
+		
+		// if city field is empty, replace it with country
+		if (l.city == "None") {
+		  l.city = l.country;
+		};
+		
+    // add the location marker
+    l.marker = new GMarker(new GPoint(l.lon,l.lat), markerOptions[option]);
+    GEvent.addListener(l.marker, "click", function() {
+      // load all tracks in the location
+  	  $.getJSON("/api/tracks/?genre=" + genre + "&location=" + l.id + "&limit=1",function(tracks) {
+  	    l.first_track = tracks[0];
+  	    tracks[0].loc = l;
+  	    
+        l.html = $('#bubble-template')
+          .clone()
+          .attr('id', 'bubble' + tracks[0].id)
+					.find('.city span.city-track-counter').html(l.track_counter).end()
+					.find('.city span.city-name').html(l.city).end()
+          .find('.title').html(tracks[0].title).end()
+          .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
+          .find('ul li span.artist').html("<a href='" + tracks[0].user.permalink_url + "'>" + tracks[0].user.username + "</a>").end()
+          .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
+          .find('a.play-button').bind('click',tracks[0],showPlayer).end();
+
+        // hide avatar if default user image is shown
+        if(l.html.find(".avatar").attr("src").search(/default/) != -1) {
+          l.html.find(".avatar").hide();
+        }
+
+        // load more tracks from the same city
+        GEvent.clearListeners(l.marker,'infowindowopen');
+        GEvent.addListener(l.marker, "infowindowopen", function() {
+          $.getJSON("/api/tracks/?location=" + l.id + "&genre=" + genre + "&limit=10",function(extraTracks) {
+            // clear the tracks list
+            $("#bubble" + l.first_track.id).find('.tracks-list').html("");
+
+            // add the new ones
+            $.each(extraTracks,function(i,t) {
+              $("#bubble" + l.first_track.id)
+                .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background-image:" + artworkBgImage(t) + "'>track</a></li>").end()
+
+                .find('.tracks-list .mini-artwork:last a').click(function() {
+
+                  // highlight current image                  
+                  $(this).parents("ul.tracks-list").find(".mini-artwork a").removeClass("active");
+                  $(this).addClass("active");
+                  
+                  $("#bubble" + l.first_track.id)
+                    .find('.title').html(t.title).end()
+                    .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.user.avatar_url)).end()
+                    .find('ul li span.artist').html("<a href='" + t.user.permalink_url + "'>" + t.user.username + "</a>").end()
+                    .find('ul li span.time').html(fuzzyTime(t.created_minutes_ago) + " ago").end()
+                    .find('a.play-button').bind('click',t,showPlayer).end();
+                  return false;
+                });
+            });
+
+            // highlight the first mini image
+            $("#bubble" + l.first_track.id).find('.tracks-list .mini-artwork:first a').addClass("active");
+
+            // if there's only one, then hide it
+            if($("#bubble" + l.first_track.id).find('.tracks-list .mini-artwork a').length == 1) {
+              $("#bubble" + l.first_track.id).find('.tracks-list').hide();              
+            }
+
+          });
+        });
+
+        // auto-play the first track
+        stop();
+        $("a.play-button:first",l.html).click();
+
+        l.marker.openInfoWindow(l.html[0]);
+
+  	  });
+      
+    });
+    map.addOverlay(l.marker);
+    locations.push(l);
+  }
+
+  // helper to pick correct css bg url for mini artworks
   function artworkBgImage(t) {
     var artwork = (t.artwork_url ? t.artwork_url.replace(/large/,"small") : t.user.avatar_url.replace(/large/,"small"));
     // hide avatar if default user image is shown
@@ -277,6 +280,7 @@ $(function() {
     return false;
   });
   
+  // waveform seeking
   $("#player .waveform").click(function(ev) {
     var percent = (ev.clientX-$("#player .waveform").offset().left)/($("#player .waveform").width());
     if(sound.durationEstimate*percent < sound.durationEstimate) {
@@ -284,6 +288,7 @@ $(function() {
     }
   });
 
+  // play
   function play() {
     if(sound) {
       sound.paused ? sound.resume() : sound.play();
@@ -291,17 +296,17 @@ $(function() {
     }
   };
 
+  // toggle play
   function togglePlay() {
     if($('body').hasClass("playing")) {
-      console.log('IS PLAYEINg')
     }
     $('body').hasClass("playing") ? stop() : play();
   };
 
+  // stop
   function stop() {
     if(sound) {
       $('body').removeClass("playing");
-      console.log('STOP')
       sound.pause();
     }
   };
@@ -313,6 +318,7 @@ $(function() {
     return Math.floor(ms/60000) + "." + s;
   };
 
+  // shows the track player with a given track
   function showPlayer(e) {
     if(!playerIsVisible) { // show player if it's hidden
       playerIsVisible = true;
@@ -328,18 +334,23 @@ $(function() {
       window.soundManager.stopAll();
     };
     
+    $("#player-container .show-on-map").unbind('click');
     $("#player-container .show-on-map").click(function() {
-      map.panTo(new GLatLng(track.loc.lat,track.loc.lon));
-      track.loc.marker.openInfoWindow(track.loc.html[0]);
+      map.panTo(new GLatLng(track.location.lat,track.location.lon));
+      console.log('SHOW')
+      GEvent.trigger(track.loc.marker,'click');
       return false;
     });
     
-    $("#player-container .metadata").html("<a href='" + track.user.permalink_url + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a href='" + track.user.permalink_url + "'>" + track.user.username + "</a>");
+    // set up share to twitter, no url shortener yet
+    $("#player-container .share-on-twitter").attr("href","http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(track.title) + " by " + encodeURIComponent(track.user.username) + " http://tracksonamap.com/%23track-" + track.id + " via+%23tracksonamap")
+    
+    $("#player-container .metadata").html("<a target='_blank' href='" + track.user.permalink_url + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a target='_blank' href='" + track.user.permalink_url + "'>" + track.user.username + "</a>");
     
 		$("#player-container #player .waveform img").attr("src", track.waveform_url);
 		
     sound = soundManager.createSound({
-      id: track.track_id,
+      id: track.id,
       url: track.stream_url + "?oauth_consumer_key=FhPCTC6rJGetkMIcLwI9A",
       whileloading : throttle(100,function() {
         loading.css('width',(sound.bytesLoaded/sound.bytesTotal)*100+"%");
@@ -364,6 +375,7 @@ $(function() {
     return false;
   }
 
+  // remove all location markers
 	function removeAllMarkers() {
     $.each(locations, function( intIndex, l ) {
      GEvent.clearInstanceListeners(l.marker);
@@ -372,10 +384,12 @@ $(function() {
     locations = null;
 	}
 
+  // plays a random location
 	function playRandom() {
-    GEvent.trigger(locations[Math.floor(Math.random()*locations.length)].marker,'click'); // tricker a click on a random marker
+    GEvent.trigger(locations[Math.floor(Math.random()*locations.length)].marker,'click'); // trigger a click on a random marker
 	}   
-	
+
+	// display a human readable time
 	function fuzzyTime(minutes) { 
 		if(minutes <= 60) return minutes.toString() + " minutes";
 		if(minutes > 60 && minutes <= 1440) return (Math.floor(minutes/60)).toString() + " hours";
@@ -389,5 +403,15 @@ $(function() {
 
 	// start the app
   loadLocations("");
+  
+  //pop up the track that was shared if /#track-123123 detected
+  if(location.hash && location.hash.search(/track/) != -1) {
+    var trackId = location.hash.split("-")[1];
+    $.getJSON("/api/tracks/"+ trackId,function(track) {
+      showPlayer(track[0]);
+      setupLocation(track[0].location);
+      GEvent.trigger(locations[locations.length-1].marker,'click'); // trigger a click on a random marker
+    });
+  }
 
-});
+}
