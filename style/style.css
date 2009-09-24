@@ -107,6 +107,10 @@ a:hover {
   outline: 0;
 }
 
+.playing .bubble .artwork .play-button {
+  background-image: url('../images/pause.png');
+}
+
 .bubble .play-button.smaller {
   display: block;
   font-size: 18px;
