@@ -356,6 +356,7 @@ soundManager.onload = function() {
         loading.css('width',(sound.bytesLoaded/sound.bytesTotal)*100+"%");
       }),
       whileplaying : throttle(100,function() {
+        console.log(sound.position)
         progress.css('width',(sound.position/track.duration)*100+"%");
         $('#player .position').html(formatMs(sound.position));
         $('#player .duration').html(formatMs(track.duration));
@@ -369,6 +370,11 @@ soundManager.onload = function() {
         loading.css('width',"100%");
       }
     });
+    
+    // set loading bar to 100% if sound is already loaded
+    if(sound.bytesLoaded == sound.bytesTotal) {
+      loading.css('width',"100%");      
+    }
 
     togglePlay();
     
@@ -381,7 +387,7 @@ soundManager.onload = function() {
      GEvent.clearInstanceListeners(l.marker);
      map.removeOverlay(l.marker);
     });
-    locations = null;
+    locations = []; // reset the main locations array
 	}
 
   // plays a random location
