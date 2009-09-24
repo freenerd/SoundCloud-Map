@@ -67,7 +67,7 @@ class FetchTrackInfo(webapp.RequestHandler):
 				return # return 200. task gets deleted from task queue
 
 			# check if track is already in the datastore
-			if models.Track.all().filter('track_id', int(track['id'])).count() != 0: 
+			if models.Track.all().filter('track_id', int(track['id'])).get(): 
 				logging.info("The track already is in the datastore.")
  				logging.info("End of track update, because the track is already in the datastore.")				
 				self.response.out.write("done") # finished processing script        					

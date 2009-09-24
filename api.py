@@ -213,9 +213,11 @@ class LocationsHandler(webapp.RequestHandler):
 				error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
 				return                                                                                   
 			location_genres = models.LocationGenreLastUpdate.all().order('-last_time_updated').filter('genre', genre).fetch(limit, offset)
-			for location_genre in location_genres:              
+			for location_genre in location_genres:
+				location_genre.location.track_counter = location_genre.track_counter							
 				locations_array.append(create_location_dict(location_genre.location))
 			self.response.out.write(json.dumps(locations_array))	
+			return 
 		
 		if not genre:
 			locations = models.Location.all().order('-last_time_updated').fetch(limit, offset)
