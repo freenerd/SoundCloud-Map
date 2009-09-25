@@ -74,6 +74,7 @@ def add_to_track_array(track, track_array):
 												'created_minutes_ago': track.created_minutes_ago(),
 												'downloadable': track.downloadable,
 												'license': track.license,
+												'id' : track.key().id(),
 												'genre': track.genre,
 												'duration': track.duration,
 												\
@@ -86,12 +87,38 @@ def error_response(self, error_name, error_description):
 	"""
 	error_response = {'error': True, 'error_name': error_name, 'error_description': error_description}
 	self.response.out.write(json.dumps(error_response))
-	
+
+def fetch_location_by_id(self, location_id): 
+	"""
+		Return location_array with only one location for location_id
+	"""
+	locations_array = []
+	location = models.Location.get_by_id(int(location_id))
+	if location:
+		locations_array.append(create_location_dict(location))
+		self.response.out.write(json.dumps(locations_array))
+	else:
+		error_response(self, 'location_not_found', 'The location with the location_id %s is not in the datastore.' % location_id)
+	return
+ 
+def fetch_track_by_id(self, track_id): 
+	"""
+		Return track_array with only one track for track_id
+	"""
+	track_array = []
+	track = models.Track.get_by_id(int(track_id))
+	if track:
+		add_to_track_array(track, track_array)
+		self.response.out.write(json.dumps(track_array))
+	else:
+		error_response(self, 'track_not_found', 'The track with the track_id %s is not in the datastore.' % track_id)
+	return       
+ 					 
 class TracksHandler(webapp.RequestHandler):
 	"""
 		Fetching tracks. Returning json
 	"""
-	def get(self):
+	def get(self, track_id=None):
 		
 		# initializing
 		track_array = []
@@ -180,6 +207,18 @@ class TracksHandler(webapp.RequestHandler):
 			else:
 				error_response(self, 'no_tracks', 'There are no tracks in the datastore.') 
 			return			
+
+class TrackIDHandler(webapp.RequestHandler):
+	"""
+		Fetching tracks. Returning json
+	"""
+	def get(self, track_id=None):		
+		logging.info("Location ID" +( track_id or ''))
+		if track_id:
+			return fetch_track_by_id(self, track_id)
+		else:
+			error_response(self, 'no_track', 'You have provided no track id.')	
+		return
 			
 class LocationsHandler(webapp.RequestHandler):
 	"""
@@ -198,15 +237,8 @@ class LocationsHandler(webapp.RequestHandler):
 			offset = int(self.request.get('offset'))
 		else:
 			offset = 0
-
 		if self.request.get('location'):
-			location = models.Location.get_by_id(int(self.request.get('location')))
-			if location:
-				locations_array.append(create_location_dict(location))
-				self.response.out.write(json.dumps(locations_array))
-			else:
-				error_response(self, 'location_not_found', 'The location with the location_id %s is not in the datastore.' % self.request.get('location_id'))
-			return
+			return fetch_location_by_id(self, self.request.get('location'))
 		
 		if genre:
 		 	if genre not in utils.genres:
@@ -228,10 +260,23 @@ class LocationsHandler(webapp.RequestHandler):
 			else:
 				error_response(self, 'no_locations', 'There are no locations in the datastore.')
 			return 
-		
 
+class LocationIDHandler(webapp.RequestHandler):
+	"""
+		Fetching tracks. Returning json
+	"""
+	def get(self, location_id=None):		
+		logging.info("Location ID" +( location_id or ''))
+		if location_id:
+			return fetch_location_by_id(self, location_id)
+		else:
+			error_response(self, 'no_location', 'You have provided no location id.')	
+		return		
+			
 def main():
-  application = webapp.WSGIApplication([('/api/tracks/.*', TracksHandler),
+  application = webapp.WSGIApplication([(r'/api/tracks/([0-9]{1,64})', TrackIDHandler),
+																				('/api/tracks/.*', TracksHandler),
+																				(r'/api/locations/([0-9]{1,64})', LocationIDHandler),
 																				('/api/locations/.*', LocationsHandler),], debug=utils.in_development_enviroment())
   run_wsgi_app(application)
 
