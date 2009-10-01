@@ -21,6 +21,7 @@
 
 import os
 
+# warning: due to appengine limitations, the number of sub-genres in an array may not be greater than 30
 genres = {}
 genres.update({'house': ['house', 'tech house', 'deep house', 'progressive house', 'tech-house', \
 							 					 'electro house', 'techhouse', 'minimal house', 'minimal-house' 'funky house', 'dance']}) 

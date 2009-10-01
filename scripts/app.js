@@ -66,30 +66,48 @@ soundManager.onload = function() {
 	// Different Sized Icons for the Marker. 1 is small. 3 is big
 	icons[0] = new GIcon(G_DEFAULT_ICON);
   icons[0].image = "images/sc_marker_1.png";
-  icons[0].iconSize = new GSize(6, 6);
+  icons[0].iconSize = new GSize(4, 4);
   icons[0].shadow = null;
-  icons[0].iconAnchor = new GPoint(8, 8);
+  icons[0].iconAnchor = new GPoint(4, 4);
   icons[0].infoWindowAnchor = new GPoint(4, 0);
-	icons[0].imageMap = [ 0,0, 6,0, 6,6, 0,6 ];
+	icons[0].imageMap = [ 0,0, 4,0, 4,4, 0,4 ];
 	markerOptions[0] = { icon:icons[0] };
 	
 	icons[1] = new GIcon(G_DEFAULT_ICON);
   icons[1].image = "images/sc_marker_2.png";
-  icons[1].iconSize = new GSize(11, 11);
+  icons[1].iconSize = new GSize(6, 6);
   icons[1].shadow = null;
-  icons[1].iconAnchor = new GPoint(13, 	13);
+  icons[1].iconAnchor = new GPoint(6, 6);
   icons[1].infoWindowAnchor = new GPoint(6, 0); 
-	icons[1].imageMap = [ 0,0, 11,0, 11,11, 0,11 ]; 
+	icons[1].imageMap = [ 0,0, 6,0, 6,6, 0,6 ]; 
 	markerOptions[1] = { icon:icons[1] };   
 	
 	icons[2] = new GIcon(G_DEFAULT_ICON);
   icons[2].image = "images/sc_marker_3.png";
-  icons[2].iconSize = new GSize(17, 17);
+  icons[2].iconSize = new GSize(11, 11);
   icons[2].shadow = null;
-  icons[2].iconAnchor = new GPoint(21, 21);
+  icons[2].iconAnchor = new GPoint(11, 11);
   icons[2].infoWindowAnchor = new GPoint(11, 0);
-	icons[2].imageMap = [ 0,0, 17,0, 17,17, 0,17 ];
+	icons[2].imageMap = [ 0,0, 11,0, 11,11, 0,11 ];
 	markerOptions[2] = { icon:icons[2] };
+
+	icons[3] = new GIcon(G_DEFAULT_ICON);
+  icons[3].image = "images/sc_marker_4.png";
+  icons[3].iconSize = new GSize(17, 17);
+  icons[3].shadow = null;
+  icons[3].iconAnchor = new GPoint(17, 17);
+  icons[3].infoWindowAnchor = new GPoint(17, 0);
+	icons[3].imageMap = [ 0,0, 17,0, 17,17, 0,17 ];
+	markerOptions[3] = { icon:icons[3] };
+
+	icons[4] = new GIcon(G_DEFAULT_ICON);
+  icons[4].image = "images/sc_marker_5.png";
+  icons[4].iconSize = new GSize(24, 24);
+  icons[4].shadow = null;
+  icons[4].iconAnchor = new GPoint(24, 24);
+  icons[4].infoWindowAnchor = new GPoint(24, 0);
+	icons[4].imageMap = [ 0,0, 24,0, 24,24, 0,24 ];
+	markerOptions[4] = { icon:icons[4] };
 
    // about box closable
   $("#about-box a.close").click(function(ev) {
@@ -139,10 +157,14 @@ soundManager.onload = function() {
   function setupLocation(l) {
     // set the size of the dot based on how many tracks found in the location
 		var option = 0;
-		if (l.track_counter < 50) {
+		if (l.track_counter >= 10 && l.track_counter < 40) {
 			option = 1;
-		} else {
+		} else if (l.track_counter >= 40 && l.track_counter < 60) {
 		 	option = 2;
+		} else if (l.track_counter >= 60 && l.track_counter < 80) {
+			option = 3;
+		} else if (l.track_counter >= 80) {
+			option = 4;
 		};
 		
 		// if city field is empty, replace it with country
@@ -214,8 +236,8 @@ soundManager.onload = function() {
         });
 
         // auto-play the first track
-        stop();
-        $("a.play-button:first",l.html).click();
+        // stop();
+        // $("a.play-button:first",l.html).click();   
 
         l.marker.openInfoWindow(l.html[0]);
 
@@ -424,7 +446,7 @@ soundManager.onload = function() {
   }
 
 	// start the app
-  loadLocations("");
+  loadLocations("all");
   
   //pop up the track that was shared if /#track-123123 detected
   if(location.hash && location.hash.search(/track/) != -1) {

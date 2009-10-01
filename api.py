@@ -158,13 +158,12 @@ class TracksHandler(webapp.RequestHandler):
 				return					 
 		
 		# Processing for api/tracks/?location=location_id
-		if self.request.get('location') and not self.request.get('genre'): 
+		if self.request.get('location') and (self.request.get('genre') == 'all' or not self.request.get('genre')): 
 			location = models.Location.get_by_id(int(self.request.get('location')))
 			if not location:
 				error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
 			else:
-				users = db.Query(models.User, keys_only=True).filter('location', location.key()).order('-__key__').fetch(1000)     
-				tracks = models.Track.all().filter('user IN', users).order('-entry_created_at').fetch(limit, offset)
+				tracks = models.Track.all().filter('location', location.key()).order('-created_at').fetch(limit, offset)
 				if tracks:
 					for track in tracks:
 						add_to_track_array(track, track_array)              
@@ -185,12 +184,11 @@ class TracksHandler(webapp.RequestHandler):
 				error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
 				return
 			else:
-				users = models.User.all().filter('location', location.key()).fetch(limit, offset)
-				if users:
-					for user in users:                     
-						tracks = models.Track.all().filter('user', user.key()).filter('genre IN', utils.genres.get(genre)).fetch(int(limit))
-						for track in tracks:
-							add_to_track_array(track, track_array)
+				tracks = models.Track.all().filter('location', location.key()).filter('genre IN', utils.genres.get(genre))
+				tracks = tracks.order('-created_at').fetch(limit, offset)
+				if tracks:
+					for track in tracks:
+						add_to_track_array(track, track_array)              
 					self.response.out.write(json.dumps(track_array))
 				else:
 					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s in the datastore.' % self.request.get('location'))
