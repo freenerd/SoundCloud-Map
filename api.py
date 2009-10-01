@@ -53,7 +53,7 @@ def add_to_track_array(track, track_array):
 	"""
 	location_dict = create_location_dict(track.user.location)
 	
-	user_dict = {'user_id': track.user.user_id,
+	user_dict = {'id': track.user.user_id,
 							 'permalink': track.user.permalink,
 							 'permalink_url': track.user.permalink_url,
 							 'username': track.user.username,
@@ -61,7 +61,7 @@ def add_to_track_array(track, track_array):
 							 'avatar_url': track.user.avatar_url}
 	 
 	track_array.append({	'error': False,
-												'track_id': track.track_id,
+												'id': track.track_id,
 												'permalink': track.permalink, 
 												'permalink_url': track.permalink_url, 
 												'title': track.title,
@@ -163,15 +163,15 @@ class TracksHandler(webapp.RequestHandler):
 			if not location:
 				error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
 			else:
-				users = models.User.all().filter('location', location.key()).fetch(limit, offset)
-				if users:
-					for user in users:                     
-						tracks = models.Track.all().filter('user', user.key()).fetch(limit, offset)
-						for track in tracks:
-							add_to_track_array(track, track_array)
+				users = db.Query(models.User, keys_only=True).filter('location', location.key()).order('-__key__').fetch(1000)     
+				tracks = models.Track.all().filter('user IN', users).order('-entry_created_at').fetch(limit, offset)
+				if tracks:
+					for track in tracks:
+						add_to_track_array(track, track_array)              
 					self.response.out.write(json.dumps(track_array))
 				else:
-					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s in the datastore.' % self.request.get('location'))
+					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s with limit %i and offset %s in the datastore.' % \
+																																											(self.request.get('location'), limit, offset))
 			return
 			
 		# Processing for api/tracks/?location=location_id&genre={genre_name}	
@@ -196,7 +196,7 @@ class TracksHandler(webapp.RequestHandler):
 					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s in the datastore.' % self.request.get('location'))
 			return
 			
-		# Processing for api/tracks/ and api/tracks/?genre=all
+		# Processing for api/tracks and api/tracks/?genre=all
 		if (self.request.get('genre') == 'all' or not self.request.get('genre')) and not \
 		 	 (self.request.get('location') or self.request.get('location_lat') or self.request.get('location_lon')): 
 			tracks = models.Track.all().order('-created_at').fetch(limit, offset)
@@ -222,13 +222,12 @@ class TrackIDHandler(webapp.RequestHandler):
 			
 class LocationsHandler(webapp.RequestHandler):
 	"""
-		Fetching tracks. Returning json
+		Fetching latest updated locations. Returning json
 	"""
 	def get(self):
 		# initialization
 		locations_array = []
-		genre = self.request.get('genre') 
-		
+		genre = self.request.get('genre') 	
 		if self.request.get('limit'):
 			limit = int(self.request.get('limit'))
 		else:
@@ -240,7 +239,8 @@ class LocationsHandler(webapp.RequestHandler):
 		if self.request.get('location'):
 			return fetch_location_by_id(self, self.request.get('location'))
 		
-		if genre:
+		# Processing latest locations for a certain genre api/locations/?genre={genre_name}
+		if genre and genre != 'all':
 		 	if genre not in utils.genres:
 				error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
 				return                                                                                   
@@ -251,7 +251,8 @@ class LocationsHandler(webapp.RequestHandler):
 			self.response.out.write(json.dumps(locations_array))	
 			return 
 		
-		if not genre:
+		# Processing latest locations for api/locations
+		if not genre or genre == 'all':
 			locations = models.Location.all().order('-last_time_updated').fetch(limit, offset)
 			if locations:
 				for location in locations:
@@ -260,6 +261,7 @@ class LocationsHandler(webapp.RequestHandler):
 			else:
 				error_response(self, 'no_locations', 'There are no locations in the datastore.')
 			return 
+			
 
 class LocationIDHandler(webapp.RequestHandler):
 	"""
@@ -275,9 +277,9 @@ class LocationIDHandler(webapp.RequestHandler):
 			
 def main():
   application = webapp.WSGIApplication([(r'/api/tracks/([0-9]{1,64})', TrackIDHandler),
-																				('/api/tracks/.*', TracksHandler),
+																				('/api/tracks.*', TracksHandler),
 																				(r'/api/locations/([0-9]{1,64})', LocationIDHandler),
-																				('/api/locations/.*', LocationsHandler),], debug=utils.in_development_enviroment())
+																				('/api/locations.*', LocationsHandler),], debug=utils.in_development_enviroment())
   run_wsgi_app(application)
 
 if __name__ == '__main__':

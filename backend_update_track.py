@@ -32,7 +32,8 @@ import os
 import datetime
 
 import models
-import backend_utils
+import backend_utils 
+import settings
 
 	
 class FetchTrackInfo(webapp.RequestHandler):
@@ -45,8 +46,16 @@ class FetchTrackInfo(webapp.RequestHandler):
 		logging.info("Working the taskqueue. Fetching a new track.")
 		
 		try:                  
+			# check, if track is not already overdue (which may happen, if memcache fails, which happens from time to time)
+			if (self.request.get('time_track_added_to_queue') == '' or \
+				 time.time() > (int(self.request.get('time_track_added_to_queue')) + settings.TRACK_BACKEND_UPDATE_LIFETIME * 60)):
+				# track is overdue
+				logging.info("Track with Track ID %s is overdue with time %s." % ((self.request.get('track_id') or ''), (self.request.get('time_track_added_to_queue') or ''))) 
+				self.response.out.write("done") # finished processing script					
+				return # return 200. task gets deleted from task queue					 
+				
 			# fetch track info from memcache
-			track_id = self.request.get('track_id')       
+			track_id = self.request.get('track_id')
 			track = memcache.get(track_id, namespace="backend_update_track")
 			if track is None:
 				logging.error("Fetching memcache item %s failed in backend track update" % track_id)  

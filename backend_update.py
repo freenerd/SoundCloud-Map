@@ -29,7 +29,8 @@ import time
 import os
 
 import models
-import backend_utils
+import backend_utils 
+import settings
 
 def main():
 	"""
@@ -47,8 +48,8 @@ def main():
 			counter = 0    
 			for track in tracks:  
 				track['id'] = unicode(track['id'])
-				if memcache.add(track['id'], track, time=1800, namespace="backend_update_track"):
-					taskqueue.add(url='/backend-update/track', params={'track_id': track['id']})
+				if memcache.add(track['id'], track, time=settings.TRACK_BACKEND_UPDATE_LIFETIME, namespace="backend_update_track"): 
+					taskqueue.add(url='/backend-update/track', params={'track_id': track['id'], 'time_track_added_to_queue': str(int(time.time()))})
 					logging.info("Added track_id %s to memcache and traskqueue." % track['id'])
 					counter += 1					
 				else:

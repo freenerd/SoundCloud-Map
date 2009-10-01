@@ -81,8 +81,9 @@ def update_location_genre_data(track, location):
 	# determine genre for track
 	track_genre = None
 	for genre in utils.genres.iteritems():
-		if track['genre'].strip().lower() in genre[1]: track_genre = genre[0]
-	# update LocationGenreLastUpdate	
+		if track['genre'] and track['genre'].strip().lower() in genre[1]:
+			track_genre = genre[0]
+	# update LocationGenreLastUpdate						 
 	if track_genre:
 		location_genre = models.LocationGenreLastUpdate.all().filter('location', location.key()).filter('genre', track_genre).get()
 		if location_genre:
