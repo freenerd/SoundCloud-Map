@@ -86,7 +86,7 @@ def memcache_and_json_output_array(self, array):
 		Save to memcache and output as plain json
 	"""                                                                           
 	json_output = json.dumps(array)	
-	memcache.add(self.request.path_qs, json_output, time=settings.API_QUERY_INTERVAL*60, namespace='api_cache')
+	#memcache.add(self.request.path_qs, json_output, time=settings.API_QUERY_INTERVAL*60, namespace='api_cache')
 	self.response.out.write(json_output)	
 	return
 
@@ -114,8 +114,9 @@ def fetch_track_by_id(self, track_id):
 	"""
 		Return track_array with only one track for track_id
 	"""
+	logging.info(track_id)
 	track_array = []
-	track = models.Track.get_by_id(int(track_id))
+	track = models.Track.all().filter('track_id', int(track_id)).get()
 	if track:
 		add_to_track_array(track, track_array)
 		return memcache_and_json_output_array(self, track_array)
@@ -127,7 +128,7 @@ class TracksHandler(webapp.RequestHandler):
 	"""
 		Fetching tracks. Returning json
 	"""
-	def get(self, track_id=None):
+	def get(self):
 		                                          
 		memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
 		if memcached is not None:
@@ -142,16 +143,11 @@ class TracksHandler(webapp.RequestHandler):
 		if self.request.get('offset'):
 			offset = int(self.request.get('offset'))
 		else:
-			offset = 0 		
+			offset = 0
+		
 		# Processing for api/tracks/?track=track_id
 		if self.request.get('track'):
-			track = models.Track.get_by_id(int(self.request.get('track')))
-			if track:
-				add_to_track_array(track, track_array)
-				return memcache_and_json_output_array(self, track_array)
-			else:
-				error_response(self, 'track_not_found', 'The track with the track_id %s is not in the datastore.' % self.request.get('track'))
-			return
+			return fetch_track_by_id(self, self.request.get('track'))
 		
 		# Processing for api/tracks/?genre={genre_name} 
 		if self.request.get('genre') and self.request.get('genre') != 'all' and not \
@@ -229,7 +225,6 @@ class TrackIDHandler(webapp.RequestHandler):
 		if memcached is not None:
 			return self.response.out.write(memcached)		
 				
-		logging.info("Location ID" +( track_id or ''))
 		if track_id:
 			return fetch_track_by_id(self, track_id)
 		else:
