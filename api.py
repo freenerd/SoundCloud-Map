@@ -23,8 +23,9 @@
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.ext import db
+from google.appengine.ext import db             
 from google.appengine.ext.webapp import template
+from google.appengine.api import memcache
 from django.utils import simplejson as json
 
 import logging
@@ -81,6 +82,15 @@ def add_to_track_array(track, track_array):
 												'location': location_dict,
 												'user': user_dict})										  			 
 
+def memcache_and_json_output_array(self, array):	
+	"""
+		Save to memcache and output as plain json
+	"""                                                                           
+	json_output = json.dumps(array)	
+	memcache.add(self.request.path_qs, json_output, time=settings.API_QUERY_INTERVAL*60, namespace='api_cache')
+	self.response.out.write(json_output)	
+	return
+
 def error_response(self, error_name, error_description):
 	"""
 		Output error as json  
@@ -96,7 +106,7 @@ def fetch_location_by_id(self, location_id):
 	location = models.Location.get_by_id(int(location_id))
 	if location:
 		locations_array.append(create_location_dict(location))
-		self.response.out.write(json.dumps(locations_array))
+		return memcache_and_json_output_array(self, locations_array)
 	else:
 		error_response(self, 'location_not_found', 'The location with the location_id %s is not in the datastore.' % location_id)
 	return
@@ -109,17 +119,21 @@ def fetch_track_by_id(self, track_id):
 	track = models.Track.get_by_id(int(track_id))
 	if track:
 		add_to_track_array(track, track_array)
-		self.response.out.write(json.dumps(track_array))
+		return memcache_and_json_output_array(self, track_array)
 	else:
 		error_response(self, 'track_not_found', 'The track with the track_id %s is not in the datastore.' % track_id)
-	return       
+	return     
  					 
 class TracksHandler(webapp.RequestHandler):
 	"""
 		Fetching tracks. Returning json
 	"""
 	def get(self, track_id=None):
-		
+		                                          
+		memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+		if memcached is not None:
+			return self.response.out.write(memcached)
+			                		
 		# initializing
 		track_array = []
 		if self.request.get('limit'):
@@ -135,7 +149,7 @@ class TracksHandler(webapp.RequestHandler):
 			track = models.Track.get_by_id(int(self.request.get('track')))
 			if track:
 				add_to_track_array(track, track_array)
-				self.response.out.write(json.dumps(track_array))
+				return memcache_and_json_output_array(self, track_array)
 			else:
 				error_response(self, 'track_not_found', 'The track with the track_id %s is not in the datastore.' % self.request.get('track'))
 			return
@@ -152,7 +166,7 @@ class TracksHandler(webapp.RequestHandler):
 				if tracks:													 
 					for track in tracks:
 						add_to_track_array(track, track_array)
-					self.response.out.write(json.dumps(track_array))
+					return memcache_and_json_output_array(self, track_array)
 				else:
 					error_response(self, 'no_tracks_in_genre', 'There are no tracks of the genre %s in the datastore.' % genre)
 				return					 
@@ -167,7 +181,7 @@ class TracksHandler(webapp.RequestHandler):
 				if tracks:
 					for track in tracks:
 						add_to_track_array(track, track_array)              
-					self.response.out.write(json.dumps(track_array))
+					return memcache_and_json_output_array(self, track_array)
 				else:
 					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s with limit %i and offset %s in the datastore.' % \
 																																											(self.request.get('location'), limit, offset))
@@ -189,7 +203,7 @@ class TracksHandler(webapp.RequestHandler):
 				if tracks:
 					for track in tracks:
 						add_to_track_array(track, track_array)              
-					self.response.out.write(json.dumps(track_array))
+					return memcache_and_json_output_array(self, track_array)
 				else:
 					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s in the datastore.' % self.request.get('location'))
 			return
@@ -201,7 +215,7 @@ class TracksHandler(webapp.RequestHandler):
 			if tracks:													 
 				for track in tracks:
 					add_to_track_array(track, track_array)
-				self.response.out.write(json.dumps(track_array))
+				return memcache_and_json_output_array(self, track_array)
 			else:
 				error_response(self, 'no_tracks', 'There are no tracks in the datastore.') 
 			return			
@@ -210,7 +224,12 @@ class TrackIDHandler(webapp.RequestHandler):
 	"""
 		Fetching tracks. Returning json
 	"""
-	def get(self, track_id=None):		
+	def get(self, track_id=None):	
+
+		memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+		if memcached is not None:
+			return self.response.out.write(memcached)		
+				
 		logging.info("Location ID" +( track_id or ''))
 		if track_id:
 			return fetch_track_by_id(self, track_id)
@@ -223,6 +242,11 @@ class LocationsHandler(webapp.RequestHandler):
 		Fetching latest updated locations. Returning json
 	"""
 	def get(self):
+		
+		memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+		if memcached is not None:
+			return self.response.out.write(memcached)
+		
 		# initialization
 		locations_array = []
 		genre = self.request.get('genre') 	
@@ -246,8 +270,7 @@ class LocationsHandler(webapp.RequestHandler):
 			for location_genre in location_genres:
 				location_genre.location.track_counter = location_genre.track_counter							
 				locations_array.append(create_location_dict(location_genre.location))
-			self.response.out.write(json.dumps(locations_array))	
-			return 
+			return memcache_and_json_output_array(self, locations_array)
 		
 		# Processing latest locations for api/locations
 		if not genre or genre == 'all':
@@ -255,7 +278,7 @@ class LocationsHandler(webapp.RequestHandler):
 			if locations:
 				for location in locations:
 					locations_array.append(create_location_dict(location))
-				self.response.out.write(json.dumps(locations_array))
+				return memcache_and_json_output_array(self, locations_array)
 			else:
 				error_response(self, 'no_locations', 'There are no locations in the datastore.')
 			return 
@@ -265,7 +288,12 @@ class LocationIDHandler(webapp.RequestHandler):
 	"""
 		Fetching tracks. Returning json
 	"""
-	def get(self, location_id=None):		
+	def get(self, location_id=None):
+
+		memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+		if memcached is not None:
+			return self.response.out.write(memcached)
+				
 		logging.info("Location ID" +( location_id or ''))
 		if location_id:
 			return fetch_location_by_id(self, location_id)
