@@ -366,9 +366,22 @@ soundManager.onload = function() {
       return false;
     });
     
+
+		var linkToBeShared = "http://tracksonamap.com/#track-" + track.id;
+		
+		// set up share simple link
+		$("#player-container .share-as-link").html(linkToBeShared);
+		
     // set up share to twitter, no url shortener yet
-    $("#player-container .share-on-twitter").attr("href","http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(track.title) + " by " + encodeURIComponent(track.user.username) + " http://tracksonamap.com/%23track-" + track.id + " via+%23tracksonamap")
-    
+		var twitterShareLink = track.title  + " by " + track.user.username + " " + linkToBeShared + " via @tracksonamap";                                          
+	  twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
+    $("#player-container .share-on-twitter").attr("href", twitterShareLink);
+   
+		// set up share to Facebook
+		var facebookShareLink = "Tracks On A Map: " + track.title  + " by " + track.user.username;                                                                          
+		facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(linkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
+    $("#player-container .share-on-facebook").attr("href", facebookShareLink);		
+
     $("#player-container .metadata").html("<a target='_blank' href='" + track.user.permalink_url + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a target='_blank' href='" + track.user.permalink_url + "'>" + track.user.username + "</a>");
     
 		$("#player-container #player .waveform img").attr("src", track.waveform_url);

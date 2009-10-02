@@ -75,7 +75,6 @@ def add_to_track_array(track, track_array):
 												'created_minutes_ago': track.created_minutes_ago(),
 												'downloadable': track.downloadable,
 												'license': track.license,
-												'id' : track.key().id(),
 												'genre': track.genre,
 												'duration': track.duration,
 												\
