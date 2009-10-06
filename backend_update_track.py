@@ -128,7 +128,7 @@ class FetchTrackInfo(webapp.RequestHandler):
 						logging.info("No Location for User \"%s\" with City/Country: \"%s / %s\"." % \
 												(track['user']['username'], track['user']['city'], track['user']['country']))
 		 				if not memcache.delete(track_id, namespace="backend_update_track"):
-							logging.error("Deletion from Memcache was not successfull.") 
+							logging.error("Deletion from Memcache was not successful.") 
 							self.response.set_status(500)
  						logging.info("End of track update because could not be geolocated.")							
 						self.response.out.write("done") # finished processing script        	
@@ -149,7 +149,7 @@ class FetchTrackInfo(webapp.RequestHandler):
 			backend_utils.write_track_to_datastore(track, user, location)
 				
 			if not memcache.delete(track_id, namespace="backend_update_track"):
-				logging.error("Deletion from Memcache was not successfull.")
+				logging.error("Deletion from Memcache was not successful.")
 				self.response.set_status(500)
 				self.response.out.write("done")
 				return

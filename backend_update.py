@@ -50,7 +50,7 @@ def main():
 				track['id'] = unicode(track['id'])
 				if memcache.add(track['id'], track, time=settings.TRACK_BACKEND_UPDATE_LIFETIME, namespace="backend_update_track"): 
 					taskqueue.add(url='/backend-update/track', params={'track_id': track['id'], 'time_track_added_to_queue': str(int(time.time()))})
-					logging.info("Added track_id %s to memcache and traskqueue." % track['id'])
+					logging.info("Added track_id %s to memcache and task queue." % track['id'])
 					counter += 1					
 				else:
 					logging.error("Setting Memcache failed for track \"%s\" by \"%s\" (id: %s, created at: %s)." % \
