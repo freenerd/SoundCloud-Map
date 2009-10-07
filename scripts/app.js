@@ -39,6 +39,7 @@ soundManager.onload = function() {
   var progress = $("#player .progress");
   var position = $('#player .position');
   var duration = $('#player .duration');
+  var maxTracksInLocation = 5; // max tracks on a specific location
 
   var sound = null;
   var playerIsVisible = false;
@@ -63,12 +64,12 @@ soundManager.onload = function() {
     map.checkResize();
 	});	
 
-	// Different Sized Icons for the Marker. 1 is small. 3 is big
+	// Different sized icons for the markers. 0 is small, 4 is big.
 	icons[0] = new GIcon(G_DEFAULT_ICON);
   icons[0].image = "images/sc_marker_1.png";
   icons[0].iconSize = new GSize(4, 4);
   icons[0].shadow = null;
-  icons[0].iconAnchor = new GPoint(4, 4);
+  icons[0].iconAnchor = new GPoint(2, 2);
   icons[0].infoWindowAnchor = new GPoint(4, 0);
 	icons[0].imageMap = [ 0,0, 4,0, 4,4, 0,4 ];
 	markerOptions[0] = { icon:icons[0] };
@@ -77,7 +78,7 @@ soundManager.onload = function() {
   icons[1].image = "images/sc_marker_2.png";
   icons[1].iconSize = new GSize(6, 6);
   icons[1].shadow = null;
-  icons[1].iconAnchor = new GPoint(6, 6);
+  icons[1].iconAnchor = new GPoint(3, 3);
   icons[1].infoWindowAnchor = new GPoint(6, 0); 
 	icons[1].imageMap = [ 0,0, 6,0, 6,6, 0,6 ]; 
 	markerOptions[1] = { icon:icons[1] };   
@@ -86,7 +87,7 @@ soundManager.onload = function() {
   icons[2].image = "images/sc_marker_3.png";
   icons[2].iconSize = new GSize(11, 11);
   icons[2].shadow = null;
-  icons[2].iconAnchor = new GPoint(11, 11);
+  icons[2].iconAnchor = new GPoint(6, 6);
   icons[2].infoWindowAnchor = new GPoint(11, 0);
 	icons[2].imageMap = [ 0,0, 11,0, 11,11, 0,11 ];
 	markerOptions[2] = { icon:icons[2] };
@@ -95,7 +96,7 @@ soundManager.onload = function() {
   icons[3].image = "images/sc_marker_4.png";
   icons[3].iconSize = new GSize(17, 17);
   icons[3].shadow = null;
-  icons[3].iconAnchor = new GPoint(17, 17);
+  icons[3].iconAnchor = new GPoint(9, 9);
   icons[3].infoWindowAnchor = new GPoint(17, 0);
 	icons[3].imageMap = [ 0,0, 17,0, 17,17, 0,17 ];
 	markerOptions[3] = { icon:icons[3] };
@@ -104,7 +105,7 @@ soundManager.onload = function() {
   icons[4].image = "images/sc_marker_5.png";
   icons[4].iconSize = new GSize(24, 24);
   icons[4].shadow = null;
-  icons[4].iconAnchor = new GPoint(24, 24);
+  icons[4].iconAnchor = new GPoint(12, 12);
   icons[4].infoWindowAnchor = new GPoint(24, 0);
 	icons[4].imageMap = [ 0,0, 24,0, 24,24, 0,24 ];
 	markerOptions[4] = { icon:icons[4] };
@@ -143,27 +144,63 @@ soundManager.onload = function() {
 	  return false;
 	});
 	
+	// 
+	var offset = 0;
+	var LIMIT = 1;
+	
+	// simple recursive algorithm to progressively load more tracks over ajax
+	function loadLocationsRecursive(locs) {
+	  // base case: never pull more than 200 tracks, and stop pulling when locs returns 0 locations
+    if(offset < 200 && (!locs || locs.length > 0)) {
+      $.getJSON("/api/locations/?&limit=" + LIMIT + "&offset=" + offset + "&genre=" + genre,loadLocationsRecursive);
+      if(locs) {
+        $.each(locs,function(i,l) {
+          var delay = i*30;
+          setTimeout(function() {
+            setupLocation(l);
+          },delay);
+        });
+      }
+      offset += LIMIT;
+    } else {
+      // execute callback here
+    }
+	};
+	
 	// load all locations for a given genre
-	function loadLocations(g) {
+	function loadLocations(g,callback) {
 	  genre = g;
-    $.getJSON("/api/locations/?genre=" + genre,function(locs) {
-      $.each(locs,function(i,l) {
-        setupLocation(l);
-      });
-    });
+    
+    // first get the no of tracks for the location with the most number of tracks, then recursively load locations
+    $.getJSON("/api/locations/maxtracks?genre=" + genre,function(maxtracks) {
+      maxTracksInLocation = maxtracks.max_tracks;
+      // reset offset counter
+      offset = 0;
+      loadLocationsRecursive();
+    });	  
+
+    // callback, needed for e.g. autoplay
+    //   if(callback) { // execute a callback fn
+    //     callback.apply();        
+    //   }
 	}
 
   // set up an individual locations marker + popup
-  function setupLocation(l) {
+  function setupLocation(l, trackToShowFirst) {
     // set the size of the dot based on how many tracks found in the location
 		var option = 0;
-		if (l.track_counter >= 10 && l.track_counter < 40) {
+		
+		// figure out the relative size of the dot
+		var locRelSize = l.track_counter/maxTracksInLocation;
+		
+		// find out size of dot based on relative size
+		if (locRelSize >= 0 && locRelSize < 0.4) {
 			option = 1;
-		} else if (l.track_counter >= 40 && l.track_counter < 60) {
+		} else if (locRelSize >= 0.4 && locRelSize < 0.6) {
 		 	option = 2;
-		} else if (l.track_counter >= 60 && l.track_counter < 80) {
+		} else if (locRelSize >= 0.6 && locRelSize < 0.8) {
 			option = 3;
-		} else if (l.track_counter >= 80) {
+		} else if (l.track_counter >= 0.8) {
 			option = 4;
 		};
 		
@@ -175,8 +212,16 @@ soundManager.onload = function() {
     // add the location marker
     l.marker = new GMarker(new GPoint(l.lon,l.lat), markerOptions[option]);
     GEvent.addListener(l.marker, "click", function() {
-      // load all tracks in the location
-  	  $.getJSON("/api/tracks/?genre=" + genre + "&location=" + l.id + "&limit=1",function(tracks) {
+      // load all tracks in the location, start with the first
+      
+      var tracksUrl = "/api/tracks/";
+      if(trackToShowFirst) { // load the track to show first
+        tracksUrl += trackToShowFirst;
+      } else { // load the first track from the location
+        tracksUrl += "?genre=" + genre + "&location=" + l.id + "&limit=1";
+      }
+      
+  	  $.getJSON(tracksUrl,function(tracks) {
   	    l.first_track = tracks[0];
   	    tracks[0].loc = l;
   	    
@@ -199,9 +244,27 @@ soundManager.onload = function() {
         // load more tracks from the same city
         GEvent.clearListeners(l.marker,'infowindowopen');
         GEvent.addListener(l.marker, "infowindowopen", function() {
+          
+          // clear the tracks list
+          $("#bubble" + l.first_track.id).find('.tracks-list').html("");
+            
           $.getJSON("/api/tracks/?location=" + l.id + "&genre=" + genre + "&limit=10",function(extraTracks) {
-            // clear the tracks list
-            $("#bubble" + l.first_track.id).find('.tracks-list').html("");
+            
+            if(trackToShowFirst) { // make sure that the first track loaded in the list is the track first shown in the bubble (used for track permalinks)
+              
+              // remove occurances of the first track
+              $.each(extraTracks,function(i,e) {
+                if(e && e.id == l.first_track.id) {
+                  extraTracks.splice(i,1);
+                }
+              });
+              
+              extraTracks = tracks.concat(extraTracks); // add it first in the array
+              
+              if(extraTracks.length > 10) { // make sure the list is not longer than 10 tracks
+                extraTracks = extraTracks.slice(0,10);
+              }
+            }
 
             // add the new ones
             $.each(extraTracks,function(i,t) {
@@ -213,7 +276,7 @@ soundManager.onload = function() {
                   // highlight current image                  
                   $(this).parents("ul.tracks-list").find(".mini-artwork a").removeClass("active");
                   $(this).addClass("active");
-                  
+
                   $("#bubble" + l.first_track.id)
                     .find('.title').html(t.title).end()
                     .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.user.avatar_url)).end()
@@ -235,9 +298,10 @@ soundManager.onload = function() {
           });
         });
 
-        // auto-play the first track
-        // stop();
-        // $("a.play-button:first",l.html).click();   
+        // auto-play the first track, if no track is playing
+        if(!$('body').hasClass("playing")) {
+          $("a.play-button:first",l.html).click();   
+        }
 
         l.marker.openInfoWindow(l.html[0]);
 
@@ -365,12 +429,30 @@ soundManager.onload = function() {
       GEvent.trigger(track.loc.marker,'click');
       return false;
     });
-    
 
 		var linkToBeShared = "http://tracksonamap.com/#track-" + track.id;
 		
 		// set up share simple link
-		$("#player-container .share-as-link").html(linkToBeShared);
+//		$("#player-container .share-as-link").html(linkToBeShared);
+		
+		// share box
+    $("#player-container .share-link").attr('href',linkToBeShared);	
+		$('#player-container .share-link').click(function() {
+      $("#share-playlist > div:first")
+        .clone()
+        .find("a.close").click(function() {
+          $(this).parents("div.share-playlist").fadeOut(function() {
+            $(this).remove();
+          });
+          return false;
+        }).end()
+        .find("input").val(this.href).end()
+        .appendTo("body")
+        .fadeIn(function() {
+          $(".share-playlist input").focus().select();
+        });          
+      return false;
+    });    
 		
     // set up share to twitter, no url shortener yet
 		var twitterShareLink = track.title  + " by " + track.user.username + " " + linkToBeShared + " via @tracksonamap";                                          
@@ -412,7 +494,7 @@ soundManager.onload = function() {
       loading.css('width',"100%");      
     }
 
-    togglePlay();
+    play();
     
     return false;
   }
@@ -428,7 +510,8 @@ soundManager.onload = function() {
 
   // plays a random location
 	function playRandom() {
-    GEvent.trigger(locations[Math.floor(Math.random()*locations.length)].marker,'click'); // trigger a click on a random marker
+	  var randLoc = Math.floor(Math.random()*locations.length);
+    GEvent.trigger(locations[randLoc].marker,'click'); // trigger a click on a random marker
 	}   
 
 	// display a human readable time
@@ -458,17 +541,24 @@ soundManager.onload = function() {
     $("#about-box").fadeIn();
   }
 
-	// start the app
-  loadLocations("all");
+	// start the app, then play a random track
+  loadLocations("all",function() {
+    playRandom();
+  });
   
   //pop up the track that was shared if /#track-123123 detected
-  if(location.hash && location.hash.search(/track/) != -1) {
-    var trackId = location.hash.split("-")[1];
-    $.getJSON("/api/tracks/"+ trackId,function(track) {
+  if(location.hash && location.hash.search(/track|location/) != -1) {
+    var id = location.hash.split("-")[1];
+    var q = "/api/tracks/";
+    if(location.hash.search(/track/) != -1) { // track permalink
+      q += id;
+    } else if(location.hash.search(/location/) != -1) { // location permalink
+      q += "?limit=1&location="+ id;
+    }
+    $.getJSON(q,function(track) {
       showPlayer(track[0]);
-      setupLocation(track[0].location);
-      GEvent.trigger(locations[locations.length-1].marker,'click'); // trigger a click on a random marker
+      setupLocation(track[0].location,track[0].id);
+      GEvent.trigger(locations[locations.length-1].marker,'click'); // play the track (is this really clean?)
     });
   }
-
 }

@@ -28,7 +28,7 @@
 }
 
 .metadata {
-  padding: 5px 10px 0 10px;
+  padding: 5px 100px 0 10px;
   font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
   font-size: 15px;
   height: 18px;
@@ -42,17 +42,17 @@
   outline: 0;
   display: block;
   float: left;
-  margin: -3px 4px 0 0gm;
-  width: 48px;
+  margin: 0px 4px 0 7px;
+  width: 38px;
   height: 22px;
-  background: transparent url('../images/world_small.png') 0 1px repeat-x;
+  background: transparent url('../images/world_small.png') 0 0 no-repeat;
   text-indent: -9999px;
 }
 
 .actions {
   position: absolute;
   right: 10px;
-  top: 10px;
+  top: 15px;
 }
 
 .actions a {
@@ -63,16 +63,16 @@
 }
 
 .share-on-twitter {
-  width: 26px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   background: transparent url('../images/twitter.png') top left repeat-x;
   text-indent: -9999px;
 }
 
 .share-on-facebook {
-  width: 14px;
-  height: 15px;
-  background: transparent url('../images/fb.png') 0 1px repeat-x;
+  width: 16px;
+  height: 16px;
+  background: transparent url('../images/fb.png') top left repeat-x;
   text-indent: -9999px;
 }
 
@@ -82,7 +82,7 @@
   top: 7px;
   width: 50px;
   height: 50px;
-  border: 1px solid #ccc;
+  border: 1px solid #999;
   -moz-border-radius: 7px;
   border-radius: 7px;
   -webkit-border-radius: 7px;  
@@ -111,14 +111,14 @@ body.playing #player .pause {
 }
 
 #player .next {
-  right: 20px;
+  right: 10px;
   background-position: 8px -55px;
 }
 
 #player .time {
   position: absolute;
   top: 12px;
-  right: 15px;
+  right: 75px;
   z-index: 100000;
   font-size: 11px;
   background: #fff;
@@ -131,11 +131,16 @@ body.playing #player .pause {
   padding: 1px;
 }
 
+#player .cover {
+  background: transparent url('../images/cover.png') top left repeat-x;
+}
 #player .waveform {
   height: 50px;
   background: #ccc;
   position: relative;
-  top: -2px;
+  margin-right: 60px;
+  top: -3px;
+  border: 1px solid #ccc
 }
 
 #player .waveform img {
@@ -159,9 +164,6 @@ body.playing #player .pause {
   border-right: 1px solid #f06;
   position: absolute;
   top: 0;
-  opacity: 0.45;
-  -moz-opacity: 0.45;
-  filter: alpha(opacity=45);
 }
 
 #player .waveform .cover {

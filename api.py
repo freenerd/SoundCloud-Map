@@ -29,7 +29,6 @@ from google.appengine.api import memcache
 from django.utils import simplejson as json
 
 import logging
-
 import os
 import urllib
 import re
@@ -81,13 +80,15 @@ def add_to_track_array(track, track_array):
 												'location': location_dict,
 												'user': user_dict})										  			 
 
-def memcache_and_json_output_array(self, array):	
+def memcache_and_json_output_array(self, array, time=settings.API_QUERY_INTERVAL*60):	
 	"""
 		Save to memcache and output as plain json
-	"""                                                                           
+	"""                                                                                             
+	logging.info(self.response.headers.__delitem__('Cache-Control'))
+	self.response.headers.add_header('Cache-Control', ('max-age='+str(60)))  
 	json_output = json.dumps(array)	
-	#memcache.add(self.request.path_qs, json_output, time=settings.API_QUERY_INTERVAL*60, namespace='api_cache')
-	self.response.out.write(json_output)	
+	memcache.add(self.request.path_qs, json_output, time=time, namespace='api_cache')
+	self.response.out.write(json_output)                          
 	return
 
 def error_response(self, error_name, error_description):
@@ -139,7 +140,7 @@ class TracksHandler(webapp.RequestHandler):
 		if self.request.get('limit'):
 			limit = int(self.request.get('limit'))
 		else:
-			limit = settings.FRONTEND_TRACKS_LIMIT          
+			limit = settings.FRONTEND_LOCATIONS_LIMIT          
 		if self.request.get('offset'):
 			offset = int(self.request.get('offset'))
 		else:
@@ -163,7 +164,7 @@ class TracksHandler(webapp.RequestHandler):
 						add_to_track_array(track, track_array)
 					return memcache_and_json_output_array(self, track_array)
 				else:
-					error_response(self, 'no_tracks_in_genre', 'There are no tracks of the genre %s in the datastore.' % genre)
+					self.response.out.write("[]") # empty array
 				return					 
 		
 		# Processing for api/tracks/?location=location_id
@@ -178,8 +179,7 @@ class TracksHandler(webapp.RequestHandler):
 						add_to_track_array(track, track_array)              
 					return memcache_and_json_output_array(self, track_array)
 				else:
-					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s with limit %i and offset %s in the datastore.' % \
-																																											(self.request.get('location'), limit, offset))
+					self.response.out.write("[]") # empty array
 			return
 			
 		# Processing for api/tracks/?location=location_id&genre={genre_name}	
@@ -200,7 +200,7 @@ class TracksHandler(webapp.RequestHandler):
 						add_to_track_array(track, track_array)              
 					return memcache_and_json_output_array(self, track_array)
 				else:
-					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s in the datastore.' % self.request.get('location'))
+					self.response.out.write("[]") # empty array
 			return
 			
 		# Processing for api/tracks and api/tracks/?genre=all
@@ -212,7 +212,7 @@ class TracksHandler(webapp.RequestHandler):
 					add_to_track_array(track, track_array)
 				return memcache_and_json_output_array(self, track_array)
 			else:
-				error_response(self, 'no_tracks', 'There are no tracks in the datastore.') 
+				self.response.out.write("[]") # empty array
 			return			
 
 class TrackIDHandler(webapp.RequestHandler):
@@ -230,7 +230,58 @@ class TrackIDHandler(webapp.RequestHandler):
 		else:
 			error_response(self, 'no_track', 'You have provided no track id.')	
 		return
-			
+
+class MaxTracksHandler(webapp.RequestHandler):
+	"""
+		Fetch the biggest track_counter of the latest-updated locations. Returning json
+	"""
+	def get(self):
+
+		memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+		if memcached is not None:
+			return self.response.out.write(memcached)
+
+		# initialization
+		locations_array = []
+		genre = self.request.get('genre') 	
+		if self.request.get('limit'):
+			limit = int(self.request.get('limit'))
+		else:
+			limit = settings.FRONTEND_LOCATIONS_LIMIT
+		if self.request.get('offset'):
+			offset = int(self.request.get('offset'))
+		else:
+			offset = 0
+
+		# Processing latest locations for a certain genre api/locations/?genre={genre_name}
+		if genre and genre != 'all':
+		 	if genre not in utils.genres:
+				error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
+				return
+			location_genres = models.LocationGenreLastUpdate.all().order('-last_time_updated').filter('genre', genre).fetch(limit, offset)
+			if location_genres:
+				max_tracks = 0
+				for location_genre in location_genres:
+					if location_genre.track_counter > max_tracks:
+						max_tracks = location_genre.track_counter
+				return memcache_and_json_output_array(self, {'max_tracks': max_tracks}, settings.MAX_TRACKS_CACHE_TIME)
+			else:
+				self.response.out.write("[]") # empty array
+			return
+		
+		# Processing latest locations for api/locations
+		if not genre or genre == 'all':
+			locations = models.Location.all().order('-last_time_updated').fetch(limit, offset)
+			if locations:
+				max_tracks = 0
+				for location in locations:
+					if location.track_counter > max_tracks:
+						max_tracks = location.track_counter
+				return memcache_and_json_output_array(self, {'max_tracks': max_tracks}, settings.MAX_TRACKS_CACHE_TIME)
+			else:
+				self.response.out.write("[]") # empty array
+			return
+								
 class LocationsHandler(webapp.RequestHandler):
 	"""
 		Fetching latest updated locations. Returning json
@@ -247,7 +298,7 @@ class LocationsHandler(webapp.RequestHandler):
 		if self.request.get('limit'):
 			limit = int(self.request.get('limit'))
 		else:
-			limit = settings.FRONTEND_TRACKS_LIMIT
+			limit = settings.FRONTEND_LOCATIONS_LIMIT
 		if self.request.get('offset'):
 			offset = int(self.request.get('offset'))
 		else:
@@ -261,10 +312,14 @@ class LocationsHandler(webapp.RequestHandler):
 				error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
 				return                                                                                   
 			location_genres = models.LocationGenreLastUpdate.all().order('-last_time_updated').filter('genre', genre).fetch(limit, offset)
-			for location_genre in location_genres:
-				location_genre.location.track_counter = location_genre.track_counter							
-				locations_array.append(create_location_dict(location_genre.location))
-			return memcache_and_json_output_array(self, locations_array)
+			if location_genres:
+				for location_genre in location_genres:
+					location_genre.location.track_counter = location_genre.track_counter							
+					locations_array.append(create_location_dict(location_genre.location))
+				return memcache_and_json_output_array(self, locations_array)
+			else:
+				self.response.out.write("[]") # empty array
+			return
 		
 		# Processing latest locations for api/locations
 		if not genre or genre == 'all':
@@ -274,7 +329,7 @@ class LocationsHandler(webapp.RequestHandler):
 					locations_array.append(create_location_dict(location))
 				return memcache_and_json_output_array(self, locations_array)
 			else:
-				error_response(self, 'no_locations', 'There are no locations in the datastore.')
+				self.response.out.write("[]") # empty array
 			return 
 			
 
@@ -298,8 +353,9 @@ class LocationIDHandler(webapp.RequestHandler):
 def main():
   application = webapp.WSGIApplication([(r'/api/tracks/([0-9]{1,64})', TrackIDHandler),
 																				('/api/tracks.*', TracksHandler),
+																				('/api/locations/maxtracks.*', MaxTracksHandler),
 																				(r'/api/locations/([0-9]{1,64})', LocationIDHandler),
-																				('/api/locations.*', LocationsHandler),], debug=utils.in_development_enviroment())
+																				('/api/locations.*', LocationsHandler)], debug=utils.in_development_enviroment())
   run_wsgi_app(application)
 
 if __name__ == '__main__':
