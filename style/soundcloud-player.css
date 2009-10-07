@@ -2,7 +2,7 @@
 
 
 #player-container {
-  padding: 10px;
+  padding: 10px 0;
 	width: 100%;
 	height: 80px;
 	position: absolute;
@@ -21,24 +21,61 @@
 
 #player {
   height: 50px;
-  padding: 10px 80px 0 120px;
+  padding: 10px 10px 0 70px;
   position: relative;
   -moz-user-select : none;
   -khtml-user-select : none;
 }
 
 .metadata {
-  padding-top: 5px;
+  padding: 5px 10px 0 10px;
   font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
   font-size: 15px;
+  height: 18px;
 }
 
-a.show-on-map {
-  position: absolute;
-  right: 30px;
-  top: 15px;
-  color: #333;
+.metadata div {
+  float: left;
 }
+
+.show-on-map {
+  outline: 0;
+  display: block;
+  float: left;
+  margin: -3px 4px 0 0gm;
+  width: 48px;
+  height: 22px;
+  background: transparent url('../images/world_small.png') 0 1px repeat-x;
+  text-indent: -9999px;
+}
+
+.actions {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.actions a {
+  outline: 0;
+  display: block;
+  float: left;
+  margin-right: 4px;
+}
+
+.share-on-twitter {
+  width: 26px;
+  height: 15px;
+  background: transparent url('../images/twitter.png') top left repeat-x;
+  text-indent: -9999px;
+}
+
+.share-on-facebook {
+  width: 14px;
+  height: 15px;
+  background: transparent url('../images/fb.png') 0 1px repeat-x;
+  text-indent: -9999px;
+}
+
 
 #player .prev, #player .pause, #player .next, #player .play {
   position: absolute;
@@ -60,7 +97,7 @@ a.show-on-map {
 }
 
 #player .play {
-  left: 60px;
+  left: 10px;
   background-position: 10px -172px;
 }
 
@@ -69,7 +106,7 @@ body.playing #player .pause {
 }
 
 #player .pause {
-  left: 60px;
+  left: 10px;
   background-position: 10px -172px;
 }
 
@@ -81,7 +118,7 @@ body.playing #player .pause {
 #player .time {
   position: absolute;
   top: 12px;
-  right: 85px;
+  right: 15px;
   z-index: 100000;
   font-size: 11px;
   background: #fff;
