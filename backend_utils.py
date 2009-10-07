@@ -74,7 +74,7 @@ def get_latest_tracks_from_soundcloud():
 	created_at_time -= datetime.timedelta(hours=settings.SOUNDCLOUD_TIMEZONE_ADJUSTMENT)
 	created_at_time -= datetime.timedelta(minutes=settings.API_QUERY_INTERVAL)
 	query = "/tracks.json?created_at[from]=%s&duration[to]=%s" % (created_at_time.isoformat(), settings.DURATION_LIMIT)
-	tracks = open_remote_api(query, "soundcloud")
+	tracks = open_remote_api(query, "soundcloud")	
 	return tracks	
 
 def update_location_genre_data(track, location):

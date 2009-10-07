@@ -58,7 +58,7 @@ class FetchTrackInfo(webapp.RequestHandler):
 			track_id = self.request.get('track_id')
 			track = memcache.get(track_id, namespace="backend_update_track")
 			if track is None:
-				logging.error("Fetching memcache item %s failed in backend track update" % track_id)  
+				logging.warning("Fetching memcache item %s failed in backend track update" % track_id)  
 				self.response.set_status(500)
 				return
 					

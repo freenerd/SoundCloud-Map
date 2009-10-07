@@ -43,7 +43,7 @@ def main():
 		
 		logging.info("Fetching latest tracks from SoundCloud")
 		tracks = backend_utils.get_latest_tracks_from_soundcloud()
-		logging.info("Fetched %i tracks from Soundcloud" % len(tracks))
+		logging.info("Fetched %i tracks from Soundcloud" % len(tracks)) 
 		if len(tracks) > 0:
 			counter = 0    
 			for track in tracks:  

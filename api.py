@@ -86,7 +86,7 @@ def memcache_and_json_output_array(self, array):
 		Save to memcache and output as plain json
 	"""                                                                           
 	json_output = json.dumps(array)	
-	#memcache.add(self.request.path_qs, json_output, time=settings.API_QUERY_INTERVAL*60, namespace='api_cache')
+	memcache.add(self.request.path_qs, json_output, time=settings.API_QUERY_INTERVAL*60, namespace='api_cache')
 	self.response.out.write(json_output)	
 	return
 
@@ -139,7 +139,7 @@ class TracksHandler(webapp.RequestHandler):
 		if self.request.get('limit'):
 			limit = int(self.request.get('limit'))
 		else:
-			limit = settings.FRONTEND_TRACKS_LIMIT          
+			limit = settings.FRONTEND_LOCATIONS_LIMIT          
 		if self.request.get('offset'):
 			offset = int(self.request.get('offset'))
 		else:
@@ -247,7 +247,7 @@ class LocationsHandler(webapp.RequestHandler):
 		if self.request.get('limit'):
 			limit = int(self.request.get('limit'))
 		else:
-			limit = settings.FRONTEND_TRACKS_LIMIT
+			limit = settings.FRONTEND_LOCATIONS_LIMIT
 		if self.request.get('offset'):
 			offset = int(self.request.get('offset'))
 		else:
@@ -267,8 +267,15 @@ class LocationsHandler(webapp.RequestHandler):
 			return memcache_and_json_output_array(self, locations_array)
 		
 		# Processing latest locations for api/locations
-		if not genre or genre == 'all':
-			locations = models.Location.all().order('-last_time_updated').fetch(limit, offset)
+		if not genre or genre == 'all':                
+			# lookup in memcache
+			# get timestamp of oldest most recent updated location
+			oldest_most_recent_location = models.Location.all().order('-last_time_updated').fetch(1, settings.FRONTEND_LOCATIONS_LIMIT-1)
+			if oldest_most_recent_location:
+				last_time_updated = oldest_most_recent_location[0].last_time_updated
+				locations = models.Location.all().filter('last_time_updated >=', last_time_updated).order('-track_counter').fetch(limit, offset)      
+			else:
+				locations = models.Location.all().order('-track_counter').fetch(limit, offset) 
 			if locations:
 				for location in locations:
 					locations_array.append(create_location_dict(location))
