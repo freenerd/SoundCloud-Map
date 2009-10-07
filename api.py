@@ -84,7 +84,7 @@ def memcache_and_json_output_array(self, array, time=settings.API_QUERY_INTERVAL
 	"""
 		Save to memcache and output as plain json
 	"""                                                                                             
-	logging.info(self.response.headers.__delitem__('Cache-Control'))
+	self.response.headers.__delitem__('Cache-Control')
 	self.response.headers.add_header('Cache-Control', ('max-age='+str(60)))  
 	json_output = json.dumps(array)	
 	memcache.add(self.request.path_qs, json_output, time=time, namespace='api_cache')
@@ -115,7 +115,6 @@ def fetch_track_by_id(self, track_id):
 	"""
 		Return track_array with only one track for track_id
 	"""
-	logging.info(track_id)
 	track_array = []
 	track = models.Track.all().filter('track_id', int(track_id)).get()
 	if track:
@@ -342,8 +341,7 @@ class LocationIDHandler(webapp.RequestHandler):
 		memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
 		if memcached is not None:
 			return self.response.out.write(memcached)
-				
-		logging.info("Location ID" +( location_id or ''))
+		
 		if location_id:
 			return fetch_location_by_id(self, location_id)
 		else:
