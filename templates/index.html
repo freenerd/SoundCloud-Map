@@ -104,7 +104,11 @@
 
 		<!-- TEMPLATE FOR BUBBLE -->
     <div class="bubble" id="bubble-template">
-      <div class="city"><span class="city-track-counter">1</span> tracks from <span class="city-name">Berlin</span></div>
+      <div class="city"><span class="city-track-counter">1</span> tracks from <span class="city-name">Berlin</span> | 
+			<a class="share-on-twitter" target="_blank" href="#">Share on Twitter</a> | 
+			<a class="share-on-facebook" target="_blank" href="#">Share on Facebook</a> |
+			<a class="share-as-link" target="_blank" href="#">Share as Link</a>
+			</div>
       <ul class="track-list">
         <li class="previous">View previous</li>
         <li class="current">
@@ -131,8 +135,8 @@
     <div id="share-playlist">
       <div class="share-playlist">
         <a href="#close" class="close">X</a>
-        <h1>Share This Track</h1>
-        <p>Send this link to anyone who you want to share this track with:</p>
+        <h1>Share This <span class="typ">Track</span></h1>
+        <p>Send this link to anyone who you want to share this <span class="typ">track</span> with:</p>
         <input type="text" value="foobar">
       </div>
     </div>

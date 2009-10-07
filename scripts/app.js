@@ -194,13 +194,13 @@ soundManager.onload = function() {
 		var locRelSize = l.track_counter/maxTracksInLocation;
 		
 		// find out size of dot based on relative size
-		if (locRelSize >= 0 && locRelSize < 0.4) {
+		if (locRelSize >= 0 && locRelSize < 0.05) {
 			option = 1;
-		} else if (locRelSize >= 0.4 && locRelSize < 0.6) {
-		 	option = 2;
-		} else if (locRelSize >= 0.6 && locRelSize < 0.8) {
+		} else if (locRelSize >= 0.05 && locRelSize < 0.2) {
+		 	option = 2;                                  
+		} else if (locRelSize >= 0.2 && locRelSize < 0.5) {
 			option = 3;
-		} else if (l.track_counter >= 0.8) {
+		} else if (l.track_counter >= 0.5) {
 			option = 4;
 		};
 		
@@ -224,17 +224,48 @@ soundManager.onload = function() {
   	  $.getJSON(tracksUrl,function(tracks) {
   	    l.first_track = tracks[0];
   	    tracks[0].loc = l;
-  	    
+
+				var linkToBeShared = "http://tracksonamap.com/#city-" + l.id;
+				
+		    // set up share to twitter, no url shortener yet
+				var twitterShareLink = "I am listening to " + l.city + " on " + linkToBeShared + " via @tracksonamap";                                          
+			  twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
+
+				// set up share to Facebook
+				var facebookShareLink = "I am listening to " + l.city;                                                                          
+				facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(linkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
+
         l.html = $('#bubble-template')
           .clone()
           .attr('id', 'bubble' + tracks[0].id)
 					.find('.city span.city-track-counter').html(l.track_counter).end()
-					.find('.city span.city-name').html(l.city).end()
+					.find('.city span.city-name').html(l.city).end()									
           .find('.title').html(tracks[0].title).end()
           .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
           .find('ul li span.artist').html("<a href='" + tracks[0].user.permalink_url + "'>" + tracks[0].user.username + "</a>").end()
           .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
-          .find('a.play-button').bind('click',tracks[0],showPlayer).end();
+          .find('a.play-button').bind('click',tracks[0],showPlayer).end()
+					.find('.city .share-on-twitter').attr("href", twitterShareLink).end()
+					.find('.city .share-on-facebook').attr("href", facebookShareLink).end()
+			    .find('.city .share-as-link').attr('href',linkToBeShared).end()
+					.find('.city .share-as-link').click(function() {
+			      $("#share-playlist > div:first")
+			        .clone()
+			        .find("a.close").click(function() {
+			          	$(this).parents("div.share-playlist").fadeOut(function() {
+			            $(this).remove();
+			          });
+			          return false;
+			        }).end()
+			        .find("input").val(this.href).end()
+							.find("h1 .typ").html("City").end()
+							.find("p .typ").html("city").end()
+			        .appendTo("body")
+			        .fadeIn(function() {
+			          $(".share-playlist input").focus().select();
+			        });          
+			      return false;
+			    }).end();
 
         // hide avatar if default user image is shown
         if(l.html.find(".avatar").attr("src").search(/default/) != -1) {
@@ -547,12 +578,12 @@ soundManager.onload = function() {
   });
   
   //pop up the track that was shared if /#track-123123 detected
-  if(location.hash && location.hash.search(/track|location/) != -1) {
+  if(location.hash && location.hash.search(/track|city/) != -1) {
     var id = location.hash.split("-")[1];
     var q = "/api/tracks/";
     if(location.hash.search(/track/) != -1) { // track permalink
       q += id;
-    } else if(location.hash.search(/location/) != -1) { // location permalink
+    } else if(location.hash.search(/city/) != -1) { // location permalink
       q += "?limit=1&location="+ id;
     }
     $.getJSON(q,function(track) {

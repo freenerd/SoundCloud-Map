@@ -34,7 +34,7 @@ import models
 
 class DropDatabase(webapp.RequestHandler):
 
-	def get(self): 
+	def get(self):
 		if self.request.get('db') == 'track':
 			data = data = models.Track.all()
 		if self.request.get('db') == 'trackcache':
@@ -47,23 +47,54 @@ class DropDatabase(webapp.RequestHandler):
 			data = data = models.LocationTracksCounter.all()									
 		if self.request.get('db') == 'locationgenrelastupdate':
 			data = data = models.LocationGenreLastUpdate.all()
-			
-		try:                       
-			logging.info("Data = " + str(data))
-			while True:
-				for x in data.fetch(1000):
-					logging.info("X is " + str(x))
+
+		if data:
+			try:                       
+				logging.info("Data = " + str(data))
+ 				for x in data.fetch(1000):
+					logging.info("X is " + str(x))   
+					
 					lastupdate = models.LocationGenreLastUpdate.all().filter('location', x.key())
-					db.delete(lastupdate)
-					tracks = models.Track.all().filter('location', x.key())
-					db.delete(tracks)
+					while True:
+						thisupdate = lastupdate.fetch(500)
+						if thisupdate:
+							logging.info("Deleting some LocationCounters")
+							db.delete(thisupdate)
+						else:
+							break
+							
+					tracks = models.Track.all().filter('location', x.key()) 
+					while True:
+						thistracks = tracks.fetch(500)
+						if thistracks:
+							logging.info("Deleting some tracks")
+							db.delete(thistracks)
+						else:
+							break
+							
 					user = models.User.all().filter('location', x.key())
-					db.delete(user)
+					while True:
+						thisusers = user.fetch(500)
+						if thisusers: 
+							logging.info("Deleting some users")
+							db.delete(thisusers)
+						else:
+							break
+					
+					logging.info("Deleting the Location")		
 					db.delete(x)
-		except DeadlineExceededError:
-				queue = taskqueue.Queue()
-				queue.add(taskqueue.Task(url='/backend-cleanup/?db='+ self.request.get('db'), method='GET'))
-				self.response.out.write("Ran out of time, need to delete more!")																	 
+					 
+				if data.fetch(1):  
+					queue = taskqueue.Queue()
+					queue.add(taskqueue.Task(url='/backend-cleanup/?db='+ self.request.get('db'), method='GET'))
+					self.response.out.write("Ran out of time, need to delete more!")
+					
+			except DeadlineExceededError:
+					queue = taskqueue.Queue()
+					queue.add(taskqueue.Task(url='/backend-cleanup/?db='+ self.request.get('db'), method='GET'))
+					self.response.out.write("Ran out of time, need to delete more!")																	 
+		else:
+			return
 
 def main():
 	wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([

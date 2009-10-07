@@ -24,11 +24,12 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
-
+                
+import logging
 import random
 import os
 
-import utils
+import utils    
 import settings
 
 class MainHandler(webapp.RequestHandler):
@@ -39,7 +40,7 @@ class MainHandler(webapp.RequestHandler):
 				'google_maps_api_key' : settings.GOOGLE_MAPS_API_KEY,
 				'random' : random.random(),
 		}
-		
+				
 		path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
 		self.response.out.write(template.render(path, template_values))
 		
