@@ -76,6 +76,14 @@
   text-indent: -9999px;
 }
 
+.share-link {
+  width: 16px;
+  height: 16px;
+  background: transparent url('../images/link.png') top left repeat-x;
+  text-indent: -9999px;
+  margin-left: 1px;
+}
+
 
 #player .prev, #player .pause, #player .next, #player .play {
   position: absolute;
