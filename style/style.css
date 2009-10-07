@@ -141,6 +141,11 @@ a:hover {
   width: 345px;
 }
 
+.bubble .actions {
+  right: 12px;
+  top: -6px;
+}
+  
 .bubble .city .city-name {
   font-weight: bold;
 }
