@@ -120,11 +120,12 @@ body.playing #player .pause {
   top: 12px;
   right: 75px;
   z-index: 100000;
-  font-size: 11px;
+  font-size: 10px;
+  line-height: 10px;
   background: #fff;
-  opacity: 0.65;
-  -moz-opacity: 0.65;
-  filter: alpha(opacity=65);  
+  opacity: 0.75;
+  -moz-opacity: 0.75;
+  filter: alpha(opacity=75);  
   -moz-border-radius: 3px;
   border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -161,7 +162,7 @@ body.playing #player .pause {
   height: 50px;
   width: 0;
   background: #c2366e;
-  border-right: 0px solid #f06;
+  border-right: 1px solid #f06;
   position: absolute;
   top: 0;
 }
