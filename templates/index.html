@@ -49,16 +49,18 @@
     <div class="footer">
   		<div id="player-container" style="display:none">
   		  <div class="metadata">
+      		<div>
+      		</div>
+          <a class="show-on-map" href="#" title="Show on map">Show on map</a>
   		  </div>
-  		  <a class="show-on-map" href="#">Show on map</a> | 
-				<a class="share-on-twitter" target="_blank" href="#">Share on Twitter</a> | 
-				<a class="share-on-facebook" target="_blank" href="#">Share on Facebook</a> |
-				<span class="share-as-link"></span>
-				<a class="share-link" href="#">Share link</a>
+
+  		  <div class="actions">
+  				<a class="share-on-twitter" target="_blank" href="#" title="Share on Twitter">Share on Twitter</a> 
+  				<a class="share-on-facebook" target="_blank" href="#" title="Share on Facebook">Share on Facebook</a> 
+  				<a class="share-link" href="#">Share link</a>
+        </div>
+
   			<div id="player">
-  			  <div class="prev">
-  			    &gt;&gt;
-  			  </div>
   			  <div class="pause">
   			    ||
   			  </div>
@@ -67,9 +69,9 @@
   			  </div>
   			  <div class="waveform">
   			    <div class="loading"></div>
+  			    <div class="progress"></div>
   			    <img src="" />
   			    <div class="cover"></div>
-  			    <div class="progress"></div>
   			  </div>			  
   			  <div class="next">
   			    >>
@@ -114,7 +116,6 @@
         <li class="current">
           <span class="artwork">
             <img class="avatar" src="images/empty.png" />
-            <a class="play-button" href="#" title="Click to play">Click to play</a>
           </span>
           <h3 class="title"></h3>
           Uploaded by <span class="artist"></span> <span class="time"></span>

@@ -2,7 +2,7 @@
 
 
 #player-container {
-  padding: 10px;
+  padding: 10px 0;
 	width: 100%;
 	height: 80px;
 	position: absolute;
@@ -21,31 +21,68 @@
 
 #player {
   height: 50px;
-  padding: 10px 80px 0 120px;
+  padding: 10px 10px 0 70px;
   position: relative;
   -moz-user-select : none;
   -khtml-user-select : none;
 }
 
 .metadata {
-  padding-top: 5px;
   font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+  padding: 5px 100px 0 10px;
   font-size: 15px;
+  height: 18px;
 }
 
-a.show-on-map {
-  position: absolute;
-  right: 30px;
-  top: 15px;
-  color: #333;
+.metadata div {
+  float: left;
 }
+
+.show-on-map {
+  outline: 0;
+  display: block;
+  float: left;
+  margin: 0px 4px 0 7px;
+  width: 38px;
+  height: 22px;
+  background: transparent url('../images/world_small.png') 0 0 no-repeat;
+  text-indent: -9999px;
+}
+
+.actions {
+  position: absolute;
+  right: 10px;
+  top: 15px;
+}
+
+.actions a {
+  outline: 0;
+  display: block;
+  float: left;
+  margin-right: 4px;
+}
+
+.share-on-twitter {
+  width: 16px;
+  height: 16px;
+  background: transparent url('../images/twitter.png') top left repeat-x;
+  text-indent: -9999px;
+}
+
+.share-on-facebook {
+  width: 16px;
+  height: 16px;
+  background: transparent url('../images/fb.png') top left repeat-x;
+  text-indent: -9999px;
+}
+
 
 #player .prev, #player .pause, #player .next, #player .play {
   position: absolute;
   top: 7px;
   width: 50px;
   height: 50px;
-  border: 1px solid #ccc;
+  border: 1px solid #999;
   -moz-border-radius: 7px;
   border-radius: 7px;
   -webkit-border-radius: 7px;  
@@ -60,7 +97,7 @@ a.show-on-map {
 }
 
 #player .play {
-  left: 60px;
+  left: 10px;
   background-position: 10px -172px;
 }
 
@@ -69,19 +106,19 @@ body.playing #player .pause {
 }
 
 #player .pause {
-  left: 60px;
+  left: 10px;
   background-position: 10px -172px;
 }
 
 #player .next {
-  right: 20px;
+  right: 10px;
   background-position: 8px -55px;
 }
 
 #player .time {
   position: absolute;
   top: 12px;
-  right: 85px;
+  right: 75px;
   z-index: 100000;
   font-size: 11px;
   background: #fff;
@@ -94,11 +131,16 @@ body.playing #player .pause {
   padding: 1px;
 }
 
+#player .cover {
+  background: transparent url('../images/cover.png') top left repeat-x;
+}
 #player .waveform {
   height: 50px;
   background: #ccc;
   position: relative;
-  top: -2px;
+  margin-right: 60px;
+  top: -3px;
+  border: 1px solid #ccc
 }
 
 #player .waveform img {
@@ -110,7 +152,7 @@ body.playing #player .pause {
 #player .waveform .loading {
   height: 50px;
   width: 0%;
-  background: #696969;
+  background: #424242;
   position: absolute;
   top: 0;
 }
@@ -122,9 +164,6 @@ body.playing #player .pause {
   border-right: 1px solid #f06;
   position: absolute;
   top: 0;
-  opacity: 0.45;
-  -moz-opacity: 0.45;
-  filter: alpha(opacity=45);
 }
 
 #player .waveform .cover {

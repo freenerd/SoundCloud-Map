@@ -108,13 +108,9 @@ a:hover {
   height: 100px;
   display: block;
   text-indent: -9999px;
-  background: transparent url('../images/play.png') 40px 30px no-repeat;
   outline: 0;
 }
 
-.playing .bubble .artwork .play-button {
-  background-image: url('../images/pause.png');
-}
 
 .bubble .play-button.smaller {
   display: block;
