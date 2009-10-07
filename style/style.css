@@ -36,9 +36,9 @@ a:hover {
 #about-box, .share-playlist {
   position: absolute;
   left: 50%;
-  top: 50%;
-  margin-left: -190px;
-  margin-top: -250px;
+  top: 40%;
+  margin-left: -242px;
+  margin-top: -150px;
   width: 445px;
   background: white;
   border: 5px solid rgb(170,170,170);
@@ -53,7 +53,22 @@ a:hover {
   z-index: 20;
 } 
 
-#about-box a.close {
+.share-playlist {
+  width: 400px;
+  margin-left: -230px;
+  margin-top: -100px;
+}
+  .share-playlist h1 {
+    margin: -10px 0 15px 0;
+    padding: 0;
+  }
+
+  .share-playlist input {
+    width: 100%;
+    font-size: 16px;
+  }
+
+#about-box a.close, .share-playlist a.close {
   text-decoration: none;
   float: right;
   margin-right: -5px;
@@ -228,7 +243,6 @@ a:hover {
 .bubble .lng, .bubble .lat, .bubble .waveform {
   display:none;
 }
-
 
 .options {
   position: absolute;

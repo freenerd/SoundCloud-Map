@@ -430,7 +430,26 @@ soundManager.onload = function() {
 		var linkToBeShared = "http://tracksonamap.com/#track-" + track.id;
 		
 		// set up share simple link
-		$("#player-container .share-as-link").html(linkToBeShared);
+//		$("#player-container .share-as-link").html(linkToBeShared);
+		
+		// share box
+    $("#player-container .share-link").attr('href',linkToBeShared);	
+		$('#player-container .share-link').click(function() {
+      $("#share-playlist > div:first")
+        .clone()
+        .find("a.close").click(function() {
+          $(this).parents("div.share-playlist").fadeOut(function() {
+            $(this).remove();
+          });
+          return false;
+        }).end()
+        .find("input").val(this.href).end()
+        .appendTo("body")
+        .fadeIn(function() {
+          $(".share-playlist input").focus().select();
+        });          
+      return false;
+    });    
 		
     // set up share to twitter, no url shortener yet
 		var twitterShareLink = track.title  + " by " + track.user.username + " " + linkToBeShared + " via @tracksonamap";                                          
