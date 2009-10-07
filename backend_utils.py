@@ -149,8 +149,7 @@ def write_track_to_datastore(track, user, location):
 		user = user.key(),
 		location = location.key())			   
 	new_track.put()
-	logging.info("Track saved to datastore.")
-	#update_location_tracks_counter(track)                                      
+	logging.info("Track saved to datastore.")                                    
 			
 def get_location(city, country):
 	"""

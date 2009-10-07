@@ -10,6 +10,7 @@ DURATION_LIMIT = "1200000" # in milliseconds to filter out dj-sets + podcasts
 
 # Frontend
 FRONTEND_LOCATIONS_LIMIT = 200 # How many locations shall be displayed as default in FrontEnd?
+MAX_TRACKS_CACHE_TIME = 30 # How long in minutes are the max tracks counters going to be cached?
                                         
 # Backend
 # CLEANUP_INTERVAL = 1440 # How old in minutes shall the oldest track in the cache be?

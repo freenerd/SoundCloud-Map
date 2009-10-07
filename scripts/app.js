@@ -467,7 +467,16 @@ soundManager.onload = function() {
     $.getJSON("/api/tracks/"+ trackId,function(track) {
       showPlayer(track[0]);
       setupLocation(track[0].location);
-      GEvent.trigger(locations[locations.length-1].marker,'click'); // trigger a click on a random marker
+      GEvent.trigger(locations[locations.length-1].marker,'click'); // trigger a click on the most recent created marker
+    });
+  }
+
+  //pop up the location that was shared if /#location-123123 detected
+  if(location.hash && location.hash.search(/location/) != -1) { 
+    var locationId = location.hash.split("-")[1];
+    $.getJSON("/api/locations/"+ locationId,function(location) {
+      setupLocation(location[0]);
+      GEvent.trigger(locations[locations.length-1].marker,'click'); // trigger a click on the most recent created marker
     });
   }
 
