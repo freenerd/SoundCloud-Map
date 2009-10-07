@@ -119,7 +119,12 @@ def write_track_to_datastore(track, user, location):
 	logging.info("Saving track \"%s\" by \"%s\" (id: %s, created at: %s) to datastore ..." % \
 							(track['title'], user.username, track['id'], track['created_at']))		
 	created_at = datetime.datetime.strptime(track['created_at'], "%Y/%m/%d %H:%M:%S +0000")
-	release_date = datetime.date(year=int(track['release_year'] or 1900), month=int(track['release_month'] or 1), day=int(track['release_day'] or 1))		
+	release_date = datetime.date(year=int(track['release_year'] or 1900), month=int(track['release_month'] or 1), day=int(track['release_day'] or 1))
+	if track['genre']:
+		genre = track['genre'].strip().lower()
+	else:
+		genre = ''
+				
 	new_track = models.Track( \
 		track_id = int(track['id']), 
 		permalink = track['permalink'], 
@@ -140,7 +145,7 @@ def write_track_to_datastore(track, user, location):
 		label_name = track['label_name'],
 		label_id = track['label_id'],
 		license = track['license'],
-		genre = track['genre'].strip().lower(),
+		genre = genre,
 		bpm = track['bpm'],
 		key_signature = track['key_signature'],
 		duration = track['duration'],

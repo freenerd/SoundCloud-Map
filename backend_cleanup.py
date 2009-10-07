@@ -40,7 +40,7 @@ class DropDatabase(webapp.RequestHandler):
 		if self.request.get('db') == 'trackcache':
 			data = data = models.TrackCache.all()		
 		if self.request.get('db') == 'location': 
-			data = data = models.Location.all()					
+			data = data = models.Location.all().filter('country', 'None')					
 		if self.request.get('db') == 'user':
 			data = data = models.User.all()
 		if self.request.get('db') == 'locationtrackscounter':
@@ -48,13 +48,18 @@ class DropDatabase(webapp.RequestHandler):
 		if self.request.get('db') == 'locationgenrelastupdate':
 			data = data = models.LocationGenreLastUpdate.all()
 			
-		try: 
-			for x in data:
-				 keys = db.query_descendants(x).fetch(100)
-				 while keys:
-						db.delete(keys)
-						keys = db.query_descendants(x).fetch(100)
-				 x.delete()
+		try:                       
+			logging.info("Data = " + str(data))
+			while True:
+				for x in data.fetch(1000):
+					logging.info("X is " + str(x))
+					lastupdate = models.LocationGenreLastUpdate.all().filter('location', x.key())
+					db.delete(lastupdate)
+					tracks = models.Track.all().filter('location', x.key())
+					db.delete(tracks)
+					user = models.User.all().filter('location', x.key())
+					db.delete(user)
+					db.delete(x)
 		except DeadlineExceededError:
 				queue = taskqueue.Queue()
 				queue.add(taskqueue.Task(url='/backend-cleanup/?db='+ self.request.get('db'), method='GET'))

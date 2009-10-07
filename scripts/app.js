@@ -146,7 +146,7 @@ soundManager.onload = function() {
 	
 	// 
 	var offset = 0;
-	var LIMIT = 1;
+	var LIMIT = 10;
 	
 	// simple recursive algorithm to progressively load more tracks over ajax
 	function loadLocationsRecursive(locs) {

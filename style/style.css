@@ -1,15 +1,3 @@
-@font-face {
-  font-family: "Interstate";
-  font-weight: normal;
-  src: local("interstate-regular"), url(/fonts/Interstate-Regular.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Interstate light";
-  font-weight: light;
-  src: local("Interstate-Light"), url(/fonts/Interstate-Light.ttf) format("truetype");
-}
-
 body, html {
   padding: 0;
   margin: 0;
@@ -126,7 +114,7 @@ a:hover {
   width: 120px;
   text-align: center;
   color: #fff;
-  font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 .bubble .title {
@@ -248,7 +236,7 @@ a:hover {
   height: 80px;
   width: 100%;
   background: #efefef;
-  font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
   font-size: 18px;
   line-height: 1.7em;
 }
