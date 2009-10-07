@@ -144,20 +144,39 @@ soundManager.onload = function() {
 	  return false;
 	});
 	
+	// 
+	var offset = 0;
+	var limit = 1;
+	
+	// simple recursive algorithm to progressively load more tracks over ajax
+	function loadLocationsRecursive(locs) {
+    if(offset < 10) {
+      $.getJSON("/api/locations/?&limit=" + limit + "&offset=" + offset + "&genre=" + genre,loadLocationsRecursive);
+      if(locs) {
+        $.each(locs,function(i,l) {
+          setupLocation(l);
+        });
+      }
+      offset += limit;
+    } else {
+      // execute callback here
+    }
+	};
+	
 	// load all locations for a given genre
 	function loadLocations(g,callback) {
 	  genre = g;
-    $.getJSON("/api/locations/?genre=" + genre,function(locs) {
-      
-      // code to modify maxTracksInLocation based on the data set goes here
-      
-      $.each(locs,function(i,l) {
-        setupLocation(l);
-      });
-      if(callback) { // execute a callback fn
-        callback.apply();        
-      }
-    });
+    
+    // first get the no of tracks for the location with the most number of tracks, then recursively load locations
+    $.getJSON("/api/locations/maxtracks?genre=" + genre,function(maxtracks) {
+      maxTracksInLocation = maxtracks.max_tracks;
+      loadLocationsRecursive();
+    });	  
+
+    // callback, needed for e.g. autoplay
+    //   if(callback) { // execute a callback fn
+    //     callback.apply();        
+    //   }
 	}
 
   // set up an individual locations marker + popup
