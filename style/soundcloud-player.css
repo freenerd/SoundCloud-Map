@@ -161,7 +161,7 @@ body.playing #player .pause {
   height: 50px;
   width: 0;
   background: #c2366e;
-  border-right: 1px solid #f06;
+  border-right: 0px solid #f06;
   position: absolute;
   top: 0;
 }
