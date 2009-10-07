@@ -268,14 +268,7 @@ class LocationsHandler(webapp.RequestHandler):
 		
 		# Processing latest locations for api/locations
 		if not genre or genre == 'all':                
-			# lookup in memcache
-			# get timestamp of oldest most recent updated location
-			oldest_most_recent_location = models.Location.all().order('-last_time_updated').fetch(1, settings.FRONTEND_LOCATIONS_LIMIT-1)
-			if oldest_most_recent_location:
-				last_time_updated = oldest_most_recent_location[0].last_time_updated
-				locations = models.Location.all().filter('last_time_updated >=', last_time_updated).order('-track_counter').fetch(limit, offset)      
-			else:
-				locations = models.Location.all().order('-track_counter').fetch(limit, offset) 
+			locations = models.Location.all().order('-last_time_updated').fetch(limit, offset) 
 			if locations:
 				for location in locations:
 					locations_array.append(create_location_dict(location))
