@@ -212,101 +212,113 @@ soundManager.onload = function() {
     // add the location marker
     l.marker = new GMarker(new GPoint(l.lon,l.lat), markerOptions[option]);
     GEvent.addListener(l.marker, "click", function() {
-      // load all tracks in the location, start with the first
+      if(!l.marker.setupDone) {
+        console.log('not setup')
       
-      var tracksUrl = "/api/tracks/";
-      if(trackToShowFirst) { // load the track to show first
-        tracksUrl += trackToShowFirst;
-      } else { // load the first track from the location
-        tracksUrl += "?genre=" + genre + "&location=" + l.id + "&limit=1";
-      }
+        // load all tracks in the location, start with the first
       
-  	  $.getJSON(tracksUrl,function(tracks) {
-  	    l.first_track = tracks[0];
-  	    tracks[0].loc = l;
+        var tracksUrl = "/api/tracks/";
+        if(trackToShowFirst) { // load the track to show first
+          tracksUrl += trackToShowFirst;
+        } else { // load the first track from the location
+          tracksUrl += "?genre=" + genre + "&location=" + l.id + "&limit=1";
+        }
+      
+    	  $.getJSON(tracksUrl,function(tracks) {
+    	    l.firstTrack = tracks[0];
+    	    tracks[0].loc = l;
   	    
-        l.html = $('#bubble-template')
-          .clone()
-          .attr('id', 'bubble' + tracks[0].id)
-					.find('.city span.city-track-counter').html(l.track_counter).end()
-					.find('.city span.city-name').html(l.city).end()
-          .find('.title').html(tracks[0].title).end()
-          .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
-          .find('ul li span.artist').html("<a href='" + tracks[0].user.permalink_url + "'>" + tracks[0].user.username + "</a>").end()
-          .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
-          .find('a.play-button').bind('click',tracks[0],showPlayer).end();
+          l.html = $('#bubble-template')
+            .clone()
+            .attr('id', 'bubble' + tracks[0].id)
+  					.find('.city span.city-track-counter').html(l.track_counter).end()
+  					.find('.city span.city-name').html(l.city).end()
+            .find('.title').html(tracks[0].title).end()
+            .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
+            .find('ul li span.artist').html("<a href='" + tracks[0].user.permalink_url + "'>" + tracks[0].user.username + "</a>").end()
+            .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
+            .find('a.play-button').bind('click',tracks[0],showPlayer).end();
 
-        // hide avatar if default user image is shown
-        if(l.html.find(".avatar").attr("src").search(/default/) != -1) {
-          l.html.find(".avatar").hide();
-        }
+          // hide avatar if default user image is shown
+          if(l.html.find(".avatar").attr("src").search(/default/) != -1) {
+            l.html.find(".avatar").hide();
+          }
 
-        // load more tracks from the same city
-        GEvent.clearListeners(l.marker,'infowindowopen');
-        GEvent.addListener(l.marker, "infowindowopen", function() {
+          // load more tracks from the same city
+          GEvent.clearListeners(l.marker,'infowindowopen');
+          GEvent.addListener(l.marker, "infowindowopen", function() {
+            if(!l.marker.setupDone) {
           
-          // clear the tracks list
-          $("#bubble" + l.first_track.id).find('.tracks-list').html("");
+              // clear the tracks list
+              $("#bubble" + l.firstTrack.id).find('.tracks-list').html("");
             
-          $.getJSON("/api/tracks/?location=" + l.id + "&genre=" + genre + "&limit=10",function(extraTracks) {
+              $.getJSON("/api/tracks/?location=" + l.id + "&genre=" + genre + "&limit=10",function(extraTracks) {
             
-            if(trackToShowFirst) { // make sure that the first track loaded in the list is the track first shown in the bubble (used for track permalinks)
+                if(trackToShowFirst) { // make sure that the first track loaded in the list is the track first shown in the bubble (used for track permalinks)
               
-              // remove occurances of the first track
-              $.each(extraTracks,function(i,e) {
-                if(e && e.id == l.first_track.id) {
-                  extraTracks.splice(i,1);
+                  // remove occurances of the first track
+                  $.each(extraTracks,function(i,e) {
+                    if(e && e.id == l.firstTrack.id) {
+                      extraTracks.splice(i,1);
+                    }
+                  });
+              
+                  extraTracks = tracks.concat(extraTracks); // add it first in the array
+              
+                  if(extraTracks.length > 10) { // make sure the list is not longer than 10 tracks
+                    extraTracks = extraTracks.slice(0,10);
+                  }
                 }
-              });
-              
-              extraTracks = tracks.concat(extraTracks); // add it first in the array
-              
-              if(extraTracks.length > 10) { // make sure the list is not longer than 10 tracks
-                extraTracks = extraTracks.slice(0,10);
-              }
-            }
 
-            // add the new ones
-            $.each(extraTracks,function(i,t) {
-              $("#bubble" + l.first_track.id)
-                .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background-image:" + artworkBgImage(t) + "'>track</a></li>").end()
+                // add the new ones
+                $.each(extraTracks,function(i,t) {
+                  // add a reference to the location also for all the extra tracks
+                  t.loc = l;
+                  $("#bubble" + l.firstTrack.id)
+                    .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background-image:" + artworkBgImage(t) + "'>track</a></li>").end()
 
-                .find('.tracks-list .mini-artwork:last a').click(function() {
+                    .find('.tracks-list .mini-artwork:last a').click(function() {
 
-                  // highlight current image                  
-                  $(this).parents("ul.tracks-list").find(".mini-artwork a").removeClass("active");
-                  $(this).addClass("active");
+                      // highlight current image                  
+                      $(this).parents("ul.tracks-list").find(".mini-artwork a").removeClass("active");
+                      $(this).addClass("active");
 
-                  $("#bubble" + l.first_track.id)
-                    .find('.title').html(t.title).end()
-                    .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.user.avatar_url)).end()
-                    .find('ul li span.artist').html("<a href='" + t.user.permalink_url + "'>" + t.user.username + "</a>").end()
-                    .find('ul li span.time').html(fuzzyTime(t.created_minutes_ago) + " ago").end()
-                    .find('a.play-button').bind('click',t,showPlayer).end();
-                  return false;
+                      $("#bubble" + l.firstTrack.id)
+                        .find('.title').html(t.title).end()
+                        .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.user.avatar_url)).end()
+                        .find('ul li span.artist').html("<a href='" + t.user.permalink_url + "'>" + t.user.username + "</a>").end()
+                        .find('ul li span.time').html(fuzzyTime(t.created_minutes_ago) + " ago").end()
+                        .find('a.play-button').bind('click',t,showPlayer).end();
+                      return false;
+                    });
                 });
-            });
 
-            // highlight the first mini image
-            $("#bubble" + l.first_track.id).find('.tracks-list .mini-artwork:first a').addClass("active");
+                // highlight the first mini image
+                $("#bubble" + l.firstTrack.id).find('.tracks-list .mini-artwork:first a').addClass("active");
 
-            // if there's only one, then hide it
-            if($("#bubble" + l.first_track.id).find('.tracks-list .mini-artwork a').length == 1) {
-              $("#bubble" + l.first_track.id).find('.tracks-list').hide();              
+                // if there's only one, then hide it
+                if($("#bubble" + l.firstTrack.id).find('.tracks-list .mini-artwork a').length == 1) {
+                  $("#bubble" + l.firstTrack.id).find('.tracks-list').hide();              
+                }
+
+              });
+            
+              l.marker.setupDone = true; // next time we don't have to set up the bubble
             }
-
+            
           });
-        });
 
-        // auto-play the first track, if no track is playing
-        if(!$('body').hasClass("playing")) {
-          $("a.play-button:first",l.html).click();   
-        }
+          // auto-play the first track, if no track is playing
+          if(!$('body').hasClass("playing")) {
+            $("a.play-button:first",l.html).click();   
+          }
+          l.marker.openInfoWindow(l.html[0]);
 
+    	  });
+        
+      } else {
         l.marker.openInfoWindow(l.html[0]);
-
-  	  });
-      
+      }      
     });
     map.addOverlay(l.marker);
     locations.push(l);
@@ -426,14 +438,12 @@ soundManager.onload = function() {
     $("#player-container .show-on-map").unbind('click');
     $("#player-container .show-on-map").click(function() {
       map.panTo(new GLatLng(track.location.lat,track.location.lon));
+
       GEvent.trigger(track.loc.marker,'click');
       return false;
     });
 
 		var linkToBeShared = "http://tracksonamap.com/#track-" + track.id;
-		
-		// set up share simple link
-//		$("#player-container .share-as-link").html(linkToBeShared);
 		
 		// share box
     $("#player-container .share-link").attr('href',linkToBeShared);	
