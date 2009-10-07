@@ -58,13 +58,13 @@ class FetchTrackInfo(webapp.RequestHandler):
 			track_id = self.request.get('track_id')
 			track = memcache.get(track_id, namespace="backend_update_track")
 			if track is None:
-				logging.error("Fetching memcache item %s failed in backend track update" % track_id)  
+				logging.warning("Fetching memcache item %s failed in backend track update" % track_id)  
 				self.response.set_status(500)
 				return
 					
 			logging.info("Received the track \"%s\" by \"%s\" (id: %s, created at: %s)." % \
 									(track['title'], track['user']['username'], track['id'], track['created_at']))
-			
+									
 			# check if track meets our needs
 			if not track['streamable'] or track['sharing'] != 'public':
 				logging.info("The track does not match our needs. Will not be used.")
@@ -85,15 +85,13 @@ class FetchTrackInfo(webapp.RequestHandler):
 			# check if user is already in the datastore 		
 			user = models.User.all().filter('user_id', int(track['user_id'])).get()
 			if user:
-				logging.info("User is already in datastore as permalink: %s user_id: %i" % \
-																																(user.permalink, user.user_id))
+				logging.info("User is already in datastore as permalink: %s user_id: %i" % (user.permalink, user.user_id))
 				location = user.location																												
 				backend_utils.update_location_data(track, location) 																									
 			else:
  		 		# fetch complete user data
 				logging.info("User is not in the datastore yet. Fetching user data.")
-				track['user'] = backend_utils.open_remote_api("/users/%s.json" % \
-																								track['user']['permalink'], "soundcloud") 
+				track['user'] = backend_utils.open_remote_api("/users/%s.json" % track['user_id'], 'soundcloud') 
 																								
 				logging.info("User data fetched.")              
  				# determining location
@@ -103,7 +101,9 @@ class FetchTrackInfo(webapp.RequestHandler):
 												(track['user']['city'], track['user']['country'], location.location.lat, location.location.lon)) 
 						backend_utils.update_location_data(track, location)						
 				else:
-					try:                             
+					try:
+						if track['user']['city'] == None or track['user']['country'] == None:
+							raise RuntimeError
 						logging.info("Looks as if location is not in the datastore yet. Fetching it ...")
 						gecached_location = backend_utils.get_location(track['user']['city'], track['user']['country'])	
 						# check again, if location not in datastore already
