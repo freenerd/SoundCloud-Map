@@ -83,11 +83,12 @@ def add_to_track_array(track, track_array):
 def memcache_and_json_output_array(self, array, time=settings.API_QUERY_INTERVAL*60):	
 	"""
 		Save to memcache and output as plain json
-	"""                                 
-	self.response.headers.add_header('Cache-Control', 'max-age=%i' % settings.API_QUERY_INTERVAL*60)	                                          
+	"""                                                                                             
+	logging.info(self.response.headers.__delitem__('Cache-Control'))
+	self.response.headers.add_header('Cache-Control', ('max-age='+str(60)))  
 	json_output = json.dumps(array)	
 	memcache.add(self.request.path_qs, json_output, time=time, namespace='api_cache')
-	self.response.out.write(json_output)
+	self.response.out.write(json_output)                          
 	return
 
 def error_response(self, error_name, error_description):
@@ -163,7 +164,7 @@ class TracksHandler(webapp.RequestHandler):
 						add_to_track_array(track, track_array)
 					return memcache_and_json_output_array(self, track_array)
 				else:
-					error_response(self, 'no_tracks_in_genre', 'There are no tracks of the genre %s in the datastore.' % genre)
+					self.response.out.write("[]") # empty array
 				return					 
 		
 		# Processing for api/tracks/?location=location_id
@@ -178,8 +179,7 @@ class TracksHandler(webapp.RequestHandler):
 						add_to_track_array(track, track_array)              
 					return memcache_and_json_output_array(self, track_array)
 				else:
-					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s with limit %i and offset %s in the datastore.' % \
-																																											(self.request.get('location'), limit, offset))
+					self.response.out.write("[]") # empty array
 			return
 			
 		# Processing for api/tracks/?location=location_id&genre={genre_name}	
@@ -200,7 +200,7 @@ class TracksHandler(webapp.RequestHandler):
 						add_to_track_array(track, track_array)              
 					return memcache_and_json_output_array(self, track_array)
 				else:
-					error_response(self, 'no_tracks_in_location', 'There are no tracks at the location %s in the datastore.' % self.request.get('location'))
+					self.response.out.write("[]") # empty array
 			return
 			
 		# Processing for api/tracks and api/tracks/?genre=all
@@ -212,7 +212,7 @@ class TracksHandler(webapp.RequestHandler):
 					add_to_track_array(track, track_array)
 				return memcache_and_json_output_array(self, track_array)
 			else:
-				error_response(self, 'no_tracks', 'There are no tracks in the datastore.') 
+				self.response.out.write("[]") # empty array
 			return			
 
 class TrackIDHandler(webapp.RequestHandler):
@@ -266,7 +266,7 @@ class MaxTracksHandler(webapp.RequestHandler):
 						max_tracks = location_genre.track_counter
 				return memcache_and_json_output_array(self, {'max_tracks': max_tracks}, settings.MAX_TRACKS_CACHE_TIME)
 			else:
-				error_response(self, 'no_locations', 'There are no locations for the genre %s for limit %i and offset %i in the datastore.' % (genre, limit, offset))
+				self.response.out.write("[]") # empty array
 			return
 		
 		# Processing latest locations for api/locations
@@ -279,7 +279,7 @@ class MaxTracksHandler(webapp.RequestHandler):
 						max_tracks = location.track_counter
 				return memcache_and_json_output_array(self, {'max_tracks': max_tracks}, settings.MAX_TRACKS_CACHE_TIME)
 			else:
-				error_response(self, 'no_locations', 'There are no locations for limit %i and offset %i in the datastore.' % (limit, offset))
+				self.response.out.write("[]") # empty array
 			return
 								
 class LocationsHandler(webapp.RequestHandler):
@@ -318,7 +318,7 @@ class LocationsHandler(webapp.RequestHandler):
 					locations_array.append(create_location_dict(location_genre.location))
 				return memcache_and_json_output_array(self, locations_array)
 			else:
-				error_response(self, 'no_locations', 'There are no locations for the genre %s with limit %i and offset %i in the datastore.' % (genre, limit, offset))
+				self.response.out.write("[]") # empty array
 			return
 		
 		# Processing latest locations for api/locations
@@ -329,7 +329,7 @@ class LocationsHandler(webapp.RequestHandler):
 					locations_array.append(create_location_dict(location))
 				return memcache_and_json_output_array(self, locations_array)
 			else:
-				error_response(self, 'no_locations', 'There are no locations for limit %i and offset %i in the datastore.' % (limit, offset))
+				self.response.out.write("[]") # empty array
 			return 
 			
 
