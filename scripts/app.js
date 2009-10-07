@@ -155,7 +155,10 @@ soundManager.onload = function() {
       $.getJSON("/api/locations/?&limit=" + LIMIT + "&offset=" + offset + "&genre=" + genre,loadLocationsRecursive);
       if(locs) {
         $.each(locs,function(i,l) {
-          setupLocation(l);
+          var delay = i*30;
+          setTimeout(function() {
+            setupLocation(l);
+          },delay);
         });
       }
       offset += LIMIT;
