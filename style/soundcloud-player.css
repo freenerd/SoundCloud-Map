@@ -55,11 +55,11 @@
   top: 15px;
 }
 
-.actions a {
+.actions a, .actions span {
   outline: 0;
   display: block;
   float: left;
-  margin-right: 4px;
+  margin-right: 2px;
 }
 
 .share-on-twitter {
@@ -82,7 +82,7 @@
   top: 7px;
   width: 50px;
   height: 50px;
-  border: 1px solid #999;
+  border: 1px solid #afafaf;
   -moz-border-radius: 7px;
   border-radius: 7px;
   -webkit-border-radius: 7px;  
@@ -120,11 +120,12 @@ body.playing #player .pause {
   top: 12px;
   right: 75px;
   z-index: 100000;
-  font-size: 11px;
+  font-size: 10px;
+  line-height: 10px;
   background: #fff;
-  opacity: 0.65;
-  -moz-opacity: 0.65;
-  filter: alpha(opacity=65);  
+  opacity: 0.75;
+  -moz-opacity: 0.75;
+  filter: alpha(opacity=75);  
   -moz-border-radius: 3px;
   border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -160,7 +161,7 @@ body.playing #player .pause {
 #player .waveform .progress {
   height: 50px;
   width: 0;
-  background: #f06;
+  background: #c2366e;
   border-right: 1px solid #f06;
   position: absolute;
   top: 0;
