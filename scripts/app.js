@@ -213,7 +213,6 @@ soundManager.onload = function() {
     l.marker = new GMarker(new GPoint(l.lon,l.lat), markerOptions[option]);
     GEvent.addListener(l.marker, "click", function() {
       if(!l.marker.setupDone) {
-        console.log('not setup')
       
         // load all tracks in the location, start with the first
 
