@@ -40,7 +40,7 @@ class DropDatabase(webapp.RequestHandler):
 		if self.request.get('db') == 'trackcache':
 			data = data = models.TrackCache.all()		
 		if self.request.get('db') == 'location': 
-			data = data = models.Location.all().filter('country', 'None')					
+			data = data = models.Location.all().filter('city', 'None')					
 		if self.request.get('db') == 'user':
 			data = data = models.User.all()
 		if self.request.get('db') == 'locationtrackscounter':
