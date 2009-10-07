@@ -146,18 +146,19 @@ soundManager.onload = function() {
 	
 	// 
 	var offset = 0;
-	var limit = 1;
+	var LIMIT = 1;
 	
 	// simple recursive algorithm to progressively load more tracks over ajax
 	function loadLocationsRecursive(locs) {
-    if(offset < 10) {
-      $.getJSON("/api/locations/?&limit=" + limit + "&offset=" + offset + "&genre=" + genre,loadLocationsRecursive);
+	  // base case: never pull more than 200 tracks, and stop pulling when locs returns 0 locations
+    if(offset < 200 && (!locs || locs.length > 0)) {
+      $.getJSON("/api/locations/?&limit=" + LIMIT + "&offset=" + offset + "&genre=" + genre,loadLocationsRecursive);
       if(locs) {
         $.each(locs,function(i,l) {
           setupLocation(l);
         });
       }
-      offset += limit;
+      offset += LIMIT;
     } else {
       // execute callback here
     }
@@ -170,6 +171,8 @@ soundManager.onload = function() {
     // first get the no of tracks for the location with the most number of tracks, then recursively load locations
     $.getJSON("/api/locations/maxtracks?genre=" + genre,function(maxtracks) {
       maxTracksInLocation = maxtracks.max_tracks;
+      // reset offset counter
+      offset = 0;
       loadLocationsRecursive();
     });	  
 
