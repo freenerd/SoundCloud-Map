@@ -561,6 +561,10 @@ soundManager.onload = function() {
 
   // plays a random location
 	function playRandom() {
+		// show the spinner
+		$(".waveform img, .waveform .loading, .waveform .progress").css("visibility","hidden");
+		$(".waveform .spinner").css("visibility","visible");
+
 	  var randLoc = Math.floor(Math.random()*locations.length);
     GEvent.trigger(locations[randLoc].marker,'click'); // trigger a click on a random marker
 	}   
