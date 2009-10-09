@@ -80,10 +80,10 @@ def add_to_track_array(track, track_array):
 												'location': location_dict,
 												'user': user_dict})										  			 
 
-def memcache_and_json_output_array(self, array, time=settings.API_QUERY_INTERVAL*60):	
+def memcache_and_json_output_array(self, array, time=(settings.API_QUERY_INTERVAL*60-5)):	
 	"""
 		Save to memcache and output as plain json
-	"""                                                                                             
+	""" 
 	self.response.headers.__delitem__('Cache-Control')
 	self.response.headers.add_header('Cache-Control', ('max-age='+str(60)))  
 	json_output = json.dumps(array)	
@@ -263,7 +263,7 @@ class MaxTracksHandler(webapp.RequestHandler):
 				for location_genre in location_genres:
 					if location_genre.track_counter > max_tracks:
 						max_tracks = location_genre.track_counter
-				return memcache_and_json_output_array(self, {'max_tracks': max_tracks}, settings.MAX_TRACKS_CACHE_TIME)
+				return memcache_and_json_output_array(self, {'max_tracks': max_tracks}, (settings.MAX_TRACKS_CACHE_TIME-5))
 			else:
 				self.response.out.write("[]") # empty array
 			return
@@ -276,7 +276,7 @@ class MaxTracksHandler(webapp.RequestHandler):
 				for location in locations:
 					if location.track_counter > max_tracks:
 						max_tracks = location.track_counter
-				return memcache_and_json_output_array(self, {'max_tracks': max_tracks}, settings.MAX_TRACKS_CACHE_TIME)
+				return memcache_and_json_output_array(self, {'max_tracks': max_tracks}, (settings.MAX_TRACKS_CACHE_TIME-5))
 			else:
 				self.response.out.write("[]") # empty array
 			return

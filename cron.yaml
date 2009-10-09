@@ -3,6 +3,10 @@ cron:
   url: /backend-update
   schedule: every 3 minutes   
 
+- description: refill the memcache with latest new tracks
+  url: /backend-refill-memcache
+  schedule: every 3 minutes
+
 # - description: clean up cache -> delete old tracks
 #   url: /backend-cleanup
 #   schedule: every 2 minutes

@@ -60,6 +60,9 @@
   display: block;
   float: left;
   margin-right: 2px;
+  height: 18px;
+  font-size: 15px;
+  font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;       
 }
 
 .share-on-twitter {
