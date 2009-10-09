@@ -479,6 +479,7 @@ soundManager.onload = function() {
 		
 		// set up share link (share box)
     $("#player-container .share-link").attr('href',linkToBeShared);	
+    $("#player-container .share-link").unbind('click');
 		$('#player-container .share-link').click(function() {
       $("#share-box > div:first")
         .clone()
