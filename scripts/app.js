@@ -251,12 +251,12 @@ soundManager.onload = function() {
             .find('a.play-button').bind('click',tracks[0],showPlayer).end()
   					.find('.city .share-on-twitter').attr("href", twitterShareLink).end()
   					.find('.city .share-on-facebook').attr("href", facebookShareLink).end()
-  			    .find('.city .share-as-link').attr('href',linkToBeShared).end()
-  					.find('.city .share-as-link').click(function() {
-  			      $("#share-playlist > div:first")
+  			    .find('.city .share-link').attr('href',linkToBeShared).end()
+  					.find('.city .share-link').click(function() {
+  			      $("#share-box > div:first")
   			        .clone()
   			        .find("a.close").click(function() {
-  			          	$(this).parents("div.share-playlist").fadeOut(function() {
+  			          	$(this).parents("div.share-box").fadeOut(function() {
   			            $(this).remove();
   			          });
   			          return false;
@@ -266,7 +266,7 @@ soundManager.onload = function() {
   							.find("p .typ").html("city").end()
   			        .appendTo("body")
   			        .fadeIn(function() {
-  			          $(".share-playlist input").focus().select();
+  			          $(".share-box input").focus().select();
   			        });          
   			      return false;
   			    }).end();
@@ -477,13 +477,13 @@ soundManager.onload = function() {
 
 		var linkToBeShared = "http://tracksonamap.com/#track-" + track.id;
 		
-		// share box
+		// set up share link (share box)
     $("#player-container .share-link").attr('href',linkToBeShared);	
 		$('#player-container .share-link').click(function() {
-      $("#share-playlist > div:first")
+      $("#share-box > div:first")
         .clone()
         .find("a.close").click(function() {
-          $(this).parents("div.share-playlist").fadeOut(function() {
+          $(this).parents("div.share-box").fadeOut(function() {
             $(this).remove();
           });
           return false;
@@ -491,7 +491,7 @@ soundManager.onload = function() {
         .find("input").val(this.href).end()
         .appendTo("body")
         .fadeIn(function() {
-          $(".share-playlist input").focus().select();
+          $(".share-box input").focus().select();
         });          
       return false;
     });    
@@ -598,7 +598,8 @@ soundManager.onload = function() {
       q += "?limit=1&location="+ id;
     }
     $.getJSON(q,function(track) {
-      showPlayer(track[0]);
+      showPlayer(track[0]);      
+      map.setZoom(5);      
       setupLocation(track[0].location,track[0].id);
       GEvent.trigger(locations[locations.length-1].marker,'click'); // play the track (is this really clean?)
     });
