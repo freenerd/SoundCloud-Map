@@ -511,8 +511,7 @@ soundManager.onload = function() {
 		$("#player-container #player .waveform img").attr("src", track.waveform_url);
 		
 		// show the spinner
-		$(".waveform img").css("visibility","hidden");
-		$(".waveform .loading").css("visibility","hidden");
+		$(".waveform img, .waveform .loading, .waveform .progress").css("visibility","hidden");
 		$(".waveform .spinner").css("visibility","visible");
 		
     sound = soundManager.createSound({
@@ -523,8 +522,7 @@ soundManager.onload = function() {
       }),
       whileplaying : throttle(100,function() {
         if($(".waveform img").css("visibility") == "hidden") { // show spinner if track has not started to load
-      		$(".waveform img").css("visibility","visible");          
-      		$(".waveform .loading").css("visibility","visible");
+      		$(".waveform img, .waveform .loading, .waveform .progress").css("visibility","visible");
       		$(".waveform .spinner").css("visibility","hidden");          
         }
         progress.css('width',(sound.position/track.duration)*100+"%");
