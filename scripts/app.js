@@ -222,7 +222,6 @@ soundManager.onload = function() {
         } else { // load the first track from the location
           tracksUrl += "?genre=" + genre + "&location=" + l.id + "&limit=1";
         }
-      
     	  $.getJSON(tracksUrl,function(tracks) {
     	    l.firstTrack = tracks[0];
     	    tracks[0].loc = l; 
@@ -338,17 +337,23 @@ soundManager.onload = function() {
               l.marker.setupDone = true; // next time we don't have to set up the bubble
             }
             
-          });
+          }); // end open info window setup
 
           // auto-play the first track, if no track is playing
           if(!$('body').hasClass("playing")) {
             $("a.play-button:first",l.html).click();   
           }
+          
+          // now that we've finished the ajax calls, we can show the info window
           l.marker.openInfoWindow(l.html[0]);
 
     	  });
         
-      } else {
+      } else { // bubble already set up, so just open info window
+        // auto-play the first track, if no track is playing
+        if(!$('body').hasClass("playing")) {
+          $("a.play-button:first",l.html).click();   
+        }
         l.marker.openInfoWindow(l.html[0]);
       }      
     });
@@ -401,12 +406,6 @@ soundManager.onload = function() {
     return false;
   });
 
-  // prev random track
-  $('#player .prev').click(function(e) {
-    playRandom();
-    return false;
-  });
-  
   // pause track
   $('#player .pause').click(function(e) {
     togglePlay();
@@ -453,6 +452,7 @@ soundManager.onload = function() {
 
   // shows the track player with a given track
   function showPlayer(e) {
+    
     if(!playerIsVisible) { // show player if it's hidden
       playerIsVisible = true;
       $("#player-container").slideDown();
@@ -510,6 +510,11 @@ soundManager.onload = function() {
     
 		$("#player-container #player .waveform img").attr("src", track.waveform_url);
 		
+		// show the spinner
+		$(".waveform img").css("visibility","hidden");
+		$(".waveform .loading").css("visibility","hidden");
+		$(".waveform .spinner").css("visibility","visible");
+		
     sound = soundManager.createSound({
       id: track.id,
       url: track.stream_url + "?oauth_consumer_key=FhPCTC6rJGetkMIcLwI9A",
@@ -517,6 +522,11 @@ soundManager.onload = function() {
         loading.css('width',(sound.bytesLoaded/sound.bytesTotal)*100+"%");
       }),
       whileplaying : throttle(100,function() {
+        if($(".waveform img").css("visibility") == "hidden") { // show spinner if track has not started to load
+      		$(".waveform img").css("visibility","visible");          
+      		$(".waveform .loading").css("visibility","visible");
+      		$(".waveform .spinner").css("visibility","hidden");          
+        }
         progress.css('width',(sound.position/track.duration)*100+"%");
         position.html(formatMs(sound.position));
         duration.html(formatMs(track.duration));

@@ -372,3 +372,13 @@ a:hover {
 .waveform .loading {
 	background: #d6d6d6 url('../images/bg.png') 0 -51px repeat-x;
 }
+
+.waveform .spinner {
+	background: transparent url('/images/ajax-loader.gif') 0 0 repeat-x;
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  margin-left: 16px;
+  left: 50%;
+  top: 10px;
+}
