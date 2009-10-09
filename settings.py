@@ -1,5 +1,7 @@
 import settings_private
 
+APPLICATION_URL = "http://www.tracksonamap.com"
+
 # API
 GOOGLE_MAPS_API_KEY = settings_private.GOOGLE_MAPS_API_KEY
 GOOGLE_MAPS_API_URL = "http://maps.google.com/maps/geo?key=" + GOOGLE_MAPS_API_KEY
