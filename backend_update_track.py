@@ -102,7 +102,8 @@ class FetchTrackInfo(webapp.RequestHandler):
 						backend_utils.update_location_data(track, location)						
 				else:
 					try:
-						if track['user']['city'] == None or track['user']['country'] == None:
+						if track['user']['city'] == 'None' or track['user']['country'] == 'None' or \
+						   track['user']['city'] == None or track['user']['country'] == None:
 							raise RuntimeError
 						logging.info("Looks as if location is not in the datastore yet. Fetching it ...")
 						gecached_location = backend_utils.get_location(track['user']['city'], track['user']['country'])	
