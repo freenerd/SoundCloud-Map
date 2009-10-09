@@ -22,7 +22,7 @@
 	
 	<body>
 	 {% if track %}                               
-			{% if track.artwork %}
+			{% if track.artwork_url %}
 				 <img src="{{ track.artwork_url }}">
 			{% else %}
 				 <img src="{{ track.user.avatar_url }}">
