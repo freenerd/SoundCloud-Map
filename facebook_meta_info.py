@@ -47,7 +47,7 @@ class MainHandler(webapp.RequestHandler):
         title = 'Tracks On A Map: %s by %s' % (track.title, track.user.username)
       if type == 'city':
         city = models.Location.get_by_id(int(id))
-        title = 'Tracks On A Map: %s in ' % (city.city, city.country)     
+        title = 'Tracks On A Map: %s in %s' % (city.city, city.country)     
     else:
       self.response.out.write('unknown')
       return
