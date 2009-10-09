@@ -1,10 +1,9 @@
 @font-face {
-  font-family: "Interstate";
-  font-weight: normal;
-  src: local("Interstate-Regular"), url(/fonts/Interstate-Regular.ttf) format("truetype");
+  font-family: "Interstate light";
+  font-weight: light;
+  src: local("Interstate-Light"), url(/fonts/Interstate-Light.ttf) format("truetype");
   }
-
-
+  
 body, html {
   padding: 0;
   margin: 0;
@@ -15,7 +14,23 @@ body, html {
   -moz-user-select : none;
   -khtml-user-select : none;
 }
-  
+
+h1, h2 {
+  font-weight: normal;
+  margin: 0 0 0em 0;
+  line-height: 1.3em;
+  font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
+}  
+
+h1 {
+  font-size: 21px;
+}
+
+h2 {
+  font-size: 21px;
+  color: #999;
+}
+
 h3 {
   margin: 0 0 0 0;
   line-height: 1.3em;
@@ -51,7 +66,6 @@ a:hover {
   border: 5px solid rgb(170,170,170);
   -webkit-box-shadow : 3px 3px 5px rgba(0,0,0,0.3);
   -moz-box-shadow : 3px 3px 5px rgba(0,0,0,0.3);
-  color: #555;
   -moz-border-radius: 10px;
   border-radius: 10px;
   -webkit-border-radius: 10px;
@@ -268,6 +282,7 @@ a:hover {
   color: #999;
   padding: 5px 10px 0 10px;
   background: #696969 url('../images/bg.png') top left repeat-x;
+  font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 .options .genres a {
@@ -298,6 +313,7 @@ a:hover {
   height: 35px;
   padding: 5px 10px 0 10px;
   background: #d6d6d6 url('../images/bg.png') 0 -51px repeat-x;
+  font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 .options .jump-to a.powered-by {
