@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Interstate";
+  font-weight: normal;
+  src: local("Interstate-Regular"), url(/fonts/Interstate-Regular.ttf) format("truetype");
+  }
+
+
 body, html {
   padding: 0;
   margin: 0;
