@@ -50,12 +50,12 @@ soundManager.onload = function() {
 
   if (GBrowserIsCompatible()) {
     map = new GMap2($("#map_canvas")[0]);
-    $("#map_canvas").height($(window).height()-PLAYER_HEIGHT);
-    map.checkResize();
 		map.addControl(new GSmallZoomControl());
     map.setCenter(new GLatLng(-10.973349, 26.875), 2);
 		map.setMapType(G_PHYSICAL_MAP);  
 		map.enableScrollWheelZoom();	      
+    $("#map_canvas").height($(window).height()-PLAYER_HEIGHT);
+    map.checkResize();
 	}                                          
 	
 	// window resize handler
