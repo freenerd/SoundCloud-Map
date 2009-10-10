@@ -232,10 +232,11 @@ soundManager.onload = function() {
   		    // set up share to twitter, no url shortener yet
   				var twitterShareLink = "I am listening to " + l.city + " on " + linkToBeShared + " via @tracksonamap";                                          
   			  twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
-
+          
+          var facebookLinkToBeShared = "http://tracksonamap.com/from-facebook?type=city&id=" + l.id
   				// set up share to Facebook
   				var facebookShareLink = "I am listening to " + l.city;                                                                          
-  				facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(linkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);    	    
+  				facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);    	    
     	    
   	    
           l.html = $('#bubble-template')
@@ -503,8 +504,9 @@ soundManager.onload = function() {
     $("#player-container .share-on-twitter").attr("href", twitterShareLink);
    
 		// set up share to Facebook
+		var facebookLinkToBeShared = "http://www.tracksonamap.com/from-facebook?type=track&id=" + track.id
 		var facebookShareLink = "Tracks On A Map: " + track.title  + " by " + track.user.username;                                                                          
-		facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(linkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
+		facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
     $("#player-container .share-on-facebook").attr("href", facebookShareLink);		
 
     $("#player-container .metadata div:last").html("<a target='_blank' href='" + track.user.permalink_url + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a target='_blank' href='" + track.user.permalink_url + "'>" + track.user.username + "</a>");
