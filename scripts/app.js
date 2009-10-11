@@ -51,11 +51,11 @@ soundManager.onload = function() {
   if (GBrowserIsCompatible()) {
     map = new GMap2($("#map_canvas")[0]);
 		map.addControl(new GSmallZoomControl());
-    map.setCenter(new GLatLng(-10.973349, 26.875), 2);
 		map.setMapType(G_PHYSICAL_MAP);  
+    map.setCenter(new GLatLng(-10.973349, 26.875), 2);		
 		map.enableScrollWheelZoom();	      
     $("#map_canvas").height($(window).height()-PLAYER_HEIGHT);
-    map.checkResize();
+    map.checkResize();    
 	}                                          
 	
 	// window resize handler
@@ -602,7 +602,7 @@ soundManager.onload = function() {
   loadLocations("all",function() {
     playRandom();
   });
-  
+  map.setCenter(new GLatLng(-10.973349, 26.875), 2);		
   //pop up the track that was shared if /#track-123123 detected
   if(location.hash && location.hash.search(/track|city/) != -1) {
     var id = location.hash.split("-")[1];
