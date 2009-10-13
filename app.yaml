@@ -35,6 +35,9 @@ handlers:
 - url: /images
   static_dir: images
 
+- url: /fonts
+  static_dir: fonts
+
 - url: /favicon.ico
   static_files: images/favicon.ico
   upload: images/favicon.ico

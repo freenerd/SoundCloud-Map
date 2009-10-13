@@ -1,12 +1,13 @@
 SoundCloud Map displays the latest music uploaded to SoundCloud on a Google Maps map. It features track playback, genre-based filtering and an easy-to-use user interface. It has been implemented by using Python on Google App Engine. The front-end uses jQuery as well as the SoundCloud Javascript Player and Soundmanager 2.
 
-The application has been created by Johan Uhle in the summer term 2009 at Hasso Plattner Institute in Potsdam / Germany.
+The application has been created by Johan Uhle in the summer term 2009 at Hasso Plattner Institute in Potsdam / Germany. It has been further developed by Johan Uhle, Eric Wahlforss and Katharina Birkenbach during and after the Music Hackday in Berlin autumn 2009.
 
-A paper about the app, it's functionality and possible extensions has been released here
+A live version of SoundCloud Map can be found under the name TracksOnAMap here
+http://www.tracksonamap.com
+http://www.twitter.com/tracksonamap
+
+A paper about an early version of the app, it's functionality and possible extensions has been released here
 http://www.freenerd.de/soundcloudmap-paper/
-
-A live version of SoundCloud Map can be found here
-http://soundcloudmap.appspot.com
 
 The source code has been released on Github here
 http://github.com/freenerd/SoundCloud-Map/
@@ -17,11 +18,19 @@ Johan Uhle
 http://www.freenerd.de
 http://www.twitter.com/freenerd
 
+Eric Wahlforss
+http://www.eric.wahlforss.com
+http://www.twitter.com/ericw
+
+Katharina Birkenbach
+http://the-daily-mess.de  
+http://www.twitter.com/kapony
+
 Installation:
 
 1.) Open a new app on Google App Engine
-2.) Get a Google Maps Key for that app url
-3.) Include the maps key into settings.py 
+2.) Get a Google Maps Key for that app url 
+3.) Create a file settings_private.py and set the variable GOOGLE_MAPS_API_KEY
 4.) Upload to App Engine and let the magic happen
 
-Note: Before any marker are displayed on the map the database cache has to be updated via the cron job. This may take some time depending on the traffic at the SoundCloud server so best is you get yourself something to eat and come back in 20 minutes. Check the logs at your App Engine Admin Dashboard to see, how the backend update is doing.
+Note: Before any marker are displayed on the map the database cache has to be updated via the cron job. This may take some time depending on the traffic at the SoundCloud server so best is you get yourself something to eat and come back in 20 minutes. Check the logs at your App Engine Admin Dashboard to see, how the backend update is doing. If you are running in the development server, you have to call the cron job by yourself via http://localhost:8080/backend-update. Afterwards go to the Admin Console and run all the tasks queued in the default queue.
