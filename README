@@ -19,7 +19,7 @@ http://www.freenerd.de
 http://www.twitter.com/freenerd
 
 Eric Wahlforss
-http://www.eric.wahlforss.com
+http://eric.wahlforss.com
 http://www.twitter.com/ericw
 
 Katharina Birkenbach
@@ -33,4 +33,4 @@ Installation:
 3.) Create a file settings_private.py and set the variable GOOGLE_MAPS_API_KEY
 4.) Upload to App Engine and let the magic happen
 
-Note: Before any marker are displayed on the map the database cache has to be updated via the cron job. This may take some time depending on the traffic at the SoundCloud server so best is you get yourself something to eat and come back in 20 minutes. Check the logs at your App Engine Admin Dashboard to see, how the backend update is doing. If you are running in the development server, you have to call the cron job by yourself via http://localhost:8080/backend-update. Afterwards go to the Admin Console and run all the tasks queued in the default queue.
+Note: Before any marker are displayed on the map the database cache has to be updated via the cron job. This may take some time depending on the traffic at the SoundCloud server so best is you get yourself something to eat and come back in 20 minutes. Check the logs at your App Engine Admin Dashboard to see, how the backend update is doing. If you are running in the development server, you have to call the cron job by yourself via http://localhost:8080/backend-update. Afterwards go to the Admin Console and run all the tasks queued in the default queue. 
