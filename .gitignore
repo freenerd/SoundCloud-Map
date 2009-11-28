@@ -1,0 +1,9 @@
+.DS_Store
+
+*.pyc
+
+settings_private.py*
+
+fonts/
+
+index.yaml
