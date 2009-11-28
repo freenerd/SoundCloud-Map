@@ -22,47 +22,36 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from google.appengine.runtime import DeadlineExceededError
-from google.appengine.api.labs import taskqueue 
-from google.appengine.api import memcache
+from google.appengine.api.labs import taskqueue
 import logging
-import time
 import os
+import datetime
 
-import models
 import backend_utils 
-import settings
 
 def main():
-	"""
-	This method queries the SoundCloud API, fetches the latest tracks having been uploaded
-	since the last backend update, and adds them to the task queue for further processing.
-	It is intended to be called by a cronjob on a short basis, like every 3 minutes.
-	"""
-	try:
-		logging.info("Backend update started")
-		
-		logging.info("Fetching latest tracks from SoundCloud")
-		tracks = backend_utils.get_latest_tracks_from_soundcloud()
-		logging.info("Fetched %i tracks from Soundcloud" % len(tracks)) 
-		if len(tracks) > 0:
-			counter = 0    
-			for track in tracks:
-				track['id'] = unicode(track['id'])
-				if memcache.add(track['id'], track, time=settings.TRACK_BACKEND_UPDATE_LIFETIME*60, namespace="backend_update_track"): 
-					taskqueue.add(url='/backend-update/track', params={'track_id': track['id'], 'time_track_added_to_queue': str(int(time.time()))})
-					logging.info("Added track_id %s to memcache and task queue." % track['id'])
-					counter += 1					
-				else:
-					logging.error("Setting Memcache failed for track \"%s\" by \"%s\" (id: %s, created at: %s)." % \
-											(track['title'], track['user']['username'], track['id'], track['created_at']))
-			logging.info("Added %i tracks to the taskqueue" % counter)
-		else:
-			logging.info("Backend update finished without new tracks") 
-		
-	except DeadlineExceededError:
-		logging.warning("Backend Update has been canceled due to Deadline Exceeded")
-		for name in os.environ.keys():
-			logging.info("%s = %s" % (name, os.environ[name]))
-			
+  """
+  This method adds a task to the task queue intended to querie the SoundCloud API, 
+  fetch the latest tracks having been uploaded since the last backend update,
+  and adds them to the task queue for further processing.
+  It is intended to be called by a cronjob on a short basis, like every 3 minutes.
+  """
+  try:
+    logging.info("Backend update started")
+    
+    time_from = backend_utils.calculate_time_from()
+    time_to = datetime.datetime.now().isoformat()
+    
+    taskqueue.add(url='/backend-update-task',
+                  params={'time_from': time_from, 'time_to': time_to})
+                  
+    logging.info("Added backend update task to task queue. time_from: %s time_to: %s" % \
+                (time_from, time_to))               
+        
+  except DeadlineExceededError:
+    logging.warning("Backend Update has been canceled due to Deadline Exceeded")
+    for name in os.environ.keys():
+      logging.info("%s = %s" % (name, os.environ[name]))
+      
 if __name__ == '__main__':
   main()

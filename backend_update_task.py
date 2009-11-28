@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2009 Johan Uhle
+# 
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+# 
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+from google.appengine.runtime import DeadlineExceededError
+from google.appengine.api.labs import taskqueue 
+from google.appengine.api import memcache
+from google.appengine.ext import webapp 
+
+import wsgiref.handlers     
+import logging
+import time
+import os
+
+import models
+import backend_utils 
+import settings
+
+class BackendUpdate(webapp.RequestHandler):
+  
+  def post(self):
+	"""
+	This method queries the SoundCloud API, fetches the tracks having been uploaded
+	in the specified time and adds them to the task queue for further processing.
+	"""
+	try:
+		logging.info("Backend update task started")
+		
+		logging.info("Fetching the tracks from SoundCloud")
+		time_from = self.request.get('time_from')
+		time_to = self.request.get('time_to')		
+		tracks = backend_utils.get_latest_tracks_from_soundcloud()
+		logging.info("Fetched %i tracks from Soundcloud" % len(tracks)) 
+		if len(tracks) > 0:
+			counter = 0    
+			for track in tracks:
+				track['id'] = unicode(track['id'])
+				memcache_add = memcache.add(track['id'], 
+				                            track,
+				                            time=settings.TRACK_BACKEND_UPDATE_LIFETIME*60, 
+				                            namespace="backend_update_track")
+				if memcache_add: 
+					taskqueue.add(url='/backend-update/track', 
+					              params={'track_id': track['id'], 
+					                      'time_track_added_to_queue': str(int(time.time()))})
+					logging.info("Added track_id %s to memcache and task queue." % track['id'])
+					counter += 1					
+				else:
+					logging.error("Setting Memcache failed for track \"%s\" by \"%s\" (id: %s, created at: %s)." % \
+											(track['title'], track['user']['username'], track['id'], track['created_at']))
+			logging.info("Added %i tracks to the taskqueue" % counter)
+		else:
+			logging.info("Backend update finished without new tracks") 
+		
+	except DeadlineExceededError:
+		logging.warning("Backend Update has been canceled due to Deadline Exceeded")
+		for name in os.environ.keys():
+			logging.info("%s = %s" % (name, os.environ[name]))
+
+def main():
+  wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([
+    ('/backend-update-task', BackendUpdate),
+  ]))            
+      
+if __name__ == '__main__':
+  main()

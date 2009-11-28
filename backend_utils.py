@@ -67,14 +67,24 @@ def open_remote_api(query, api):
   logging.info("Result for %s Query: %s" % (api_name, result.content))
   return json.loads(result.content)
 
-def get_latest_tracks_from_soundcloud():
+def calculate_time_from():
+  time_from = datetime.datetime.now()
+  time_from -= datetime.timedelta(hours=settings.SOUNDCLOUD_TIMEZONE_ADJUSTMENT)
+  time_from -= datetime.timedelta(minutes=settings.API_QUERY_INTERVAL)
+  time_from = time_from.isoformat()
+  return time_from
+
+def get_latest_tracks_from_soundcloud(time_from=None, time_to=None):
   """
+  time_form and time_to must be datetime.isoformat()
   Get Latest Tracks from Soundcloud
   """
-  created_at_time = datetime.datetime.now()
-  created_at_time -= datetime.timedelta(hours=settings.SOUNDCLOUD_TIMEZONE_ADJUSTMENT)
-  created_at_time -= datetime.timedelta(minutes=settings.API_QUERY_INTERVAL)
-  query = "/tracks.json?created_at[from]=%s&duration[to]=%s" % (created_at_time.isoformat(), settings.DURATION_LIMIT)
+  if not time_from: time_from = calculate_time_from()    
+  if not time_to: time_to = datetime.datetime.now().isoformat()
+  query = "/tracks.json?"
+  query += "created_at[from]=" + time_from
+  query += "&created_at[to]=" + time_to
+  query += "&duration[to]=" + settings.DURATION_LIMIT
   tracks = open_remote_api(query, "soundcloud") 
   return tracks 
 

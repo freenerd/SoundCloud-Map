@@ -14,6 +14,10 @@ handlers:
   script: backend_update_track.py
   login: admin
 
+- url: /backend-update-task
+  script: backend_update_task.py
+  login: admin
+
 - url: /backend-update
   script: backend_update.py
   login: admin
