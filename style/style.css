@@ -256,10 +256,15 @@ a:hover {
   width: 350px;
   margin-right: 0;
   color: #999;
+  height: 110px;
 }
 
 .bubble ul li.current a {
   color: #999;
+}
+
+.bubble ul li.current div.current-meta {
+  height: 200px;
 }
 
 .bubble ul.track-list li.next, .bubble ul.tracks-list li.next {

@@ -244,7 +244,7 @@ soundManager.onload = function() {
             .attr('id', 'bubble' + tracks[0].id)
   					.find('.city span.city-track-counter').html(l.track_counter).end()
   					.find('.city span.city-name').html(l.city).end()
-            .find('.title').html(tracks[0].title).end()
+            .find('.title').html(tracks[0].title.substring(0,60)).end()
             .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
             .find('ul li span.artist').html("<a href='" + tracks[0].user.permalink_url + "'>" + tracks[0].user.username + "</a>").end()
             .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
@@ -284,7 +284,7 @@ soundManager.onload = function() {
               // clear the tracks list
               $("#bubble" + l.firstTrack.id).find('.tracks-list').html("");
             
-              $.getJSON("/api/tracks/?location=" + l.id + "&genre=" + genre + "&limit=10",function(extraTracks) {
+              $.getJSON("/api/tracks/?location=" + l.id + "&genre=" + genre + "&limit=9",function(extraTracks) {
             
                 if(trackToShowFirst) { // make sure that the first track loaded in the list is the track first shown in the bubble (used for track permalinks)
               
@@ -316,7 +316,7 @@ soundManager.onload = function() {
                       $(this).addClass("active");
 
                       $("#bubble" + l.firstTrack.id)
-                        .find('.title').html(t.title).end()
+                        .find('.title').html(t.title.substring(0,60)).end()
                         .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.user.avatar_url)).end()
                         .find('ul li span.artist').html("<a href='" + t.user.permalink_url + "'>" + t.user.username + "</a>").end()
                         .find('ul li span.time').html(fuzzyTime(t.created_minutes_ago) + " ago").end()
