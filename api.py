@@ -92,7 +92,7 @@ def memcache_and_output_array(self, array, xspf_prefix="latest", time=(settings.
     self.response.headers.add_header('Content-Disposition', 'attachment', filename=xspf_prefix+'_tracksonamap.xspf')
 
     path = os.path.join(os.path.dirname(__file__), 'templates/xspf')
-    output = template.render(path, { 'array' : array})
+    output = template.render(path, { 'array' : array, 'prefix' : xspf_prefix })
   else:
     output = json.dumps(array)  
   memcache.add(self.request.path_qs, output, time=time, namespace='api_cache')
