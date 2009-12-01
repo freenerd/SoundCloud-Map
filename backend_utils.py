@@ -130,7 +130,10 @@ def write_track_to_datastore(track, user, location):
   logging.info("Saving track \"%s\" by \"%s\" (id: %s, created at: %s) to datastore ..." % \
               (track['title'], user.username, track['id'], track['created_at']))    
   created_at = datetime.datetime.strptime(track['created_at'], "%Y/%m/%d %H:%M:%S +0000")
-  release_date = datetime.date(year=int(track['release_year'] or 1900), month=int(track['release_month'] or 1), day=int(track['release_day'] or 1))
+  try:
+    release_date = datetime.date(year=int(track['release_year'] or 1900), month=int(track['release_month'] or 1), day=int(track['release_day'] or 1))
+  except ValueError:
+    release_date = datetime.date(year=1900, month = 1, day = 1)
   if track['genre']:
     genre = track['genre'].strip().lower()
   else:

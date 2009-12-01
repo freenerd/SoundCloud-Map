@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<playlist version="1" xmlns="http://xspf.org/ns/0/"> 
+  <title>The Latest Tracks on Tracksonamap.com</title> 
+  <creator>Tracksonamap.com</creator> 
+  <annotation>Music from cites around the world</annotation> 
+  <info>Music from cites around the world</info> 
+  <location>http://tracksonamap.com</location> 
+  <date></date> 
+
+  <trackList>
+		{% for track in array %}
+      <track> 
+        <location>{{ track.stream_url }}</location> 
+        <identifier>{{ track.id }}</identifier> 
+        <title>{{ track.title }}</title> 
+        <creator>{{ track.user.username }}</creator> 
+        <duration>{{ track.duration }}</duration> 
+      </track>
+    {% endfor %}
+  </trackList> 
+</playlist>
