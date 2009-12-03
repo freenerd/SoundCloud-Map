@@ -6,16 +6,18 @@
   <annotation>Music from cites around the world</annotation> 
   <info>Music from cites around the world</info> 
   <location>http://tracksonamap.com</location> 
-  <date></date> 
+  <date>{{ date }}</date> 
 
   <trackList>
 		{% for track in array %}
       <track> 
         <location>{{ track.stream_url }}</location> 
         <identifier>{{ track.id }}</identifier> 
-        <title>{{ track.title }}</title> 
-        <creator>{{ track.user.username }}</creator> 
+        <title>{{ track.title|escape }}</title> 
+        <creator>{{ track.user.username|escape }}</creator> 
         <duration>{{ track.duration }}</duration> 
+        <image>{{ track.artwork_url }}</image>
+        <info>{{ track.permalink_url }}</info>
       </track>
     {% endfor %}
   </trackList> 

@@ -32,6 +32,7 @@ import logging
 import os
 import urllib
 import re
+import datetime
 
 import models
 import utils
@@ -90,9 +91,11 @@ def memcache_and_output_array(self, array, xspf_prefix="latest", time=(settings.
   if self.request.path.replace("/","").split(".")[-1] == "xspf":
     self.response.headers["Content-Type"] = "application/xspf+xml"
     self.response.headers.add_header('Content-Disposition', 'attachment', filename=xspf_prefix+'_tracksonamap.xspf')
-
+    
     path = os.path.join(os.path.dirname(__file__), 'templates/xspf')
-    output = template.render(path, { 'array' : array, 'prefix' : xspf_prefix })
+    output = template.render(path, { 'array' : array, 
+                                     'prefix' : xspf_prefix.replace("_", " ").title(), 
+                                     'date' : datetime.datetime.now().isoformat() })
   else:
     output = json.dumps(array)  
   memcache.add(self.request.path_qs, output, time=time, namespace='api_cache')
@@ -205,7 +208,7 @@ class TracksHandler(webapp.RequestHandler):
         if tracks:
           for track in tracks:
             add_to_track_array(track, track_array)              
-          return memcache_and_output_array(self, track_array, (location.city + utils.genres.get(genre)[0]))
+          return memcache_and_output_array(self, track_array, (location.city + "_" + utils.genres.get(genre)[0]))
         else:
           self.response.out.write("[]") # empty array
       return
