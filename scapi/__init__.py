@@ -490,7 +490,8 @@ class Scope(object):
             if connector.collapse_scope:
                 scopes = scopes[-1:]
             scope = "/".join([sc._scope() for sc in scopes]) + "/"
-        url = "http://%(host)s/%(base)s%(scope)s%(method)s%(queryparams)s" % dict(host=connector.host, method=method, base=connector._base, scope=scope, queryparams=self._create_query_string(queryparams))
+        url = "%(host)s/%(base)s%(scope)s%(method)s%(queryparams)s" % dict(host=connector.host, method=method, base=connector._base, scope=scope, queryparams=self._create_query_string(queryparams))
+#        url = "http://%(host)s/%(base)s%(scope)s%(method)s%(queryparams)s" % dict(host=connector.host, method=method, base=connector._base, scope=scope, queryparams=self._create_query_string(queryparams))
 
         # we need to install SCRedirectHandler
         # to gather possible See-Other redirects

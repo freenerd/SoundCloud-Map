@@ -38,25 +38,28 @@ import scapi
 class MainHandler(webapp.RequestHandler):
   
   def get(self):
-    self.response.out.write("TEST")    
+    token = self.request.get('token')
+    secret = self.request.get('secret')
+    auth = self.request.get('auth')
+    
     oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY,
                                                                   settings.OAUTH_CONSUMER_SECRET,
-                                                                  None,
-                                                                  None)
-                                                                                                                              
-    connector = scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator)  
-    logging.info(dir(connector))  
-    logging.info(connector.host)  
-    logging.info(connector.authenticator)
+                                                                  token,
+                                                                  secret)  
+
+    connector = scapi.ApiConnector(settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator)
+    token, secret = connector.fetch_access_token(auth)                                                                  
+                                                                
+    oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY, 
+                                                                  settings.OAUTH_CONSUMER_SECRET,
+                                                                  token, 
+                                                                  secret)                                                                  
     
-    token, secret = connector.fetch_request_token("http://api.soundcloud.com/oauth/request_token")
-    logging.info(token)
-    logging.info(secret)        
-    authorization_url = connector.get_request_token_authorization_url(token)
-    logging.info(authorization_url)
-    
-    # oauth_verifier = raw_input("please enter verifier code as seen in the browser:")  
-    
+    root = scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator))
+
+    logging.info("you have been authet")
+    logging.info("Token: " + token)
+    logging.info("Secret: " + secret)
     
     # template_values = {
     #     'google_maps_api_key' : settings.GOOGLE_MAPS_API_KEY,
@@ -64,8 +67,7 @@ class MainHandler(webapp.RequestHandler):
     # }
     #     
     # path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
-    # self.response.out.write(template.render(path, template_values))
-    self.response.out.write("TEST")    
+    # self.response.out.write(template.render(path, template_values))   
 
 def main():
   application = webapp.WSGIApplication([('.*', MainHandler)], debug=utils.in_development_enviroment())
