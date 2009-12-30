@@ -2,8 +2,12 @@ import settings_private
 
 APPLICATION_URL = "http://www.tracksonamap.com"
 
-# API
+# Private Settings
+OAUTH_CONSUMER_KEY = settings_private.OAUTH_CONSUMER_KEY
+OAUTH_CONSUMER_SECRET =  settings_private.OAUTH_CONSUMER_SECRET
 GOOGLE_MAPS_API_KEY = settings_private.GOOGLE_MAPS_API_KEY
+
+# API
 GOOGLE_MAPS_API_URL = "http://maps.google.com/maps/geo?key=" + GOOGLE_MAPS_API_KEY
 API_RETRIES = 10
 SOUNDCLOUD_API_URL = "http://api.soundcloud.com"

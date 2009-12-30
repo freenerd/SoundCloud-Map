@@ -81,3 +81,8 @@ class Track(db.Model):
 	def created_minutes_ago(self):
 		timedelta = datetime.datetime.now() - self.created_at			
 		return ((timedelta.seconds + timedelta.days*86400) / 60)
+		
+class OAuthTokens(db.Model):
+  token = db.StringProperty()
+  secret = db.StringProperty()
+  type = db.StringProperty()

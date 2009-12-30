@@ -30,6 +30,9 @@ handlers:
   script: backend_refill_memcache.py
   login: admin
 
+- url: /soundcloud-connect.*
+  script: soundcloud-connect.py
+
 - url: /from-facebook.*
   script: facebook_meta_info.py
 
