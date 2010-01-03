@@ -354,6 +354,11 @@ a:hover {
   background: transparent url('../images/world.png')  top left no-repeat;
 }
 
+.cwsc a{
+  position: relative;  
+  left:500px;
+}
+
 .options .jump-to {
   position: relative;
   height: 35px;

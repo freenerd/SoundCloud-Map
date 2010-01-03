@@ -64,6 +64,22 @@ soundManager.onload = function() {
     map.checkResize();
 	});	
 
+  // 
+  // Begin Connect with SoundCloud
+  //
+
+  var options = { 
+      'request_token_endpoint': '/soundcloud-connect/request-token/',
+      'access_token_endpoint': '/soundcloud-connect/access-token/',
+      'callback': function(query_obj){}
+    };
+    
+  SC.Connect.prepareButton($('#connect-with-sc'),options);
+
+  // 
+  // End Connect with SoundCloud
+  //
+
 	// Different sized icons for the markers. 0 is small, 4 is big.
 	icons[0] = new GIcon(G_DEFAULT_ICON);
   icons[0].image = "images/sc_marker_1.png";
@@ -122,7 +138,7 @@ soundManager.onload = function() {
     ev.preventDefault();
   });  
      
-	// about box closes when action on myp
+	// about box closes when action on map
 	GEvent.addListener(map, "movestart", function() {
 	  $("#about-box").fadeOut();
 	}); 
@@ -617,6 +633,15 @@ soundManager.onload = function() {
       map.setZoom(5);      
       setupLocation(track[0].location,track[0].id);
       GEvent.trigger(locations[locations.length-1].marker,'click'); // play the track (is this really clean?)
+    });      
+  }
+  
+  if(location.hash && location.hash.search(/scconnect/) != -1) {
+  var q = "/api/soundcloud-connect/followers/";
+  $.getJSON(q,function(location) {
+    $.each(location,function(i,l) {
+      setupLocation(l);
+      });
     });
   }
 }

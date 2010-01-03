@@ -37,6 +37,8 @@ import datetime
 import models
 import utils
 import settings
+import scapi
+import backend_utils
 
 def create_location_dict(location):
    location_dict = {'lon': location.location.lon,
@@ -358,12 +360,96 @@ class LocationIDHandler(webapp.RequestHandler):
     else:
       error_response(self, 'no_location', 'You have provided no location id.')  
     return    
+    
+class SoundCloudConnectHandler(webapp.RequestHandler):
+  def get(self):
+    sid = self.request.cookies.get("sid")
+    logging.info("SID: " + sid)
+    sid_data = models.OAuthToken.all().filter('session_hash', sid).get()
+    logging.info("sid_data: " + str(sid_data))
+    oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY, 
+                                                                  settings.OAUTH_CONSUMER_SECRET,
+                                                                  sid_data.token, 
+                                                                  sid_data.secret)                                                                  
+    root = scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator))      
+    self.response.out.write(root.me().username)
+
+class SoundCloudConnectFollowersHandler(webapp.RequestHandler):
+  def get(self):
+    sid = self.request.cookies.get("sid")
+    logging.info("SID: " + sid)
+    sid_data = models.OAuthToken.all().filter('session_hash', sid).get()
+    logging.info("sid_data: " + str(sid_data))
+    oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY, 
+                                                                  settings.OAUTH_CONSUMER_SECRET,
+                                                                  sid_data.token, 
+                                                                  sid_data.secret)                                                                  
+    root = scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator))
+    followers = list(root.me().followers())
+    output = []
+    
+    for follower in followers[0:5]:
+      logging.info(follower)      
+      try:
+        geocached_location = backend_utils.get_location(follower['city'], follower['country'])
       
+        if geocached_location['city'] == 'None' or geocached_location['country'] == 'None' or \
+        geocached_location['city'] == None or geocached_location['country'] == None:   
+          logging.info("No Location")
+          continue
+        else:
+          logging.info(geocached_location)
+          follower['geocached_location'] = geocached_location
+          geocached_location['id'] = 1234
+          geocached_location['track_counter'] = 90
+          geocached_location['lat'] = geocached_location['location'].lat
+          geocached_location['lon'] = geocached_location['location'].lon
+          del geocached_location['location']          
+          output.append(geocached_location)
+      except RuntimeError:
+        logging.info("No Location")
+        pass
+    return memcache_and_output_array(self, output)
+    
+
+class SoundCloudConnectFavoritesHandler(webapp.RequestHandler):
+  def get(self):
+    sid = self.request.cookies.get("sid")
+    logging.info("SID: " + sid)
+    sid_data = models.OAuthToken.all().filter('session_hash', sid).get()
+    logging.info("sid_data: " + str(sid_data))
+    oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY, 
+                                                                  settings.OAUTH_CONSUMER_SECRET,
+                                                                  sid_data.token, 
+                                                                  sid_data.secret)                                                                  
+    root = scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator))
+    favorites = list(root.me().favorites())
+    
+    self.response.out.write(favorites)
+    
+    # for follower in followers[0:10]:
+    #   logging.info(follower)      
+    #   try:
+    #     geocached_location = backend_utils.get_location(follower['city'], follower['country'])
+    #   
+    #     if geocached_location['city'] == 'None' or geocached_location['country'] == 'None' or \
+    #     geocached_location['city'] == None or geocached_location['country'] == None:   
+    #       logging.info("No Location")
+    #       continue
+    #     else:
+    #       logging.info(geocached_location)
+    #   except RuntimeError:
+    #     logging.info("No Location")
+    #     pass
+        
 def main():
   application = webapp.WSGIApplication([(r'/api/tracks/([0-9]{1,64})', TrackIDHandler),
                                         ('/api/tracks.*', TracksHandler),
                                         ('/api/locations/maxtracks.*', MaxTracksHandler),
                                         (r'/api/locations/([0-9]{1,64})', LocationIDHandler),
+                                        ('/api/soundcloud-connect/', SoundCloudConnectHandler),
+                                        ('/api/soundcloud-connect/followers/', SoundCloudConnectFollowersHandler),
+                                        ('/api/soundcloud-connect/favorites/', SoundCloudConnectFavoritesHandler),                                                                                
                                         ('/api/locations.*', LocationsHandler)], debug=utils.in_development_enviroment())
   run_wsgi_app(application)
 

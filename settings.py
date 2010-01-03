@@ -1,6 +1,7 @@
 import settings_private
 
-APPLICATION_URL = "http://www.tracksonamap.com"
+# APPLICATION_URL = "http://www.tracksonamap.com"
+APPLICATION_URL = "http://localhost:8080"
 
 # Private Settings
 OAUTH_CONSUMER_KEY = settings_private.OAUTH_CONSUMER_KEY
