@@ -24,10 +24,10 @@
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
 
-import utils
+import util
 import settings
 import models
-import api
+from api import utils
 
 def fetch_location_by_id(self, location_id): 
   """
@@ -37,9 +37,9 @@ def fetch_location_by_id(self, location_id):
   location = models.Location.get_by_id(int(location_id))
   if location:
     locations_array.append(create_location_dict(location))
-    return api.utils.memcache_and_output_array(self, locations_array)
+    return utils.memcache_and_output_array(self, locations_array)
   else:
-    api.utils.error_response(self, 'location_not_found', 'The location with the location_id %s is not in the datastore.' % location_id)
+    utils.error_response(self, 'location_not_found', 'The location with the location_id %s is not in the datastore.' % location_id)
   return
 
 class MaxTracksHandler(webapp.RequestHandler):
@@ -75,7 +75,7 @@ class MaxTracksHandler(webapp.RequestHandler):
         for location_genre in location_genres:
           if location_genre.track_counter > max_tracks:
             max_tracks = location_genre.track_counter
-        return api.utils.memcache_and_output_array(self, {'max_tracks': max_tracks}, (settings.MAX_TRACKS_CACHE_TIME-5))
+        return utils.memcache_and_output_array(self, {'max_tracks': max_tracks}, (settings.MAX_TRACKS_CACHE_TIME-5))
       else:
         self.response.out.write("[]") # empty array
       return
@@ -88,7 +88,7 @@ class MaxTracksHandler(webapp.RequestHandler):
         for location in locations:
           if location.track_counter > max_tracks:
             max_tracks = location.track_counter
-        return api.utils.memcache_and_output_array(self, {'max_tracks': max_tracks}, (settings.MAX_TRACKS_CACHE_TIME-5))
+        return utils.memcache_and_output_array(self, {'max_tracks': max_tracks}, (settings.MAX_TRACKS_CACHE_TIME-5))
       else:
         self.response.out.write("[]") # empty array
       return
@@ -127,7 +127,7 @@ class LocationsHandler(webapp.RequestHandler):
         for location_genre in location_genres:
           location_genre.location.track_counter = location_genre.track_counter              
           locations_array.append(create_location_dict(location_genre.location))
-        return api.utils.memcache_and_output_array(self, locations_array)
+        return utils.memcache_and_output_array(self, locations_array)
       else:
         self.response.out.write("[]") # empty array
       return
@@ -137,8 +137,8 @@ class LocationsHandler(webapp.RequestHandler):
       locations = models.Location.all().order('-last_time_updated').fetch(limit, offset)
       if locations:
         for location in locations:
-          locations_array.append(create_location_dict(location))
-        return api.utils.memcache_and_output_array(self, locations_array)
+          locations_array.append(utils.create_location_dict(location))
+        return utils.memcache_and_output_array(self, locations_array)
       else:
         self.response.out.write("[]") # empty array
       return 

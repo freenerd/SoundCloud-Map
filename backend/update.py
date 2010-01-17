@@ -27,7 +27,7 @@ import logging
 import os
 import datetime
 
-import backend_utils 
+import backend.utils 
 
 def main():
   """
@@ -39,7 +39,7 @@ def main():
   try:
     logging.info("Backend update started")
     
-    time_from = backend_utils.calculate_time_from()
+    time_from = backend.utils.calculate_time_from()
     time_to = datetime.datetime.now().isoformat()
     
     taskqueue.add(url='/backend-update-task',

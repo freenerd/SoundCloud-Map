@@ -11,23 +11,23 @@ handlers:
   static_dir: style  
          
 - url: /backend-update/track
-  script: backend_update_track.py
+  script: backend/update_track.py
   login: admin
 
 - url: /backend-update-task
-  script: backend_update_task.py
+  script: backend/update_task.py
   login: admin
 
 - url: /backend-update
-  script: backend_update.py
+  script: backend/update.py
   login: admin
 
 - url: /backend-cleanup/.*
-  script: backend_cleanup.py
+  script: backend/cleanup.py
   login: admin
 
 - url: /backend-refill-memcache
-  script: backend_refill_memcache.py
+  script: backend/refill_memcache.py
   login: admin
 
 - url: /soundcloud-connect-auth.*
@@ -36,14 +36,22 @@ handlers:
 - url: /soundcloud-connect-done.*
   script: soundcloud_connect_done.py
 
+- url: /backend/soundcloud-connect/followers/
+  script: backend/soundcloudconnect/followers.py
+  login: admin
+
+- url: /backend/soundcloud-connect/follower/
+  script: backend/soundcloudconnect/follower.py
+  login: admin
+
 - url: /soundcloud-connect.*
-  script: soundcloud_connect.py
+  script: soundcloudconnect/main.py
 
 - url: /from-facebook.*
   script: facebook_meta_info.py
 
 - url: /api/.*
-  script: api.py 
+  script: api/main.py 
 
 - url: /images
   static_dir: images

@@ -24,6 +24,7 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
+from google.appengine.api.labs import taskqueue 
                 
 import logging
 import random
@@ -32,8 +33,7 @@ import Cookie
 import re
 import hashlib
 import time
-
-import utils    
+  
 import settings
 import models
 
@@ -43,14 +43,13 @@ class RequestTokenHandler(webapp.RequestHandler):
   
   def get(self):
     callback_url = settings.APPLICATION_URL + "/soundcloud-connect/access-token/"
-    
-    oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY,
-                                                                  settings.OAUTH_CONSUMER_SECRET,
-                                                                  None,
-                                                                  None)
-                                                                                                                              
-    connector = scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator)  
-    
+    oauth_authenticator = scapi.authentication.OAuthAuthenticator( \
+                                               settings.OAUTH_CONSUMER_KEY,
+                                               settings.OAUTH_CONSUMER_SECRET,
+                                               None,
+                                               None)                                                                                           
+    connector = scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, 
+                                   authenticator=oauth_authenticator)      
     token, secret = connector.fetch_request_token( \
                     url = "http://api.soundcloud.com/oauth/request_token")
     logging.info("Token: " + token)
@@ -63,10 +62,10 @@ class RequestTokenHandler(webapp.RequestHandler):
     
     hash = hashlib.md5(repr(time.time()) + unicode(random.random())).hexdigest()
     
-    oauthtoken = models.OAuthToken(authorized = False,
-                                   token = token,
-                                   secret = secret,
-                                   session_hash = hash)
+    oauthtoken = models.SoundCloudConnectUser(authorized = False,
+                                              token = token,
+                                              secret = secret,
+                                              session_hash = hash)
     oauthtoken.put()
     
     c = Cookie.SimpleCookie()
@@ -85,20 +84,18 @@ class AccessTokenHandler(webapp.RequestHandler):
   
   def get(self):
     
-    logging.info(self.request.__dict__)
-    
     # TODO Test if Token and Secret provided match the saved ones from the cookie
     
     sid = self.request.cookies.get("sid")
     
     logging.info("SID: " + sid)
     
-    sid_data = models.OAuthToken.all().filter('session_hash', sid).get()
+    user = models.SoundCloudConnectUser.all().filter('session_hash', sid).get()
     
-    logging.info("sid_data: " + str(sid_data))
+    logging.info("user: " + str(user))
     
-    token = sid_data.token
-    secret = sid_data.secret
+    token = user.token
+    secret = user.secret
     auth = self.request.get('auth')
     
     oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY,
@@ -108,25 +105,33 @@ class AccessTokenHandler(webapp.RequestHandler):
 
     connector = scapi.ApiConnector(settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator)
     token, secret = connector.fetch_access_token(auth)                                                                  
+                            
+    oauth_authenticator = scapi.authentication.OAuthAuthenticator( \
+                                              settings.OAUTH_CONSUMER_KEY,
+                                              settings.OAUTH_CONSUMER_SECRET,
+                                              token,
+                                              secret)         
+    root = scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL,
+                                          authenticator=oauth_authenticator))                                                                 
                                                                 
-    oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY, 
-                                                                  settings.OAUTH_CONSUMER_SECRET,
-                                                                  token, 
-                                                                  secret)                                                                  
+    user.token = token
+    user.secret = secret
+    user.user_id = root.me().id
+    user.authorized = True
     
-    root = scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator))
-
-    sid_data.token = token
-    sid_data.secret = secret
-    # sid_data.user_id = root.me().user_id
-    sid_data.user_id = 0000000
-    sid_data.authorized = True
-    
-    sid_data.put()
+    user.put()
     
     logging.info("you have been authet")
     logging.info("Token: " + token)
     logging.info("Secret: " + secret)
+    
+    # Lets get fill this backend up with the user-specific data
+    
+    # Create Followers task
+    taskqueue.add(url='/backend/soundcloud-connect/followers/', 
+                  params={'user_id': user.user_id})
+    
+    
     
 def main():
   application = webapp.WSGIApplication([(r'/soundcloud-connect/request-token/', RequestTokenHandler),

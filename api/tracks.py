@@ -24,10 +24,10 @@
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
 
-import utils
+import util
 import settings
 import models
-import api
+from api import utils
 
 
 def fetch_track_by_id(self, track_id): 
@@ -50,7 +50,7 @@ class TracksHandler(webapp.RequestHandler):
   def get(self):
                                               
     memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
-    if memcached is not None and not utils.in_development_enviroment():
+    if memcached is not None and not util.in_development_enviroment():
       return self.response.out.write(memcached)
                           
     # initializing
@@ -72,15 +72,15 @@ class TracksHandler(webapp.RequestHandler):
     if self.request.get('genre') and self.request.get('genre') != 'all' and not \
        (self.request.get('location') or self.request.get('location_lat') or self.request.get('location_lon')):
       genre = self.request.get('genre')
-      if genre not in utils.genres:
-        api.utils.error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
+      if genre not in util.genres:
+        utils.error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
         return
       else:
-        tracks = models.Track.all().filter('genre IN', utils.genres.get(genre)).order('-created_at').fetch(limit, offset)
+        tracks = models.Track.all().filter('genre IN', util.genres.get(genre)).order('-created_at').fetch(limit, offset)
         if tracks:                           
           for track in tracks:
-            api.utils.add_to_track_array(track, track_array)
-          return api.utils.memcache_and_output_array(self, track_array, utils.genres.get(genre)[0])
+            utils.add_to_track_array(track, track_array)
+          return utils.memcache_and_output_array(self, track_array, util.genres.get(genre)[0])
         else:
           self.response.out.write("[]") # empty array
         return           
@@ -89,13 +89,13 @@ class TracksHandler(webapp.RequestHandler):
     if self.request.get('location') and (self.request.get('genre') == 'all' or not self.request.get('genre')): 
       location = models.Location.get_by_id(int(self.request.get('location')))
       if not location:
-        api.utils.error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
+        utils.error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
       else:
         tracks = models.Track.all().filter('location', location.key()).order('-created_at').fetch(limit, offset)
         if tracks:
           for track in tracks:
-            api.utils.add_to_track_array(track, track_array)              
-          return api.utils.memcache_and_output_array(self, track_array, location.city)
+            utils.add_to_track_array(track, track_array)              
+          return utils.memcache_and_output_array(self, track_array, location.city)
         else:
           self.response.out.write("[]") # empty array
       return
@@ -103,20 +103,20 @@ class TracksHandler(webapp.RequestHandler):
     # Processing for api/tracks/?location=location_id&genre={genre_name}  
     if self.request.get('location') and self.request.get('genre'):
       genre = self.request.get('genre')
-      if genre not in utils.genres:
-        api.utils.error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
+      if genre not in util.genres:
+        utils.error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
         return
       location = models.Location.get_by_id(int(self.request.get('location')))
       if not location:
-        api.utils.error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
+        utils.error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
         return
       else:
-        tracks = models.Track.all().filter('location', location.key()).filter('genre IN', utils.genres.get(genre))
+        tracks = models.Track.all().filter('location', location.key()).filter('genre IN', util.genres.get(genre))
         tracks = tracks.order('-created_at').fetch(limit, offset)
         if tracks:
           for track in tracks:
-            api.utils.add_to_track_array(track, track_array)              
-          return api.utils.memcache_and_output_array(self, track_array, (location.city + "_" + utils.genres.get(genre)[0]))
+            utils.add_to_track_array(track, track_array)              
+          return utils.memcache_and_output_array(self, track_array, (location.city + "_" + util.genres.get(genre)[0]))
         else:
           self.response.out.write("[]") # empty array
       return
@@ -127,8 +127,8 @@ class TracksHandler(webapp.RequestHandler):
       tracks = models.Track.all().order('-created_at').fetch(limit, offset)
       if tracks:                           
         for track in tracks:
-          api.utils.add_to_track_array(track, track_array)
-        return api.utils.memcache_and_output_array(self, track_array)
+          utils.add_to_track_array(track, track_array)
+        return utils.memcache_and_output_array(self, track_array)
       else:
         self.response.out.write("[]") # empty array
       return      
@@ -140,11 +140,11 @@ class TrackIDHandler(webapp.RequestHandler):
   def get(self, track_id=None): 
 
     memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
-    if memcached is not None and not utils.in_development_enviroment():
+    if memcached is not None and not util.in_development_enviroment():
       return self.response.out.write(memcached)   
         
     if track_id:
-      return api.utils.fetch_track_by_id(self, track_id)
+      return utils.fetch_track_by_id(self, track_id)
     else:
-      api.utils.error_response(self, 'no_track', 'You have provided no track id.')  
+      utils.error_response(self, 'no_track', 'You have provided no track id.')  
     return

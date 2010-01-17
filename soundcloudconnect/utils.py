@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2009 Johan Uhle
+# Copyright (c) 2010 Johan Uhle
 # 
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -21,32 +21,16 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.ext.webapp import template
-                
-import logging
-import random
-import os
-
-import util  
+import models
+import scapi
 import settings
 
-class MainHandler(webapp.RequestHandler):
-	
-	def get(self):
-
-		template_values = {
-				'google_maps_api_key' : settings.GOOGLE_MAPS_API_KEY,
-				'random' : random.random(),
-		}
-				
-		path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
-		self.response.out.write(template.render(path, template_values))
-		
-def main():
-  application = webapp.WSGIApplication([('/', MainHandler)], debug=util.in_development_enviroment())
-  run_wsgi_app(application)
-
-if __name__ == '__main__':
-  main()
+def get_api_root(soundcloudconnect_user_id):
+  user = models.SoundCloudConnectUser.all().filter('user_id', int(soundcloudconnect_user_id)).get()  
+  oauth_authenticator = scapi.authentication.OAuthAuthenticator( \
+                                            settings.OAUTH_CONSUMER_KEY,
+                                            settings.OAUTH_CONSUMER_SECRET,
+                                            user.token,
+                                            user.secret)
+  return scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL,
+                                        authenticator=oauth_authenticator))

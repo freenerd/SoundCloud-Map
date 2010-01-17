@@ -32,7 +32,7 @@ import time
 import os
 
 import models
-import backend_utils 
+import backend.utils 
 import settings
 
 class BackendUpdate(webapp.RequestHandler):
@@ -48,7 +48,7 @@ class BackendUpdate(webapp.RequestHandler):
 		logging.info("Fetching the tracks from SoundCloud")
 		time_from = self.request.get('time_from')
 		time_to = self.request.get('time_to')		
-		tracks = backend_utils.get_latest_tracks_from_soundcloud()
+		tracks = backend.utils.get_latest_tracks_from_soundcloud()
 		logging.info("Fetched %i tracks from Soundcloud" % len(tracks)) 
 		if len(tracks) > 0:
 			counter = 0    

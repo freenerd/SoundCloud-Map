@@ -32,7 +32,7 @@ import os
 import datetime
 
 import models
-import backend_utils 
+import backend.utils 
 import settings
 
   
@@ -66,8 +66,7 @@ class FetchTrackInfo(webapp.RequestHandler):
                   (track['title'], track['user']['username'], track['id'], track['created_at']))
                   
       # check if track meets our needs
-      if not track['streamable'] or track['sharing'] != 'public':
-        logging.info("The track does not match our needs. Will not be used.")
+      if not backend.utils.check_if_tracks_meets_our_needs(track)
         if not memcache.delete(track_id, namespace="backend_update_track"):
           logging.error("Deletion from Memcache was not successfull.")
           self.response.set_status(500)
@@ -87,70 +86,30 @@ class FetchTrackInfo(webapp.RequestHandler):
       if user:
         logging.info("User is already in datastore as permalink: %s user_id: %i" % (user.permalink, user.user_id))
         location = user.location                                                        
-        backend_utils.update_location_data(track, location)                                                   
+        backend.utils.update_location_data(track, location)                                                   
       else:
         # fetch complete user data
         logging.info("User is not in the datastore yet. Fetching user data.")
-        track['user'] = backend_utils.open_remote_api("/users/%s.json" % track['user_id'], 'soundcloud') 
+        track['user'] = backend.utils.open_remote_api("/users/%s.json" % track['user_id'], 'soundcloud') 
         logging.info("User data fetched.")              
         
         # determining location
-        try:
-          if track['user']['city'] == 'None' or track['user']['country'] == 'None' or \
-            track['user']['city'] == None or track['user']['country'] == None:
-            raise RuntimeError
-          location = models.Location.all().filter('city', unicode(track['user']['city'])).filter('country', unicode(track['user']['country'])).get()
-          if location:
-            logging.info("Location is already in datastore: city: %s country: %s lat / lon: %s / %s" % \
-                        (track['user']['city'], track['user']['country'], location.location.lat, location.location.lon)) 
-            backend_utils.update_location_data(track, location)           
-          else:
-            logging.info("Looks as if location is not in the datastore yet. Fetching it ...")
-            geocached_location = backend_utils.get_location(track['user']['city'], track['user']['country']) 
-            if geocached_location['city'] == 'None' or geocached_location['country'] == 'None' or \
-               geocached_location['city'] == None or geocached_location['country'] == None:             
-              raise RuntimeError
-            # check again, if location not in datastore already
-            location = models.Location.all().filter('location', geocached_location['location']).get()              
-            if location:    
-              logging.info("Location has yet already been in datastore. Updating it.") 
-              backend_utils.update_location_data(track, location)                                                                                                                                           
-            else:
-              location = models.Location( \
-                          location = geocached_location['location'],
-                          city = unicode(geocached_location['city']),
-                          country = unicode(geocached_location['country']),   
-                          track_counter = 1,
-                          last_time_updated=datetime.datetime.now())
-              logging.info("Saving new location for user \"%s\" lat/lon %s/%s in city/country %s/%s to datastore ..." % \
-                          (track['user']['username'], location.location.lat, location.location.lon, location.city, location.country))
-              location.put()
-              backend_utils.update_location_genre_data(track, location)
-              logging.info("New location saved to datastore.") 
-                                                                   
-        except RuntimeError:
-          logging.info("No Location for User \"%s\" with City/Country: \"%s / %s\"." % \
-                      (track['user']['username'], track['user']['city'], track['user']['country']))
+        location = backend.utils.wrapped_get_location( \
+                                          track['user']['city'],
+                                          track['user']['country'],
+                                          track)
+        if not location:
           if not memcache.delete(track_id, namespace="backend_update_track"):
             logging.error("Deletion from Memcache was not successful.") 
             self.response.set_status(500)
-            logging.info("End of track update because could not be geolocated.")              
+            logging.info("End of track update because could not be geolocated.")  
           self.response.out.write("done") # finished processing script          
-          return # return 200. task gets deleted from task queue         
+          return # return 200. task gets deleted from task queue                                                     
         
-        logging.info("Saving user data (id: %s, permalink: %s) to datastore ..." % (track['user']['id'], track['user']['permalink']))
-        user = models.User( \
-                  user_id = track['user']['id'],
-                  permalink = track['user']['permalink'],
-                  permalink_url = track['user']['permalink_url'],
-                  username = track['user']['username'],
-                  fullname = track['user']['full_name'],
-                  avatar_url = track['user']['avatar_url'],
-                  location = location.key())           
-        user.put()
-        logging.info("User saved to datastore.")     
+        # apparently has been geolocated fine so lets continue ...
+        backend.utils.write_user_to_datastore(track['user'], location)
 
-      backend_utils.write_track_to_datastore(track, user, location)
+      backend.utils.write_track_to_datastore(track, user, location)
         
       if not memcache.delete(track_id, namespace="backend_update_track"):
         logging.error("Deletion from Memcache was not successful.")

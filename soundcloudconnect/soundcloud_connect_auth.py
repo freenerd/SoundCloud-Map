@@ -29,7 +29,6 @@ import logging
 import random
 import os
 
-import utils    
 import settings
 import models
 
@@ -70,7 +69,7 @@ class MainHandler(webapp.RequestHandler):
     # self.response.out.write(template.render(path, template_values))   
 
 def main():
-  application = webapp.WSGIApplication([('.*', MainHandler)], debug=utils.in_development_enviroment())
+  application = webapp.WSGIApplication([('.*', MainHandler)], debug=util.in_development_enviroment())
   run_wsgi_app(application)
 
 if __name__ == '__main__':

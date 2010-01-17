@@ -82,10 +82,47 @@ class Track(db.Model):
     timedelta = datetime.datetime.now() - self.created_at     
     return ((timedelta.seconds + timedelta.days*86400) / 60)
     
-class OAuthToken(db.Model):
+class SoundCloudConnectUser(db.Model):
   authorized = db.BooleanProperty()
   token = db.StringProperty(required=True)
   secret = db.StringProperty(required=True)
   user_id = db.IntegerProperty()
   session_hash = db.StringProperty()
+  max_location_followers_count = db.IntegerProperty()
+  max_location_followings_count = db.IntegerProperty()  
+  max_location_favorites_count = db.IntegerProperty()  
+  followers = db.IntegerProperty()  
+  followings = db.IntegerProperty()  
+  favorites = db.IntegerProperty()  
+  geolocated_followers = db.IntegerProperty()  
+  geolocated_followings = db.IntegerProperty()  
+  geolocated_favorites = db.IntegerProperty()  
+  
   entry_created_at = db.DateTimeProperty(auto_now_add=True)
+  
+class SoundCloudConnectUserLocations(db.Model):
+  follower_count = db.IntegerProperty()
+  following_count = db.IntegerProperty()  
+  favorite_count = db.IntegerProperty()
+
+  soundcloudconnect_user = db.ReferenceProperty(reference_class=SoundCloudConnectUser)
+  location = db.ReferenceProperty(reference_class=Location)
+  entry_created_at = db.DateTimeProperty(auto_now_add=True)
+
+class SoundCloudConnectFollower(db.Model):
+  soundcloudconnect_user = db.ReferenceProperty(reference_class=SoundCloudConnectUser)
+  follower = db.ReferenceProperty(reference_class=User)  
+  location = db.ReferenceProperty(reference_class=Location)
+  entry_created_at = db.DateTimeProperty(auto_now_add=True)  
+  
+class SoundCloudConnectFollowing(db.Model):
+  soundcloudconnect_user = db.ReferenceProperty(reference_class=SoundCloudConnectUser)
+  follower = db.ReferenceProperty(reference_class=User)  
+  location = db.ReferenceProperty(reference_class=Location)
+  entry_created_at = db.DateTimeProperty(auto_now_add=True)  
+  
+class SoundCloudConnectFavorite(db.Model):
+  soundcloudconnect_user = db.ReferenceProperty(reference_class=SoundCloudConnectUser)
+  favorite = db.ReferenceProperty(reference_class=Track)  
+  location = db.ReferenceProperty(reference_class=Location)
+  entry_created_at = db.DateTimeProperty(auto_now_add=True)    

@@ -21,6 +21,7 @@
 
 from google.appengine.api.urlfetch_errors import DownloadError
 from google.appengine.api import urlfetch
+from google.appengine.api import memcache
 from google.appengine.ext import db 
 from django.utils import simplejson as json
 
@@ -28,7 +29,7 @@ import logging
 import datetime, time
 
 import models     
-import utils
+import util
 import settings
 import urllib
       
@@ -90,8 +91,11 @@ def get_latest_tracks_from_soundcloud(time_from=None, time_to=None):
 
 def update_location_genre_data(track, location):
   # determine genre for track
+  if not track:
+    logging.info("Not updating genre location info because having no track")
+    return
   track_genre = None
-  for genre in utils.genres.iteritems():
+  for genre in util.genres.iteritems():
     if track['genre'] and track['genre'].strip().lower() in genre[1]:
       track_genre = genre[0]
   # update LocationGenreLastUpdate             
@@ -121,6 +125,26 @@ def update_location_data(track, location):
               (location.location.lat, location.location.lon, location.city, location.country, location.track_counter))
   update_location_genre_data(track, location)
   return
+
+def check_if_tracks_meets_our_needs(track):
+    if not track['streamable'] or track['sharing'] != 'public':      
+      logging.info("The track does not match our needs. Will not be used.")
+      return False
+    return True
+
+def write_user_to_datastore(user, location):
+  logging.info("Saving user data (id: %s, permalink: %s) to datastore ..." % (user['id'], user['permalink']))
+  user = models.User( \
+            user_id = user['id'],
+            permalink = user['permalink'],
+            permalink_url = user['permalink_url'],
+            username = user['username'],
+            fullname = user['full_name'],
+            avatar_url = user['avatar_url'],
+            location = location.key())           
+  user.put()
+  return user
+  logging.info("User saved to datastore.")       
 
 def write_track_to_datastore(track, user, location):
   """
@@ -217,4 +241,51 @@ def get_location(city, country):
       logging.error("Localization via maps.google.com failed with error code %i" % position['Status']['code'])
       
   raise RuntimeError, "Cannot be localized"    
+  
+def wrapped_get_location(city, country, track = None):
+  '''
+  TODO: I am to be a doctag
+  '''
+  try:
+    if city == 'None' or country == 'None' or \
+      city == None or country == None:
+      raise RuntimeError
+    location = models.Location.all().filter('city', unicode(city)).filter('country', unicode(country)).get()
+    if location:
+      logging.info("Location is already in datastore: city: %s country: %s lat / lon: %s / %s" % \
+                  (city, country, location.location.lat, location.location.lon)) 
+      update_location_data(track, location)           
+    else:
+      logging.info("Looks as if location is not in the datastore yet. Fetching it ...")
+      geocached_location = get_location(city, country) 
+      if geocached_location['city'] == 'None' or geocached_location['country'] == 'None' or \
+         geocached_location['city'] == None or geocached_location['country'] == None:             
+        raise RuntimeError
+      # check again, if location not in datastore already
+      location = models.Location.all().filter('location', geocached_location['location']).get()              
+      if location:    
+        logging.info("Location has yet already been in datastore. Updating it.") 
+        update_location_data(track, location)                                                                                                                                           
+      else:
+        location = models.Location( \
+                    location = geocached_location['location'],
+                    city = unicode(geocached_location['city']),
+                    country = unicode(geocached_location['country']),   
+                    track_counter = 1,
+                    last_time_updated=datetime.datetime.now())
+        logging.info("Saving new location lat/lon %s/%s in city/country %s/%s to datastore ..." % \
+                    (location.location.lat, location.location.lon, location.city, location.country))
+        location.put()
+        if track: update_location_genre_data(track, location)
+        logging.info("New location saved to datastore.") 
+    return location
+                                                           
+  except RuntimeError:
+    if track: 
+      logging_track = "for User \"" + track['user']['username'] + "\" with"
+    else:
+      logging_track = ''
+    logging.info("No Location %s City/Country: \"%s / %s\"." % \
+                (logging_track, city, country))                      
+    return False
       

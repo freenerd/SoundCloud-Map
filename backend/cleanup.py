@@ -29,7 +29,7 @@ import wsgiref.handlers
 import logging
 import os
 
-import backend_utils
+import backend.utils
 import models
 
 class DropDatabase(webapp.RequestHandler):

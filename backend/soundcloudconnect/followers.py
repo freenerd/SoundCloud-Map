@@ -21,32 +21,23 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.ext.webapp import template
-                
+from google.appengine.runtime import DeadlineExceededError
+from google.appengine.ext import webapp 
+
+import wsgiref.handlers     
 import logging
-import random
-import os
 
-import util  
-import settings
+from backend.soundcloudconnect import network
 
-class MainHandler(webapp.RequestHandler):
-	
-	def get(self):
-
-		template_values = {
-				'google_maps_api_key' : settings.GOOGLE_MAPS_API_KEY,
-				'random' : random.random(),
-		}
-				
-		path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
-		self.response.out.write(template.render(path, template_values))
-		
+class Followers(webapp.RequestHandler):
+  
+  def get(self):
+    return network.fetch_network(self,'followers')
+    
 def main():
-  application = webapp.WSGIApplication([('/', MainHandler)], debug=util.in_development_enviroment())
-  run_wsgi_app(application)
-
+  wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([
+    ('.*', Followers),
+  ]))            
+      
 if __name__ == '__main__':
   main()

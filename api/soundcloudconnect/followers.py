@@ -25,14 +25,18 @@ from google.appengine.ext import webapp
 
 import logging
 
+import models
 import scapi
 import settings
+
+import backend.utils
+import api.utils
 
 class SoundCloudConnectFollowersHandler(webapp.RequestHandler):
   def get(self):
     sid = self.request.cookies.get("sid")
     logging.info("SID: " + sid)
-    sid_data = models.OAuthToken.all().filter('session_hash', sid).get()
+    sid_data = models.SoundCloudConnectUser.all().filter('session_hash', sid).get()
     logging.info("sid_data: " + str(sid_data))
     oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY, 
                                                                   settings.OAUTH_CONSUMER_SECRET,
@@ -42,10 +46,10 @@ class SoundCloudConnectFollowersHandler(webapp.RequestHandler):
     followers = list(root.me().followers())
     output = []
     
-    for follower in followers[0:5]:
+    for follower in followers[0:20]:
       logging.info(follower)      
       try:
-        geocached_location = backend_utils.get_location(follower['city'], follower['country'])
+        geocached_location = backend.utils.get_location(follower['city'], follower['country'])
       
         if geocached_location['city'] == 'None' or geocached_location['country'] == 'None' or \
         geocached_location['city'] == None or geocached_location['country'] == None:   
@@ -63,4 +67,4 @@ class SoundCloudConnectFollowersHandler(webapp.RequestHandler):
       except RuntimeError:
         logging.info("No Location")
         pass
-    return memcache_and_output_array(self, output)
+    return api.utils.memcache_and_output_array(self, output)
