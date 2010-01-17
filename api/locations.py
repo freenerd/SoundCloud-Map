@@ -49,7 +49,7 @@ class MaxTracksHandler(webapp.RequestHandler):
   def get(self):
 
     memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
-    if memcached is not None and not utils.in_development_enviroment():
+    if memcached is not None and not util.in_development_enviroment():
       return self.response.out.write(memcached)
 
     # initialization
@@ -100,7 +100,7 @@ class LocationsHandler(webapp.RequestHandler):
   def get(self):
     
     memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
-    if memcached is not None and not utils.in_development_enviroment():
+    if memcached is not None and not util.in_development_enviroment():
       return self.response.out.write(memcached)
     
     # initialization
@@ -151,7 +151,7 @@ class LocationIDHandler(webapp.RequestHandler):
   def get(self, location_id=None):
 
     memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
-    if memcached is not None and not utils.in_development_enviroment():
+    if memcached is not None and not util.in_development_enviroment():
       return self.response.out.write(memcached)
     
     if location_id:

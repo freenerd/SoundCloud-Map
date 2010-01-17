@@ -39,6 +39,17 @@ class SoundCloudConnectFollowersHandler(webapp.RequestHandler):
     # if memcached is not None and not utils.in_development_enviroment():
     #   return self.response.out.write(memcached)    
     
+    # initialization
+    genre = self.request.get('genre')   
+    if self.request.get('limit'):
+      limit = int(self.request.get('limit'))
+    else:
+      limit = settings.FRONTEND_LOCATIONS_LIMIT
+    if self.request.get('offset'):
+      offset = int(self.request.get('offset'))
+    else:
+      offset = 0    
+    
     # check if user is logged in
     session_hash = self.request.cookies.get("session_hash")
     if not session_hash:
@@ -50,6 +61,7 @@ class SoundCloudConnectFollowersHandler(webapp.RequestHandler):
     locations = models.SoundCloudConnectUserLocations.all()
     locations = locations.filter('soundcloudconnect_user',  soundcloudconnect_user)
     locations = locations.filter('follower_count >', 0)
+    locations = locations.fetch(limit, offset)
     
     logging.info("Fetched Locations: " + str(locations))
     
@@ -61,3 +73,22 @@ class SoundCloudConnectFollowersHandler(webapp.RequestHandler):
       locations_array.append(location_dict)
     
     api.utils.memcache_and_output_array(self, locations_array, memcache_name_suffix=str(soundcloudconnect_user.user_id))
+    
+class SoundCloudConnectMaxFollowersHandler(webapp.RequestHandler):
+  def get(self):
+    
+    # memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+    # if memcached is not None and not utils.in_development_enviroment():
+    #   return self.response.out.write(memcached)    
+    
+    # check if user is logged in
+    session_hash = self.request.cookies.get("session_hash")
+    if not session_hash:
+      self.response.out.write("Not logged in")
+      return
+    
+    soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+    
+    api.utils.memcache_and_output_array(self, 
+                                        {'max_tracks': soundcloudconnect_user.max_location_followers_count}, 
+                                        memcache_name_suffix=str(soundcloudconnect_user.user_id))    

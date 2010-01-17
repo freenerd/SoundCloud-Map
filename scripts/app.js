@@ -32,9 +32,9 @@ soundManager.onload = function() {
   // soundManager is ready to use (create sounds and so on)
   // init the player app
   var map;
-	var markerOptions = [];
-	var icons = [];
-	var locations = []; // all locations
+  var markerOptions = [];
+  var icons = [];
+  var locations = []; // all locations
   var loading = $("#player .loading");
   var progress = $("#player .progress");
   var position = $('#player .position');
@@ -44,25 +44,27 @@ soundManager.onload = function() {
   var sound = null;
   var playerIsVisible = false;
   var genre = "";
+  var maxApiUrl = "";
+  var deepApiUrl = "";
   
   var FOOTER_HEIGHT = 180;
   var PLAYER_HEIGHT = 80;
 
   if (GBrowserIsCompatible()) {
     map = new GMap2($("#map_canvas")[0]);
-		map.addControl(new GSmallZoomControl());
-		map.setMapType(G_PHYSICAL_MAP);  
-    map.setCenter(new GLatLng(-10.973349, 26.875), 2);		
-		map.enableScrollWheelZoom();	      
+    map.addControl(new GSmallZoomControl());
+    map.setMapType(G_PHYSICAL_MAP);  
+    map.setCenter(new GLatLng(-10.973349, 26.875), 2);    
+    map.enableScrollWheelZoom();        
     $("#map_canvas").height($(window).height()-PLAYER_HEIGHT);
     map.checkResize();    
-	}                                          
-	
-	// window resize handler
-	$(window).resize(function() {
+  }                                          
+  
+  // window resize handler
+  $(window).resize(function() {
     $("#map_canvas").height($(window).height()-(playerIsVisible ? FOOTER_HEIGHT : PLAYER_HEIGHT));
     map.checkResize();
-	});	
+  }); 
 
   // 
   // Begin Connect with SoundCloud
@@ -76,65 +78,80 @@ soundManager.onload = function() {
     
   SC.Connect.prepareButton($('#connect-with-sc'),options);
 
-	// followers / following buttons
-	$("#connect-with-sc-followers").click(function(ev) {
-	  $(".genres .active").removeClass("active");
-	  $(".cwsc .active").removeClass("active");
-	  $(this).addClass("active");
-	  removeAllMarkers();
-	  loadLocations($(this).attr("data")); // load locations from the genre
-	  return false;
-	});
+  // followers button
+  $("#connect-with-sc-followers").click(function(ev) {
+    $(".genres .active").removeClass("active");
+    $(".cwsc .active").removeClass("active");
+    $(this).addClass("active");
+    removeAllMarkers();
+    maxApiUrl = "/api/soundcloud-connect/followers/max/?";
+    deepApiUrl = "/api/soundcloud-connect/followers/?";
+    loadLocations(maxApiUrl, deepApiUrl); // load locations from the genre
+    return false;
+  });
+
+  // followers button
+  $("#connect-with-sc-followings").click(function(ev) {
+    $(".genres .active").removeClass("active");
+    $(".cwsc .active").removeClass("active");
+    $(this).addClass("active");
+    removeAllMarkers();
+    maxApiUrl = "/api/soundcloud-connect/followings/max/?";
+    deepApiUrl = "/api/soundcloud-connect/followings/?";
+    loadLocations(maxApiUrl, deepApiUrl); // load locations from the genre
+    return false;
+  });
+
 
   // 
   // End Connect with SoundCloud
   //
 
-	// Different sized icons for the markers. 0 is small, 4 is big.
-	icons[0] = new GIcon(G_DEFAULT_ICON);
+  // Different sized icons for the markers. 0 is small, 4 is big.
+  icons[0] = new GIcon(G_DEFAULT_ICON);
   icons[0].image = "images/sc_marker_1.png";
   icons[0].iconSize = new GSize(4, 4);
   icons[0].shadow = null;
   icons[0].iconAnchor = new GPoint(2, 2);
   icons[0].infoWindowAnchor = new GPoint(4, 0);
-	icons[0].imageMap = [ 0,0, 4,0, 4,4, 0,4 ];
-	markerOptions[0] = { icon:icons[0] };
-	
-	icons[1] = new GIcon(G_DEFAULT_ICON);
+  icons[0].imageMap = [ 0,0, 4,0, 4,4, 0,4 ];
+  markerOptions[0] = { icon:icons[0] };
+  
+  icons[1] = new GIcon(G_DEFAULT_ICON);
   icons[1].image = "images/sc_marker_2.png";
   icons[1].iconSize = new GSize(6, 6);
   icons[1].shadow = null;
   icons[1].iconAnchor = new GPoint(3, 3);
   icons[1].infoWindowAnchor = new GPoint(6, 0); 
-	icons[1].imageMap = [ 0,0, 6,0, 6,6, 0,6 ]; 
-	markerOptions[1] = { icon:icons[1] };   
-	
-	icons[2] = new GIcon(G_DEFAULT_ICON);
+  icons[1].imageMap = [ 0,0, 6,0, 6,6, 0,6 ]; 
+  markerOptions[1] = { icon:icons[1] };   
+  
+  icons[2] = new GIcon(G_DEFAULT_ICON);
   icons[2].image = "images/sc_marker_3.png";
   icons[2].iconSize = new GSize(11, 11);
   icons[2].shadow = null;
   icons[2].iconAnchor = new GPoint(6, 6);
   icons[2].infoWindowAnchor = new GPoint(11, 0);
-	icons[2].imageMap = [ 0,0, 11,0, 11,11, 0,11 ];
-	markerOptions[2] = { icon:icons[2] };
+  icons[2].imageMap = [ 0,0, 11,0, 11,11, 0,11 ];
+  markerOptions[2] = { icon:icons[2] };
 
-	icons[3] = new GIcon(G_DEFAULT_ICON);
+  icons[3] = new GIcon(G_DEFAULT_ICON);
   icons[3].image = "images/sc_marker_4.png";
   icons[3].iconSize = new GSize(17, 17);
   icons[3].shadow = null;
   icons[3].iconAnchor = new GPoint(9, 9);
   icons[3].infoWindowAnchor = new GPoint(17, 0);
-	icons[3].imageMap = [ 0,0, 17,0, 17,17, 0,17 ];
-	markerOptions[3] = { icon:icons[3] };
+  icons[3].imageMap = [ 0,0, 17,0, 17,17, 0,17 ];
+  markerOptions[3] = { icon:icons[3] };
 
-	icons[4] = new GIcon(G_DEFAULT_ICON);
+  icons[4] = new GIcon(G_DEFAULT_ICON);
   icons[4].image = "images/sc_marker_5.png";
   icons[4].iconSize = new GSize(24, 24);
   icons[4].shadow = null;
   icons[4].iconAnchor = new GPoint(12, 12);
   icons[4].infoWindowAnchor = new GPoint(24, 0);
-	icons[4].imageMap = [ 0,0, 24,0, 24,24, 0,24 ];
-	markerOptions[4] = { icon:icons[4] };
+  icons[4].imageMap = [ 0,0, 24,0, 24,24, 0,24 ];
+  markerOptions[4] = { icon:icons[4] };
 
    // about box closable
   $("#about-box a.close").click(function(ev) {
@@ -142,45 +159,49 @@ soundManager.onload = function() {
     ev.preventDefault();
   });    
                         
-	// about box openable
+  // about box openable
   $("a#about").click(function(ev) {
     $("#about-box").fadeIn();
     ev.preventDefault();
   });  
      
-	// about box closes when action on map
-	GEvent.addListener(map, "movestart", function() {
-	  $("#about-box").fadeOut();
-	}); 
+  // about box closes when action on map
+  GEvent.addListener(map, "movestart", function() {
+    $("#about-box").fadeOut();
+  }); 
 
-	GEvent.addListener(map, "click", function() {
-	  $("#about-box").fadeOut();
-	});	                          
-	
-	GEvent.addListener(map, "zoomend", function() {
-	  $("#about-box").fadeOut();
-	});
+  GEvent.addListener(map, "click", function() {
+    $("#about-box").fadeOut();
+  });                           
+  
+  GEvent.addListener(map, "zoomend", function() {
+    $("#about-box").fadeOut();
+  });
 
-	// genre buttons
-	$(".genres a").click(function(ev) {
-	  $(".genres .active").removeClass("active");
-	  $(this).addClass("active");
-	  removeAllMarkers();
-	  loadLocations($(this).attr("data")); // load locations from the genre
-	  return false;
-	});
-		
-	// 
-	var offset = 0;
-	var LIMIT = 10;
-	
-	// simple recursive algorithm to progressively load more tracks over ajax
-	function loadLocationsRecursive(locs) {
-	  // base case: never pull more than 200 tracks, and stop pulling when locs returns 0 locations
+  // genre buttons
+  $(".genres a").click(function(ev) {
+    $(".genres .active").removeClass("active");
+    $(this).addClass("active");
+    removeAllMarkers();
+    maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
+    deepApiUrl = "/api/locations/?genre=" + "all";
+    loadLocations(maxApiUrl, deepApiUrl); // load locations from the genre
+    return false;
+  });
+    
+  // 
+  var offset = 0;
+  var LIMIT = 10;
+  
+  // simple recursive algorithm to progressively load more tracks over ajax
+  function loadLocationsRecursive(locs) {
+    // base case: never pull more than 200 tracks, and stop pulling when locs returns 0 locations
     if(offset < 200 && (!locs || locs.length > 0)) {
-      $.getJSON("/api/locations/?&limit=" + LIMIT + "&offset=" + offset + "&genre=" + genre,loadLocationsRecursive);
+      $.getJSON(deepApiUrl + "&limit=" + LIMIT + "&offset=" + offset, loadLocationsRecursive);
       if(locs) {
         $.each(locs,function(i,l) {
+          console.log(i)
+          console.log(l)          
           var delay = i*30;
           setTimeout(function() {
             setupLocation(l);
@@ -191,50 +212,51 @@ soundManager.onload = function() {
     } else {
       // execute callback here
     }
-	};
-	
-	// load all locations for a given genre
-	function loadLocations(g,callback) {
-	  genre = g;
+  };
+  
+  // load all locations for a given genre
+  function loadLocations(_maxApiUrl,_deepApiUrl,callback) {
+    maxApiUrl = _maxApiUrl;
+    deepApiUrl= _deepApiUrl;
     
     // first get the no of tracks for the location with the most number of tracks, then recursively load locations
-    $.getJSON("/api/locations/maxtracks?genre=" + genre,function(maxtracks) {
+    $.getJSON(maxApiUrl,function(maxtracks) {
       maxTracksInLocation = maxtracks.max_tracks;
       // reset offset counter
       offset = 0;
       loadLocationsRecursive();
-    });	  
+    });   
 
     // callback, needed for e.g. autoplay
     //   if(callback) { // execute a callback fn
     //     callback.apply();        
     //   }
-	}
+  }
 
   // set up an individual locations marker + popup
   function setupLocation(l, trackToShowFirst) {
     // set the size of the dot based on how many tracks found in the location
-		var option = 0;
-		
-		// figure out the relative size of the dot
-		var locRelSize = l.track_counter/maxTracksInLocation;
-		
-		// find out size of dot based on relative size
-		if (locRelSize >= 0 && locRelSize < 0.05) {
-			option = 1;
-		} else if (locRelSize >= 0.05 && locRelSize < 0.2) {
-		 	option = 2;                                  
-		} else if (locRelSize >= 0.2 && locRelSize < 0.5) {
-			option = 3;
-		} else if (l.track_counter >= 0.5) {
-			option = 4;
-		};
-		
-		// if city field is empty, replace it with country
-		if (l.city == "None") {
-		  l.city = l.country;
-		};
-		
+    var option = 0;
+    
+    // figure out the relative size of the dot
+    var locRelSize = l.track_counter/maxTracksInLocation;
+    
+    // find out size of dot based on relative size
+    if (locRelSize >= 0 && locRelSize < 0.05) {
+      option = 1;
+    } else if (locRelSize >= 0.05 && locRelSize < 0.2) {
+      option = 2;                                  
+    } else if (locRelSize >= 0.2 && locRelSize < 0.5) {
+      option = 3;
+    } else if (l.track_counter >= 0.5) {
+      option = 4;
+    };
+    
+    // if city field is empty, replace it with country
+    if (l.city == "None") {
+      l.city = l.country;
+    };
+    
     // add the location marker
     l.marker = new GMarker(new GPoint(l.lon,l.lat), markerOptions[option]);
     GEvent.addListener(l.marker, "click", function() {
@@ -248,54 +270,54 @@ soundManager.onload = function() {
         } else { // load the first track from the location
           tracksUrl += "?genre=" + genre + "&location=" + l.id + "&limit=1";
         }
-    	  $.getJSON(tracksUrl,function(tracks) {
-    	    l.firstTrack = tracks[0];
-    	    tracks[0].loc = l; 
-    	    
-    	    
-  				var linkToBeShared = "http://tracksonamap.com/#city-" + l.id;
+        $.getJSON(tracksUrl,function(tracks) {
+          l.firstTrack = tracks[0];
+          tracks[0].loc = l; 
+          
+          
+          var linkToBeShared = "http://tracksonamap.com/#city-" + l.id;
 
-  		    // set up share to twitter, no url shortener yet
-  				var twitterShareLink = "I am listening to " + l.city + " on " + linkToBeShared + " via @tracksonamap";                                          
-  			  twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
+          // set up share to twitter, no url shortener yet
+          var twitterShareLink = "I am listening to " + l.city + " on " + linkToBeShared + " via @tracksonamap";                                          
+          twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
           
           var facebookLinkToBeShared = "http://tracksonamap.com/from-facebook?type=city&id=" + l.id
-  				// set up share to Facebook
-  				var facebookShareLink = "I am listening to " + l.city;                                                                          
-  				facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);    	    
-    	    
-  	    
+          // set up share to Facebook
+          var facebookShareLink = "I am listening to " + l.city;                                                                          
+          facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);          
+          
+        
           l.html = $('#bubble-template')
             .clone()
             .attr('id', 'bubble' + tracks[0].id)
-  					.find('.city span.city-track-counter').html(l.track_counter).end()
-  					.find('.city span.city-name').html(l.city).end()
+            .find('.city span.city-track-counter').html(l.track_counter).end()
+            .find('.city span.city-name').html(l.city).end()
             .find('.title').html(tracks[0].title.substring(0,60)).end()
             .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
             .find('ul li span.artist').html("<a href='" + tracks[0].user.permalink_url + "'>" + tracks[0].user.username + "</a>").end()
             .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
             .find('a.play-button').bind('click',tracks[0],showPlayer).end()
-  					.find('.city .share-on-twitter').attr("href", twitterShareLink).end()
-  					.find('.city .share-on-facebook').attr("href", facebookShareLink).end()
-  			    .find('.city .share-link').attr('href',linkToBeShared).end()
-  					.find('.city .share-link').click(function() {
-  			      $("#share-box > div:first")
-  			        .clone()
-  			        .find("a.close").click(function() {
-  			          	$(this).parents("div.share-box").fadeOut(function() {
-  			            $(this).remove();
-  			          });
-  			          return false;
-  			        }).end()
-  			        .find("input").val(this.href).end()
-  							.find("h1 .typ").html("City").end()
-  							.find("p .typ").html("city").end()
-  			        .appendTo("body")
-  			        .fadeIn(function() {
-  			          $(".share-box input").focus().select();
-  			        });          
-  			      return false;
-  			    }).end();
+            .find('.city .share-on-twitter').attr("href", twitterShareLink).end()
+            .find('.city .share-on-facebook').attr("href", facebookShareLink).end()
+            .find('.city .share-link').attr('href',linkToBeShared).end()
+            .find('.city .share-link').click(function() {
+              $("#share-box > div:first")
+                .clone()
+                .find("a.close").click(function() {
+                    $(this).parents("div.share-box").fadeOut(function() {
+                    $(this).remove();
+                  });
+                  return false;
+                }).end()
+                .find("input").val(this.href).end()
+                .find("h1 .typ").html("City").end()
+                .find("p .typ").html("city").end()
+                .appendTo("body")
+                .fadeIn(function() {
+                  $(".share-box input").focus().select();
+                });          
+              return false;
+            }).end();
 
           // hide avatar if default user image is shown
           if(l.html.find(".avatar").attr("src").search(/default/) != -1) {
@@ -374,7 +396,7 @@ soundManager.onload = function() {
           // now that we've finished the ajax calls, we can show the info window
           l.marker.openInfoWindow(l.html[0]);
 
-    	  });
+        });
         
       } else { // bubble already set up, so just open info window
         // auto-play the first track, if no track is playing
@@ -502,12 +524,12 @@ soundManager.onload = function() {
       return false;
     });
 
-		var linkToBeShared = "http://tracksonamap.com/#track-" + track.id;
-		
-		// set up share link (share box)
-    $("#player-container .share-link").attr('href',linkToBeShared);	
+    var linkToBeShared = "http://tracksonamap.com/#track-" + track.id;
+    
+    // set up share link (share box)
+    $("#player-container .share-link").attr('href',linkToBeShared); 
     $("#player-container .share-link").unbind('click');
-		$('#player-container .share-link').click(function() {
+    $('#player-container .share-link').click(function() {
       $("#share-box > div:first")
         .clone()
         .find("a.close").click(function() {
@@ -523,26 +545,26 @@ soundManager.onload = function() {
         });          
       return false;
     });    
-		
+    
     // set up share to twitter, no url shortener yet
-		var twitterShareLink = track.title  + " by " + track.user.username + " on " + linkToBeShared + " via @tracksonamap";                                          
-	  twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
+    var twitterShareLink = track.title  + " by " + track.user.username + " on " + linkToBeShared + " via @tracksonamap";                                          
+    twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
     $("#player-container .share-on-twitter").attr("href", twitterShareLink);
    
-		// set up share to Facebook
-		var facebookLinkToBeShared = "http://www.tracksonamap.com/from-facebook?type=track&id=" + track.id
-		var facebookShareLink = "Tracks On A Map: " + track.title  + " by " + track.user.username;                                                                          
-		facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
-    $("#player-container .share-on-facebook").attr("href", facebookShareLink);		
+    // set up share to Facebook
+    var facebookLinkToBeShared = "http://www.tracksonamap.com/from-facebook?type=track&id=" + track.id
+    var facebookShareLink = "Tracks On A Map: " + track.title  + " by " + track.user.username;                                                                          
+    facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
+    $("#player-container .share-on-facebook").attr("href", facebookShareLink);    
 
     $("#player-container .metadata div:last").html("<a target='_blank' href='" + track.user.permalink_url + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a target='_blank' href='" + track.user.permalink_url + "'>" + track.user.username + "</a>");
     
-		$("#player-container #player .waveform img").attr("src", track.waveform_url);
-		
-		// show the spinner
-		$(".waveform img, .waveform .loading, .waveform .progress").css("visibility","hidden");
-		$(".waveform .spinner").css("visibility","visible");
-		
+    $("#player-container #player .waveform img").attr("src", track.waveform_url);
+    
+    // show the spinner
+    $(".waveform img, .waveform .loading, .waveform .progress").css("visibility","hidden");
+    $(".waveform .spinner").css("visibility","visible");
+    
     sound = soundManager.createSound({
       id: track.id,
       url: track.stream_url + "?oauth_consumer_key=FhPCTC6rJGetkMIcLwI9A",
@@ -551,8 +573,8 @@ soundManager.onload = function() {
       }),
       whileplaying : throttle(100,function() {
         if($(".waveform img").css("visibility") == "hidden") { // show spinner if track has not started to load
-      		$(".waveform img, .waveform .loading, .waveform .progress").css("visibility","visible");
-      		$(".waveform .spinner").css("visibility","hidden");          
+          $(".waveform img, .waveform .loading, .waveform .progress").css("visibility","visible");
+          $(".waveform .spinner").css("visibility","hidden");          
         }
         progress.css('width',(sound.position/track.duration)*100+"%");
         position.html(formatMs(sound.position));
@@ -579,32 +601,32 @@ soundManager.onload = function() {
   }
 
   // remove all location markers
-	function removeAllMarkers() {
+  function removeAllMarkers() {
     $.each(locations, function( intIndex, l ) {
      GEvent.clearInstanceListeners(l.marker);
      map.removeOverlay(l.marker);
     });
     locations = []; // reset the main locations array
-	}
+  }
 
   // plays a random location
-	function playRandom() {
-		// show the spinner
-		$(".waveform img, .waveform .loading, .waveform .progress").css("visibility","hidden");
-		$(".waveform .spinner").css("visibility","visible");
+  function playRandom() {
+    // show the spinner
+    $(".waveform img, .waveform .loading, .waveform .progress").css("visibility","hidden");
+    $(".waveform .spinner").css("visibility","visible");
 
-	  var randLoc = Math.floor(Math.random()*locations.length);
+    var randLoc = Math.floor(Math.random()*locations.length);
     GEvent.trigger(locations[randLoc].marker,'click'); // trigger a click on a random marker
-	}   
+  }   
 
-	// display a human readable time
-	function fuzzyTime(minutes) { 
-		if(minutes <= 60) return minutes.toString() + " minutes";
-		if(minutes > 60 && minutes <= 1440) return (Math.floor(minutes/60)).toString() + " hours";
-		if(minutes > 1440 && minutes <= 10080) return (Math.floor(minutes/(60*24))).toString() + " days";
-		if(minutes > 10080 && minutes <= 70560) return (Math.floor(minutes/(60*24*7))).toString() + " weeks";
-		if(minutes > 70560) return (Math.floor(minutes/(60*24*30))).toString() + " months";       		
-	}
+  // display a human readable time
+  function fuzzyTime(minutes) { 
+    if(minutes <= 60) return minutes.toString() + " minutes";
+    if(minutes > 60 && minutes <= 1440) return (Math.floor(minutes/60)).toString() + " hours";
+    if(minutes > 1440 && minutes <= 10080) return (Math.floor(minutes/(60*24))).toString() + " days";
+    if(minutes > 10080 && minutes <= 70560) return (Math.floor(minutes/(60*24*7))).toString() + " weeks";
+    if(minutes > 70560) return (Math.floor(minutes/(60*24*30))).toString() + " months";           
+  }
 
   // main keyboard listener
   $(window).keydown(function(ev) {
@@ -618,17 +640,19 @@ soundManager.onload = function() {
     }
   });
   
-	// show about box, if on live server and user hasn't seen it for 24 hours
+  // show about box, if on live server and user hasn't seen it for 24 hours
   if(location.href.split(".").length > 1 && !$.cookie('viewed_intro') == '1'){
     $.cookie('viewed_intro', '1', { expires: 1 });
     $("#about-box").fadeIn();
   }
 
-	// start the app, then play a random track
-  loadLocations("all",function() {
+  // start the app, then play a random track
+  maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
+  deepApiUrl = "/api/locations/?genre=" + "all";
+  loadLocations(maxApiUrl,deepApiUrl,function() {
     playRandom();
   });
-  map.setCenter(new GLatLng(-10.973349, 26.875), 2);		
+  map.setCenter(new GLatLng(-10.973349, 26.875), 2);    
   //pop up the track that was shared if /#track-123123 detected
   if(location.hash && location.hash.search(/track|city/) != -1) {
     var id = location.hash.split("-")[1];
