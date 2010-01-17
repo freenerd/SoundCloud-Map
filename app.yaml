@@ -37,12 +37,20 @@ handlers:
   script: soundcloud_connect_done.py
 
 - url: /backend/soundcloud-connect/followers/
-  script: backend/soundcloudconnect/followers.py
+  script: backend/soundcloudconnect/network.py
   login: admin
 
 - url: /backend/soundcloud-connect/follower/
-  script: backend/soundcloudconnect/follower.py
+  script: backend/soundcloudconnect/person.py
   login: admin
+  
+- url: /backend/soundcloud-connect/followings/
+  script: backend/soundcloudconnect/network.py
+  login: admin
+
+- url: /backend/soundcloud-connect/follower/
+  script: backend/soundcloudconnect/person.py
+  login: admin  
 
 - url: /soundcloud-connect.*
   script: soundcloudconnect/main.py

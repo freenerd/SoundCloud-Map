@@ -68,13 +68,13 @@ class RequestTokenHandler(webapp.RequestHandler):
                                               session_hash = hash)
     oauthtoken.put()
     
-    c = Cookie.SimpleCookie()
-    c["sid"] = hash
-    c["sid"]["path"] = "/"
-    logging.info(c.output())
+    cookie = Cookie.SimpleCookie()
+    cookie["session_hash"] = hash
+    cookie["session_hash"]["path"] = "/"
+    logging.info(cookie.output())
     
-    h = re.compile('^Set-Cookie: ').sub('', c.output(), count=1)
-    self.response.headers.add_header('Set-Cookie', str(h))
+    header = re.compile('^Set-Cookie: ').sub('', cookie.output(), count=1)
+    self.response.headers.add_header('Set-Cookie', str(header))
     self.response.out.write("")      
     
     self.redirect(url)
@@ -86,11 +86,11 @@ class AccessTokenHandler(webapp.RequestHandler):
     
     # TODO Test if Token and Secret provided match the saved ones from the cookie
     
-    sid = self.request.cookies.get("sid")
+    session_hash = self.request.cookies.get("session_hash")
     
-    logging.info("SID: " + sid)
+    logging.info("session hash: " + session_hash)
     
-    user = models.SoundCloudConnectUser.all().filter('session_hash', sid).get()
+    user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
     
     logging.info("user: " + str(user))
     
@@ -112,12 +112,24 @@ class AccessTokenHandler(webapp.RequestHandler):
                                               token,
                                               secret)         
     root = scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL,
-                                          authenticator=oauth_authenticator))                                                                 
+                                          authenticator=oauth_authenticator))                                                                                    
+
+    root_me = root.me()                                          
                                                                 
     user.token = token
     user.secret = secret
-    user.user_id = root.me().id
+    user.user_id = root_me.id
     user.authorized = True
+
+    user.max_location_followers_count  = 0
+    user.max_location_followings_count = 0
+    user.max_location_favorites_count  = 0
+    user.followers                     = root_me.followers_count 
+    user.followings                    = root_me.followings_count
+    user.favorites                     = 0 
+    user.geolocated_followers          = 0 
+    user.geolocated_followings         = 0 
+    user.geolocated_favorites          = 0 
     
     user.put()
     
@@ -128,8 +140,7 @@ class AccessTokenHandler(webapp.RequestHandler):
     # Lets get fill this backend up with the user-specific data
     
     # Create Followers task
-    taskqueue.add(url='/backend/soundcloud-connect/followers/', 
-                  params={'user_id': user.user_id})
+    taskqueue.add(url='/backend/soundcloud-connect/followers/')
     
     
     

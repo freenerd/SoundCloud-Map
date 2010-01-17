@@ -25,13 +25,14 @@ from google.appengine.runtime import DeadlineExceededError
 from google.appengine.api.labs import taskqueue 
 from google.appengine.api import memcache
 from google.appengine.ext import webapp 
+from google.appengine.ext.webapp.util import run_wsgi_app
 
-import wsgiref.handlers     
 import logging
 import time
 
 import settings
 import models
+import util
 from soundcloudconnect import utils
 
 
@@ -43,13 +44,12 @@ def fetch_network(self, type=''):
     getting called either by followers.py or followings.py
   '''
   
-  sid = self.request.cookies.get('sid')
-  logging.info('SID: ' + sid)
-  sid_data = models.SoundCloudConnectUser.all().filter('session_hash', sid).get()
-  logging.info('sid_data: ' + str(sid_data))
-  user_id = sid_data.user_id
+  session_hash = self.request.cookies.get('session_hash')
+  logging.info('SessionHash: ' + session_hash)
+  soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+  logging.info('scconnectuser_data: ' + str(soundcloudconnect_user))
   
-  root = utils.get_api_root(int(user_id))
+  root = utils.get_api_root(soundcloudconnect_user)
   
   if type == 'followers':
     network = list(root.me().followers())
@@ -74,7 +74,7 @@ def fetch_network(self, type=''):
     if memcache_add: 
       taskqueue.add(url=taskqueue_url, 
                     params={'person_id': person_id, 
-                            'soundcloudconnect_user_id': user_id,
+                            'session_hash': session_hash,
                             'time_follower_added_to_queue': str(int(time.time()))})
       logging.info('Added to queue')      
     else:
@@ -84,3 +84,26 @@ def fetch_network(self, type=''):
          
   logging.info('Finished fetching network')
   return                        
+  
+
+class Followers(webapp.RequestHandler):
+  def get(self):
+    return fetch_network(self,'followers')    
+  def post(self):
+    return fetch_network(self,'followers')    
+  
+class Followings(webapp.RequestHandler):
+  def get(self):
+    return fetch_network(self,'followings')
+  def post(self):
+    return fetch_network(self,'followings')
+      
+def main():
+  application = webapp.WSGIApplication([\
+                      ('/backend/soundcloud-connect/followers/', Followers),
+                      ('/backend/soundcloud-connect/followings/', Followings)    
+                      ], debug=util.in_development_enviroment())
+  run_wsgi_app(application)            
+      
+if __name__ == '__main__':
+  main()  

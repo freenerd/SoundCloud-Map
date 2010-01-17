@@ -126,11 +126,11 @@ def update_location_data(track, location):
   update_location_genre_data(track, location)
   return
 
-def check_if_tracks_meets_our_needs(track):
-    if not track['streamable'] or track['sharing'] != 'public':      
-      logging.info("The track does not match our needs. Will not be used.")
-      return False
-    return True
+def check_if_track_meets_our_needs(track):
+  if not track['streamable'] or track['sharing'] != 'public':      
+    logging.info("The track does not match our needs. Will not be used.")
+    return False
+  return True
 
 def write_user_to_datastore(user, location):
   logging.info("Saving user data (id: %s, permalink: %s) to datastore ..." % (user['id'], user['permalink']))

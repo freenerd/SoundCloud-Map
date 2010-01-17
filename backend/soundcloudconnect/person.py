@@ -32,6 +32,7 @@ import time
 
 import settings
 import models
+import util
 import backend.utils
 import soundcloudconnect.utils
 
@@ -56,12 +57,16 @@ def fetch_person(self, type=''):
     self.response.out.write('ERROR')
     return
   
-  if not (self.request.get('soundcloudconnect_user_id') and
+  if not (self.request.get('session_hash') and
           self.request.get('person_id')):
-    logging.error('Error in taskqueue. Problem with parameters. SoundcloudConnect_following: %s Person_ID: %s' % (self.request.get('soundcloudconnect_user_id'), self.request.get('person_id')))
+    logging.error('Error in taskqueue. Problem with parameters. session_hash: %s Person_ID: %s' % (self.request.get('session_hash'), self.request.get('person_id')))
     return          
   
-  soundcloudconnect_user_id = int(self.request.get('soundcloudconnect_user_id'))
+  session_hash = self.request.get('session_hash')
+  soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+  if not soundcloudconnect_user:
+    logging.error('Error in taskqueue. Problem with soundcloudconnect_user. session_hash: %s soundcloudconnect_user: %s' % (self.request.get('session_hash'), soundcloudconnect_user))
+    return          
   
   person_id = self.request.get('person_id')
   person = memcache.get(person_id, namespace=memcache_namespace)
@@ -80,14 +85,13 @@ def fetch_person(self, type=''):
     
     # fetch track info
     if person['track_count'] != 0:
-      root = soundcloudconnect.utils.get_api_root(soundcloudconnect_user_id)
+      root = soundcloudconnect.utils.get_api_root(soundcloudconnect_user)
       tracks = list(root.User.get(person['id']).tracks())
       if tracks:
         for track in tracks:
-          if backend.utils.check_if_tracks_meets_our_needs(track)
+          if backend.utils.check_if_track_meets_our_needs(track._RESTBase__data):
             logging.info("We have a track for this user: " + str(track))
             break
-        else:
     if not track:
       track = None
       logging.info("We have no track for this user.")        
@@ -95,7 +99,7 @@ def fetch_person(self, type=''):
     try:
       location = backend.utils.wrapped_get_location(person['city'],
                                                     person['country'],
-                                                    track)
+                                                    track._RESTBase__data)
       logging.info(location)
                                                       
       if not location:
@@ -114,7 +118,6 @@ def fetch_person(self, type=''):
     user = backend.utils.write_user_to_datastore(person, location)
     
   # Update SoundCloudConnectUser Record  
-  soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', soundcloudconnect_user_id).get()
   if type == 'follower':
     soundcloudconnect_user.geolocated_followers += 1
   elif type == 'following':
@@ -143,32 +146,46 @@ def fetch_person(self, type=''):
     
   # Update SoundCloudConnectFollower/Following Record
   if type == 'follower': 
-    soundcloudconnect_follower = models.SoundCloudConnectFollower.all().filter('location', location).get()
-    if soundcloudconnect_follower:
-      soundcloudconnect_follower.follower_count += 1
-    else:
-      soundcloudconnect_follower = models.SoundCloudConnectFollower(\
-                                              soundcloudconnect_user = soundcloudconnect_user,
-                                              follower = user,
-                                              location = location)  
-      soundcloudconnect_follower.put()
+    soundcloudconnect_follower = models.SoundCloudConnectFollower(\
+                                            soundcloudconnect_user = soundcloudconnect_user,
+                                            follower = user,
+                                            location = location)  
+    soundcloudconnect_follower.put()
   elif type == 'following':
-    soundcloudconnect_following = models.SoundCloudConnectFollowing.all().filter('location', location).get()
-    if soundcloudconnect_following:
-      soundcloudconnect_following.following_count += 1
-    else:
-      soundcloudconnect_following = models.SoundCloudConnectFollower(\
-                                              soundcloudconnect_user = soundcloudconnect_user,
-                                              following = user,
-                                              location = location)   
-      soundcloudconnect_following.put()
+    soundcloudconnect_following = models.SoundCloudConnectFollowing(\
+                                            soundcloudconnect_user = soundcloudconnect_user,
+                                            following = user,
+                                            location = location)   
+    soundcloudconnect_following.put()
 
   # check if track is already in the datastore
-  if models.Track.all().filter('track_id', int(track['id'])).get(): 
+  if models.Track.all().filter('track_id', int(track.id)).get(): 
     logging.info("The track already is in the datastore.")
   else:
-    write_track_to_datastore(track, user, location):
+    backend.utils.write_track_to_datastore(track._RESTBase__data, user, location)
   
   logging.info("This is the end")  
-  self.response.set_status(500)
   return
+  
+  
+class Follower(webapp.RequestHandler):
+  def get(self):
+    return fetch_network(self,'follower')    
+  def post(self):
+    return fetch_network(self,'follower')    
+  
+class Following(webapp.RequestHandler):
+  def get(self):
+    return fetch_network(self,'following')
+  def post(self):
+    return fetch_network(self,'following')
+      
+def main():
+  application = webapp.WSGIApplication([\
+                      ('/backend/soundcloud-connect/follower/', Follower),
+                      ('/backend/soundcloud-connect/following/', Following)    
+                      ], debug=util.in_development_enviroment())
+  run_wsgi_app(application)            
+      
+if __name__ == '__main__':
+  main()    

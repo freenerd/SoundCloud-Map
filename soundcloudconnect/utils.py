@@ -25,12 +25,11 @@ import models
 import scapi
 import settings
 
-def get_api_root(soundcloudconnect_user_id):
-  user = models.SoundCloudConnectUser.all().filter('user_id', int(soundcloudconnect_user_id)).get()  
+def get_api_root(soundcloudconnect_user=None):
   oauth_authenticator = scapi.authentication.OAuthAuthenticator( \
                                             settings.OAUTH_CONSUMER_KEY,
                                             settings.OAUTH_CONSUMER_SECRET,
-                                            user.token,
-                                            user.secret)
+                                            soundcloudconnect_user.token,
+                                            soundcloudconnect_user.secret)
   return scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL,
                                         authenticator=oauth_authenticator))

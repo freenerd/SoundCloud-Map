@@ -34,6 +34,9 @@ class Followers(webapp.RequestHandler):
   def get(self):
     return network.fetch_network(self,'followers')
     
+  def post(self):
+    return network.fetch_network(self,'followers')    
+    
 def main():
   wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([
     ('.*', Followers),
