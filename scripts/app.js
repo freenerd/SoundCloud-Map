@@ -76,6 +76,16 @@ soundManager.onload = function() {
     
   SC.Connect.prepareButton($('#connect-with-sc'),options);
 
+	// followers / following buttons
+	$("#connect-with-sc-followers").click(function(ev) {
+	  $(".genres .active").removeClass("active");
+	  $(".cwsc .active").removeClass("active");
+	  $(this).addClass("active");
+	  removeAllMarkers();
+	  loadLocations($(this).attr("data")); // load locations from the genre
+	  return false;
+	});
+
   // 
   // End Connect with SoundCloud
   //
@@ -159,7 +169,7 @@ soundManager.onload = function() {
 	  loadLocations($(this).attr("data")); // load locations from the genre
 	  return false;
 	});
-	
+		
 	// 
 	var offset = 0;
 	var LIMIT = 10;

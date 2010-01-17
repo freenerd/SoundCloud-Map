@@ -52,11 +52,11 @@ class SoundCloudConnectFollowingsHandler(webapp.RequestHandler):
     locations = locations.filter('following_count >', 0)
     
     logging.info("Fetched Locations: " + str(locations))
-    
+
     locations_array = []
     
     for location in locations:
-      logging.info("Caring for location: " + "")
+      logging.info("Caring for location: " + str(location))
       location_dict = api.utils.create_location_dict(location.location, location.following_count)
       locations_array.append(location_dict)
     
