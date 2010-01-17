@@ -31,13 +31,13 @@ import datetime
 
 import settings
 
-def create_location_dict(location):
+def create_location_dict(location, track_counter = None):
    location_dict = {'lon': location.location.lon,
                    'lat': location.location.lat,
                    'id' : location.key().id(),
                    'city': location.city,
                    'country': location.country,
-                   'track_counter': location.track_counter,
+                   'track_counter': track_counter or location.track_counter,
                    'last_time_updated': location.last_time_updated.isoformat(' ')}   
    return location_dict
 
@@ -74,7 +74,7 @@ def add_to_track_array(track, track_array):
                         'location': location_dict,
                         'user': user_dict})                            
 
-def memcache_and_output_array(self, array, xspf_prefix="latest", time=(settings.API_QUERY_INTERVAL*60-5)):  
+def memcache_and_output_array(self, array, xspf_prefix="latest", time=(settings.API_QUERY_INTERVAL*60-5), memcache_name_suffix=''):  
   """
     Save to memcache and output as plain json
   """ 
@@ -91,7 +91,10 @@ def memcache_and_output_array(self, array, xspf_prefix="latest", time=(settings.
                                      'date' : datetime.datetime.now().isoformat() })
   else:
     output = json.dumps(array)  
-  memcache.add(self.request.path_qs, output, time=time, namespace='api_cache')
+  memcache.add(self.request.path_qs+str(memcache_name_suffix), 
+               output,
+               time=time, 
+               namespace='api_cache')
   self.response.out.write(output)                          
   return
 

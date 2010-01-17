@@ -32,7 +32,7 @@ import settings
 import backend.utils
 import api.utils
 
-class SoundCloudConnectFollowersHandler(webapp.RequestHandler):
+class SoundCloudConnectFollowingsHandler(webapp.RequestHandler):
   def get(self):
     
     # memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
@@ -49,7 +49,7 @@ class SoundCloudConnectFollowersHandler(webapp.RequestHandler):
     
     locations = models.SoundCloudConnectUserLocations.all()
     locations = locations.filter('soundcloudconnect_user',  soundcloudconnect_user)
-    locations = locations.filter('follower_count >', 0)
+    locations = locations.filter('following_count >', 0)
     
     logging.info("Fetched Locations: " + str(locations))
     

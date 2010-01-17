@@ -48,7 +48,7 @@ handlers:
   script: backend/soundcloudconnect/network.py
   login: admin
 
-- url: /backend/soundcloud-connect/follower/
+- url: /backend/soundcloud-connect/following/
   script: backend/soundcloudconnect/person.py
   login: admin  
 

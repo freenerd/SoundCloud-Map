@@ -62,11 +62,13 @@ class RequestTokenHandler(webapp.RequestHandler):
     
     hash = hashlib.md5(repr(time.time()) + unicode(random.random())).hexdigest()
     
-    oauthtoken = models.SoundCloudConnectUser(authorized = False,
-                                              token = token,
-                                              secret = secret,
-                                              session_hash = hash)
-    oauthtoken.put()
+    # TODO: Did this User already have a token? We have to revoke it!    
+    
+    soundcloudconnect_user = models.SoundCloudConnectUser(authorized = False,
+                                                          token = token,
+                                                          secret = secret,
+                                                          session_hash = hash)
+    soundcloudconnect_user.put()
     
     cookie = Cookie.SimpleCookie()
     cookie["session_hash"] = hash
@@ -136,12 +138,10 @@ class AccessTokenHandler(webapp.RequestHandler):
     logging.info("you have been authet")
     logging.info("Token: " + token)
     logging.info("Secret: " + secret)
-    
-    # Lets get fill this backend up with the user-specific data
-    
-    # Create Followers task
+      
+    # Create Fetching tasks
     taskqueue.add(url='/backend/soundcloud-connect/followers/')
-    
+    taskqueue.add(url='/backend/soundcloud-connect/followings/')    
     
     
 def main():

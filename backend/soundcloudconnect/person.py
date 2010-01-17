@@ -25,6 +25,7 @@ from google.appengine.runtime import DeadlineExceededError
 from google.appengine.api.labs import taskqueue 
 from google.appengine.api import memcache
 from google.appengine.ext import webapp 
+from google.appengine.ext.webapp.util import run_wsgi_app
 
 import wsgiref.handlers     
 import logging
@@ -83,6 +84,7 @@ def fetch_person(self, type=''):
   else:    
     logging.info("User is not in the Datastore yet. Fetching new Info.")
     
+    track = None    
     # fetch track info
     if person['track_count'] != 0:
       root = soundcloudconnect.utils.get_api_root(soundcloudconnect_user)
@@ -90,16 +92,16 @@ def fetch_person(self, type=''):
       if tracks:
         for track in tracks:
           if backend.utils.check_if_track_meets_our_needs(track._RESTBase__data):
+            track = track._RESTBase__data
             logging.info("We have a track for this user: " + str(track))
             break
     if not track:
-      track = None
       logging.info("We have no track for this user.")        
         
     try:
       location = backend.utils.wrapped_get_location(person['city'],
                                                     person['country'],
-                                                    track._RESTBase__data)
+                                                    track)
       logging.info(location)
                                                       
       if not location:
@@ -125,17 +127,21 @@ def fetch_person(self, type=''):
   soundcloudconnect_user.put()    
     
   # Update SoundCloudConnectUserLocation Record
-  soundcloudconnect_user_location = models.SoundCloudConnectUserLocations.all().filter('location', location).get()
+  soundcloudconnect_user_location = models.SoundCloudConnectUserLocations.all()
+  soundcloudconnect_user_location = soundcloudconnect_user_location.filter('soundcloudconnect_user', soundcloudconnect_user)
+  soundcloudconnect_user_location = soundcloudconnect_user_location.filter('location', location).get()
+
   if soundcloudconnect_user_location:
     if type == 'follower': soundcloudconnect_user_location.follower_count += 1
     elif type == 'following': soundcloudconnect_user_location.following_count += 1  
+    soundcloudconnect_user_location.put() 
   else:
     if type == 'follower': 
       follower_count = 1
       following_count = 0
     elif type == 'following':
-      follower_count = 1
-      following_count = 0
+      follower_count = 0
+      following_count = 1
     soundcloudconnect_user_location = models.SoundCloudConnectUserLocations(\
                                               follower_count = follower_count,
                                               following_count = following_count,
@@ -159,10 +165,11 @@ def fetch_person(self, type=''):
     soundcloudconnect_following.put()
 
   # check if track is already in the datastore
-  if models.Track.all().filter('track_id', int(track.id)).get(): 
-    logging.info("The track already is in the datastore.")
-  else:
-    backend.utils.write_track_to_datastore(track._RESTBase__data, user, location)
+  if track:
+    if models.Track.all().filter('track_id', int(track['id'])).get(): 
+      logging.info("The track already is in the datastore.")
+    else:
+      backend.utils.write_track_to_datastore(track, user, location)
   
   logging.info("This is the end")  
   return
@@ -170,15 +177,15 @@ def fetch_person(self, type=''):
   
 class Follower(webapp.RequestHandler):
   def get(self):
-    return fetch_network(self,'follower')    
+    return fetch_person(self,'follower')    
   def post(self):
-    return fetch_network(self,'follower')    
+    return fetch_person(self,'follower')    
   
 class Following(webapp.RequestHandler):
   def get(self):
-    return fetch_network(self,'following')
+    return fetch_person(self,'following')
   def post(self):
-    return fetch_network(self,'following')
+    return fetch_person(self,'following')
       
 def main():
   application = webapp.WSGIApplication([\

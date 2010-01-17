@@ -49,6 +49,8 @@ def fetch_network(self, type=''):
   soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
   logging.info('scconnectuser_data: ' + str(soundcloudconnect_user))
   
+  # TODO: Fetch with offset to get more than 50 people
+  
   root = utils.get_api_root(soundcloudconnect_user)
   
   if type == 'followers':

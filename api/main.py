@@ -27,15 +27,18 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 import util
 from api import tracks
 from api import locations
-from api.soundcloudconnect import main as scmain, followers, favorites
+from api.soundcloudconnect import main as scconnect_main, favorites
+from api.soundcloudconnect import followers
+from api.soundcloudconnect import followings
 
 def main():
   application = webapp.WSGIApplication([(r'/api/tracks/([0-9]{1,64})', tracks.TrackIDHandler),
                                         ('/api/tracks.*', tracks.TracksHandler),
                                         ('/api/locations/maxtracks.*', locations.MaxTracksHandler),
                                         (r'/api/locations/([0-9]{1,64})', locations.LocationIDHandler),
-                                        ('/api/soundcloud-connect/', scmain.SoundCloudConnectHandler),
+                                        ('/api/soundcloud-connect/', scconnect_main.SoundCloudConnectHandler),
                                         ('/api/soundcloud-connect/followers/', followers.SoundCloudConnectFollowersHandler),
+                                        ('/api/soundcloud-connect/followings/', followings.SoundCloudConnectFollowingsHandler),                                        
                                         ('/api/soundcloud-connect/favorites/', favorites.SoundCloudConnectFavoritesHandler),                                                                                
                                         ('/api/locations.*', locations.LocationsHandler)], debug=util.in_development_enviroment())
   run_wsgi_app(application)
