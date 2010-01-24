@@ -171,8 +171,8 @@ def write_track_to_datastore(track, user, location):
     \
     stream_url = track['stream_url'],
     waveform_url = track['waveform_url'],
-    artwork_url = track['artwork_url'],
-    purchase_url = track['purchase_url'],
+    artwork_url = track['artwork_url'] or ' ',
+    purchase_url = track['purchase_url'] or ' ',
     \
     created_at = created_at,
     downloadable = track['downloadable'],        

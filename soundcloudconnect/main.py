@@ -140,8 +140,10 @@ class AccessTokenHandler(webapp.RequestHandler):
     logging.info("Secret: " + secret)
       
     # Create Fetching tasks
-    taskqueue.add(url='/backend/soundcloud-connect/followers/')
-    taskqueue.add(url='/backend/soundcloud-connect/followings/')    
+    taskqueue.add(url='/backend/soundcloud-connect/followers/',
+                  params={'session_hash': session_hash})
+    taskqueue.add(url='/backend/soundcloud-connect/followings/',
+                  params={'session_hash': session_hash})    
     
     
 def main():

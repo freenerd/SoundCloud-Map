@@ -44,7 +44,7 @@ def fetch_network(self, type=''):
     getting called either by followers.py or followings.py
   '''
   
-  session_hash = self.request.cookies.get('session_hash')
+  session_hash = self.request.get('session_hash')
   logging.info('SessionHash: ' + session_hash)
   soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
   logging.info('scconnectuser_data: ' + str(soundcloudconnect_user))
