@@ -46,6 +46,7 @@ soundManager.onload = function() {
   var genre = "";
   var maxApiUrl = "";
   var deepApiUrl = "";
+  var tracksUrl = "";  
   
   var FOOTER_HEIGHT = 180;
   var PLAYER_HEIGHT = 80;
@@ -86,7 +87,8 @@ soundManager.onload = function() {
     removeAllMarkers();
     maxApiUrl = "/api/soundcloud-connect/followers/max/?";
     deepApiUrl = "/api/soundcloud-connect/followers/?";
-    loadLocations(maxApiUrl, deepApiUrl); // load locations from the genre
+    tracksUrl = "/api/soundcloud-connect/followers/tracks-in-location/?";
+    loadLocations(maxApiUrl, deepApiUrl, tracksUrl); // load locations from the genre
     return false;
   });
 
@@ -98,7 +100,8 @@ soundManager.onload = function() {
     removeAllMarkers();
     maxApiUrl = "/api/soundcloud-connect/followings/max/?";
     deepApiUrl = "/api/soundcloud-connect/followings/?";
-    loadLocations(maxApiUrl, deepApiUrl); // load locations from the genre
+    tracksUrl = "/api/soundcloud-connect/followings/tracks-in-location/?";
+    loadLocations(maxApiUrl, deepApiUrl, tracksUrl); // load locations from the genre
     return false;
   });
 
@@ -185,7 +188,8 @@ soundManager.onload = function() {
     removeAllMarkers();
     maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
     deepApiUrl = "/api/locations/?genre=" + "all";
-    loadLocations(maxApiUrl, deepApiUrl); // load locations from the genre
+    tracksUrl = "/api/tracks/";    
+    loadLocations(maxApiUrl, deepApiUrl, tracksUrl); // load locations from the genre
     return false;
   });
     
@@ -215,10 +219,11 @@ soundManager.onload = function() {
   };
   
   // load all locations for a given genre
-  function loadLocations(_maxApiUrl,_deepApiUrl,callback) {
+  function loadLocations(_maxApiUrl,_deepApiUrl, _tracksUrl, callback) {
     maxApiUrl = _maxApiUrl;
-    deepApiUrl= _deepApiUrl;
-    
+    deepApiUrl = _deepApiUrl;
+    tracksUrl = _tracksUrl;
+     
     // first get the no of tracks for the location with the most number of tracks, then recursively load locations
     $.getJSON(maxApiUrl,function(maxtracks) {
       maxTracksInLocation = maxtracks.max_tracks;
@@ -264,13 +269,13 @@ soundManager.onload = function() {
       
         // load all tracks in the location, start with the first
 
-        var tracksUrl = "/api/tracks/";
+        var tracksUrl_first = "";
         if(trackToShowFirst) { // load the track to show first
-          tracksUrl += trackToShowFirst;
+          tracksUrl_first = tracksUrl + trackToShowFirst;
         } else { // load the first track from the location
-          tracksUrl += "?genre=" + genre + "&location=" + l.id + "&limit=1";
+          tracksUrl_first = tracksUrl + "genre=" + genre + "&location=" + l.id + "&limit=1";
         }
-        $.getJSON(tracksUrl,function(tracks) {
+        $.getJSON(tracksUrl_first,function(tracks) {
           l.firstTrack = tracks[0];
           tracks[0].loc = l; 
           
@@ -286,38 +291,51 @@ soundManager.onload = function() {
           var facebookShareLink = "I am listening to " + l.city;                                                                          
           facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);          
           
-        
-          l.html = $('#bubble-template')
-            .clone()
-            .attr('id', 'bubble' + tracks[0].id)
-            .find('.city span.city-track-counter').html(l.track_counter).end()
-            .find('.city span.city-name').html(l.city).end()
-            .find('.title').html(tracks[0].title.substring(0,60)).end()
-            .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
-            .find('ul li span.artist').html("<a href='" + tracks[0].user.permalink_url + "'>" + tracks[0].user.username + "</a>").end()
-            .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
-            .find('a.play-button').bind('click',tracks[0],showPlayer).end()
-            .find('.city .share-on-twitter').attr("href", twitterShareLink).end()
-            .find('.city .share-on-facebook').attr("href", facebookShareLink).end()
-            .find('.city .share-link').attr('href',linkToBeShared).end()
-            .find('.city .share-link').click(function() {
-              $("#share-box > div:first")
-                .clone()
-                .find("a.close").click(function() {
-                    $(this).parents("div.share-box").fadeOut(function() {
-                    $(this).remove();
-                  });
-                  return false;
-                }).end()
-                .find("input").val(this.href).end()
-                .find("h1 .typ").html("City").end()
-                .find("p .typ").html("city").end()
-                .appendTo("body")
-                .fadeIn(function() {
-                  $(".share-box input").focus().select();
-                });          
-              return false;
-            }).end();
+          if(tracks[0].id < 0) {
+            // okay, so this is actually not a track but only a user ...            
+            l.html = $('#bubble-template')
+              .clone()
+              .attr('id', 'bubble' + tracks[0].id)
+              .find('.city span.city-track-counter').html(l.track_counter).end()
+              .find('.city span.city-name').html(l.city).end()
+              .find('.title').html("No Track for this user").end()
+              .find('.avatar').attr("src",(tracks[0].user.avatar_url)).end();
+          }
+          else {
+            // this is a real track ...
+            l.html = $('#bubble-template')
+              .clone()
+              .attr('id', 'bubble' + tracks[0].id)
+              .find('.city span.city-track-counter').html(l.track_counter).end()
+              .find('.city span.city-name').html(l.city).end()
+              .find('.title').html(tracks[0].title.substring(0,60)).end()
+              .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
+              .find('ul li span.artist').html("<a href='" + tracks[0].user.permalink_url + "'>" + tracks[0].user.username + "</a>").end()
+              .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
+              .find('a.play-button').bind('click',tracks[0],showPlayer).end()
+              .find('.city .share-on-twitter').attr("href", twitterShareLink).end()
+              .find('.city .share-on-facebook').attr("href", facebookShareLink).end()
+              .find('.city .share-link').attr('href',linkToBeShared).end()
+              .find('.city .share-link').click(function() {
+                $("#share-box > div:first")
+                  .clone()
+                  .find("a.close").click(function() {
+                      $(this).parents("div.share-box").fadeOut(function() {
+                      $(this).remove();
+                    });
+                    return false;
+                  }).end()
+                  .find("input").val(this.href).end()
+                  .find("h1 .typ").html("City").end()
+                  .find("p .typ").html("city").end()
+                  .appendTo("body")
+                  .fadeIn(function() {
+                    $(".share-box input").focus().select();
+                  });          
+                return false;
+              }).end();                       
+          };
+
 
           // hide avatar if default user image is shown
           if(l.html.find(".avatar").attr("src").search(/default/) != -1) {
@@ -332,7 +350,7 @@ soundManager.onload = function() {
               // clear the tracks list
               $("#bubble" + l.firstTrack.id).find('.tracks-list').html("");
             
-              $.getJSON("/api/tracks/?location=" + l.id + "&genre=" + genre + "&limit=9",function(extraTracks) {
+              $.getJSON(tracksUrl + "location=" + l.id + "&genre=" + genre + "&limit=9",function(extraTracks) {
             
                 if(trackToShowFirst) { // make sure that the first track loaded in the list is the track first shown in the bubble (used for track permalinks)
               
@@ -649,7 +667,8 @@ soundManager.onload = function() {
   // start the app, then play a random track
   maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
   deepApiUrl = "/api/locations/?genre=" + "all";
-  loadLocations(maxApiUrl,deepApiUrl,function() {
+  tracksUrl = "/api/tracks/?";
+  loadLocations(maxApiUrl, deepApiUrl, tracksUrl, function() {
     playRandom();
   });
   map.setCenter(new GLatLng(-10.973349, 26.875), 2);    

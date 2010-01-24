@@ -37,11 +37,13 @@ def main():
                                         ('/api/locations/maxtracks.*', locations.MaxTracksHandler),
                                         (r'/api/locations/([0-9]{1,64})', locations.LocationIDHandler),
                                         ('/api/soundcloud-connect/', scconnect_main.SoundCloudConnectHandler),
-                                        ('/api/soundcloud-connect/followers/max/.*', followers.SoundCloudConnectMaxFollowersHandler),
-                                        ('/api/soundcloud-connect/followings/max/.*', followings.SoundCloudConnectMaxFollowingsHandler),
-                                        ('/api/soundcloud-connect/followers/.*', followers.SoundCloudConnectFollowersHandler),
-                                        ('/api/soundcloud-connect/followings/.*', followings.SoundCloudConnectFollowingsHandler),                                        
-                                        ('/api/soundcloud-connect/favorites/.*', favorites.SoundCloudConnectFavoritesHandler),                                                                                
+                                        ('/api/soundcloud-connect/followers/max/.*', followers.MaxFollowersHandler),
+                                        ('/api/soundcloud-connect/followings/max/.*', followings.MaxFollowingsHandler),
+                                        ('/api/soundcloud-connect/followers/tracks-in-location/.*', followers.TracksInLocationHandler),
+                                        ('/api/soundcloud-connect/followings/tracks-in-location/.*', followings.TracksInLocationHandler),                                        
+                                        ('/api/soundcloud-connect/followers/.*', followers.LocationsHandler),
+                                        ('/api/soundcloud-connect/followings/.*', followings.LocationsHandler),                                        
+                                        ('/api/soundcloud-connect/favorites/.*', favorites.LocationsHandler),                                                                                
                                         ('/api/locations.*', locations.LocationsHandler)], debug=util.in_development_enviroment())
   run_wsgi_app(application)
 

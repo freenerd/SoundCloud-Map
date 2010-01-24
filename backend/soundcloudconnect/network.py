@@ -65,7 +65,7 @@ def fetch_network(self, type=''):
     self.response.out.write('ERROR')
     return
   
-  for person in network[0:5]:
+  for person in network:
     logging.info(person)
     person_id = unicode(person['id'])
     memcache_add = memcache.add(person_id, 

@@ -28,7 +28,9 @@ from django.utils import simplejson as json
 import logging
 import os
 import datetime
+import time
 
+import models
 import settings
 
 def create_location_dict(location, track_counter = None):
@@ -45,7 +47,6 @@ def add_to_track_array(track, track_array):
   """
     filling an array with all the track, location and user data per track 
   """
-  location_dict = create_location_dict(track.user.location)
   
   user_dict = {'id': track.user.user_id,
                'permalink': track.user.permalink,
@@ -53,6 +54,13 @@ def add_to_track_array(track, track_array):
                'username': track.user.username,
                'fullname': track.user.fullname,
                'avatar_url': track.user.avatar_url}
+
+  if track.track_id < 0:
+    track_array.append({'id': track.track_id,
+                        'user': user_dict})
+    return
+    
+  location_dict = create_location_dict(track.user.location)    
    
   track_array.append({  'error': False,
                         'id': track.track_id,
@@ -74,6 +82,13 @@ def add_to_track_array(track, track_array):
                         'location': location_dict,
                         'user': user_dict})                            
 
+def empty_track(user):
+  class EmptyTrack:
+    def __init__(self, user):
+      self.track_id = -time.time()
+      self.user = user
+  return EmptyTrack(user)
+  
 def memcache_and_output_array(self, array, xspf_prefix="latest", time=(settings.API_QUERY_INTERVAL*60-5), memcache_name_suffix=''):  
   """
     Save to memcache and output as plain json
@@ -98,9 +113,10 @@ def memcache_and_output_array(self, array, xspf_prefix="latest", time=(settings.
   self.response.out.write(output)                          
   return
 
-def error_response(self, error_name, error_description):
+def error_response(self, error_name, error_description, error_code = 500):
   """
     Output error as json  
   """
   error_response = {'error': True, 'error_name': error_name, 'error_description': error_description}
+  self.response.set_status(error_code)
   self.response.out.write(json.dumps(error_response))

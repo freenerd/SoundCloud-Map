@@ -32,7 +32,7 @@ import settings
 import backend.utils
 import api.utils
 
-class SoundCloudConnectFollowingsHandler(webapp.RequestHandler):
+class LocationsHandler(webapp.RequestHandler):
   def get(self):
     
     # memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
@@ -73,8 +73,67 @@ class SoundCloudConnectFollowingsHandler(webapp.RequestHandler):
       locations_array.append(location_dict)
     
     api.utils.memcache_and_output_array(self, locations_array, memcache_name_suffix=str(soundcloudconnect_user.user_id))
+
+class TracksInLocationHandler(webapp.RequestHandler):
+  def get(self):
     
-class SoundCloudConnectMaxFollowingsHandler(webapp.RequestHandler):
+    location_id = self.request.get('location')
+    
+    if not location_id:
+      api.utils.error_response(self, 'no location_id', 'please specify the location_id like .../tracks-in-location/1234')
+      return
+    
+    location = models.Location.get_by_id(int(location_id))
+    
+    if not location:
+      api.utils.error_response(self, 'location not found', 'the location has not been found', 404)
+      return
+    
+    # memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+    # if memcached is not None and not utils.in_development_enviroment():
+    #   return self.response.out.write(memcached)    
+    
+    # initialization
+    # genre = self.request.get('genre')   
+    if self.request.get('limit'):
+      limit = int(self.request.get('limit'))
+    else:
+      limit = settings.FRONTEND_LOCATIONS_LIMIT
+    if self.request.get('offset'):
+      offset = int(self.request.get('offset'))
+    else:
+      offset = 0    
+    
+    # check if user is logged in
+    session_hash = self.request.cookies.get("session_hash")
+    if not session_hash:
+      self.response.out.write("Not logged in")
+      return
+    
+    soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+    
+    # get users
+    followings = models.SoundCloudConnectFollower.all()
+    followings = followings.filter('soundcloudconnect_user',  soundcloudconnect_user)
+    followings = followings.filter('location', location)
+    followings = followings.fetch(limit, offset)
+    
+    logging.info(followings)
+    logging.info(len(followings))        
+    
+    track_array = []
+    
+    for following in followings:
+      track = models.Track.all().filter('user', following.following).get()
+      logging.info("TRACK" + str(track))
+      if track:
+        api.utils.add_to_track_array(track, track_array)
+      else:
+        api.utils.add_to_track_array(api.utils.empty_track(following.following), track_array)
+
+    api.utils.memcache_and_output_array(self, track_array, memcache_name_suffix=str(soundcloudconnect_user.user_id))  
+        
+class MaxFollowingsHandler(webapp.RequestHandler):
   def get(self):
     
     # memcached = memcache.get(self.request.path_qs, namespace='api_cache' )

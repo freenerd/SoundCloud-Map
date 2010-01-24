@@ -26,6 +26,8 @@ import scapi
 import settings
 
 def get_api_root(soundcloudconnect_user=None):
+  if not soundcloudconnect_user:
+    raise RuntimeError("Error: get_api_root() has been called without soundcloudconnect_user")
   oauth_authenticator = scapi.authentication.OAuthAuthenticator( \
                                             settings.OAUTH_CONSUMER_KEY,
                                             settings.OAUTH_CONSUMER_SECRET,

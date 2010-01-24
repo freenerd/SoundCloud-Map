@@ -124,7 +124,6 @@ def fetch_person(self, type=''):
     soundcloudconnect_user.geolocated_followers += 1
   elif type == 'following':
     soundcloudconnect_user.geolocated_followings += 1  
-  soundcloudconnect_user.put()    
     
   # Update SoundCloudConnectUserLocation Record
   soundcloudconnect_user_location = models.SoundCloudConnectUserLocations.all()
@@ -132,16 +131,30 @@ def fetch_person(self, type=''):
   soundcloudconnect_user_location = soundcloudconnect_user_location.filter('location', location).get()
 
   if soundcloudconnect_user_location:
-    if type == 'follower': soundcloudconnect_user_location.follower_count += 1
-    elif type == 'following': soundcloudconnect_user_location.following_count += 1  
+    if type == 'follower': 
+      soundcloudconnect_user_location.follower_count += 1
+      if soundcloudconnect_user.max_location_followers_count < \
+         soundcloudconnect_user_location.follower_count:
+         soundcloudconnect_user.max_location_followers_count = \
+              soundcloudconnect_user_location.follower_count
+    elif type == 'following': 
+      soundcloudconnect_user_location.following_count += 1  
+      if soundcloudconnect_user.max_location_followings_count < \
+        soundcloudconnect_user_location.following_count:
+        soundcloudconnect_user.max_location_followings_count = \
+             soundcloudconnect_user_location.following_count
     soundcloudconnect_user_location.put() 
   else:
     if type == 'follower': 
       follower_count = 1
       following_count = 0
+      if soundcloudconnect_user.max_location_followers_count < 1:
+         soundcloudconnect_user.max_location_followers_count += 1
     elif type == 'following':
       follower_count = 0
       following_count = 1
+      if soundcloudconnect_user.max_location_followings_count < 1:
+         soundcloudconnect_user.max_location_followings_count += 1      
     soundcloudconnect_user_location = models.SoundCloudConnectUserLocations(\
                                               follower_count = follower_count,
                                               following_count = following_count,
@@ -149,6 +162,8 @@ def fetch_person(self, type=''):
                                               soundcloudconnect_user = soundcloudconnect_user,
                                               location = location)
     soundcloudconnect_user_location.put()  
+
+  soundcloudconnect_user.put()
     
   # Update SoundCloudConnectFollower/Following Record
   if type == 'follower': 

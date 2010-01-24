@@ -28,7 +28,7 @@ import logging
 import scapi
 import settings
 
-class SoundCloudConnectFavoritesHandler(webapp.RequestHandler):
+class LocationsHandler(webapp.RequestHandler):
   def get(self):
     sid = self.request.cookies.get("sid")
     logging.info("SID: " + sid)
