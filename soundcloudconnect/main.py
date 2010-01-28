@@ -144,7 +144,8 @@ class AccessTokenHandler(webapp.RequestHandler):
                   params={'session_hash': session_hash})
     taskqueue.add(url='/backend/soundcloud-connect/followings/',
                   params={'session_hash': session_hash})    
-    
+    taskqueue.add(url='/backend/soundcloud-connect/favorites/',
+                  params={'session_hash': session_hash})    
     
 def main():
   application = webapp.WSGIApplication([(r'/soundcloud-connect/request-token/', RequestTokenHandler),

@@ -25,35 +25,125 @@ from google.appengine.ext import webapp
 
 import logging
 
+import models
 import scapi
 import settings
 
-class LocationsHandler(webapp.RequestHandler):
+import backend.utils
+import api.utils
+
+class FavoritesHandler(webapp.RequestHandler):
   def get(self):
-    sid = self.request.cookies.get("sid")
-    logging.info("SID: " + sid)
-    sid_data = models.OAuthToken.all().filter('session_hash', sid).get()
-    logging.info("sid_data: " + str(sid_data))
-    oauth_authenticator = scapi.authentication.OAuthAuthenticator(settings.OAUTH_CONSUMER_KEY, 
-                                                                  settings.OAUTH_CONSUMER_SECRET,
-                                                                  sid_data.token, 
-                                                                  sid_data.secret)                                                                  
-    root = scapi.Scope(scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, authenticator=oauth_authenticator))
-    favorites = list(root.me().favorites())
     
-    self.response.out.write(favorites)
+    # memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+    # if memcached is not None and not utils.in_development_enviroment():
+    #   return self.response.out.write(memcached)    
     
-    # for follower in followers[0:10]:
-    #   logging.info(follower)      
-    #   try:
-    #     geocached_location = backend_utils.get_location(follower['city'], follower['country'])
-    #   
-    #     if geocached_location['city'] == 'None' or geocached_location['country'] == 'None' or \
-    #     geocached_location['city'] == None or geocached_location['country'] == None:   
-    #       logging.info("No Location")
-    #       continue
-    #     else:
-    #       logging.info(geocached_location)
-    #   except RuntimeError:
-    #     logging.info("No Location")
-    #     pass
+    # initialization
+    genre = self.request.get('genre')   
+    if self.request.get('limit'):
+      limit = int(self.request.get('limit'))
+    else:
+      limit = settings.FRONTEND_LOCATIONS_LIMIT
+    if self.request.get('offset'):
+      offset = int(self.request.get('offset'))
+    else:
+      offset = 0    
+    
+    # check if user is logged in
+    session_hash = self.request.cookies.get("session_hash")
+    if not session_hash:
+      self.response.out.write("Not logged in")
+      return
+    
+    soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+    
+    favorites = models.SoundCloudConnectUserLocations.all()
+    favorites = locations.filter('soundcloudconnect_user',  soundcloudconnect_user)
+    favorites = locations.filter('favorites_count >', 0)
+    favorites = locations.fetch(limit, offset)
+    
+    logging.info("Fetched Locations: " + str(locations))
+    
+    locations_array = []
+    
+    for location in locations:
+      logging.info("Caring for location: " + "")
+      location_dict = api.utils.create_location_dict(location.location, location.following_count)
+      locations_array.append(location_dict)
+    
+    api.utils.memcache_and_output_array(self, locations_array, memcache_name_suffix=str(soundcloudconnect_user.user_id))
+
+class TracksInLocationHandler(webapp.RequestHandler):
+  def get(self):
+    
+    location_id = self.request.get('location')
+    
+    if not location_id:
+      api.utils.error_response(self, 'no location_id', 'please specify the location_id like .../tracks-in-location/1234')
+      return
+    
+    location = models.Location.get_by_id(int(location_id))
+    
+    if not location:
+      api.utils.error_response(self, 'location not found', 'the location has not been found', 404)
+      return
+    
+    # memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+    # if memcached is not None and not utils.in_development_enviroment():
+    #   return self.response.out.write(memcached)    
+    
+    # initialization
+    # genre = self.request.get('genre')   
+    if self.request.get('limit'):
+      limit = int(self.request.get('limit'))
+    else:
+      limit = settings.FRONTEND_LOCATIONS_LIMIT
+    if self.request.get('offset'):
+      offset = int(self.request.get('offset'))
+    else:
+      offset = 0    
+    
+    # check if user is logged in
+    session_hash = self.request.cookies.get("session_hash")
+    if not session_hash:
+      self.response.out.write("Not logged in")
+      return
+    
+    soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+    
+    # get favorites
+    favorites = models.SoundCloudConnectFavorites.all()
+    favorites = followers.filter('soundcloudconnect_user',  soundcloudconnect_user)
+    favorites = followers.filter('location', location)
+    favorites = followers.fetch(limit, offset)
+    
+    logging.info(favorites)
+    logging.info(len(favorites))        
+    
+    track_array = []
+    
+    for track in favorites:
+      logging.info("TRACK" + str(track))
+      api.utils.add_to_track_array(track, track_array)
+
+    api.utils.memcache_and_output_array(self, track_array, memcache_name_suffix=str(soundcloudconnect_user.user_id))    
+    
+class MaxFavoritesHandler(webapp.RequestHandler):
+  def get(self):
+    
+    # memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
+    # if memcached is not None and not utils.in_development_enviroment():
+    #   return self.response.out.write(memcached)    
+    
+    # check if user is logged in
+    session_hash = self.request.cookies.get("session_hash")
+    if not session_hash:
+      self.response.out.write("Not logged in")
+      return
+    
+    soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+    
+    api.utils.memcache_and_output_array(self, 
+                                        {'max_tracks': soundcloudconnect_user.max_location_favorites_count}, 
+                                        memcache_name_suffix=str(soundcloudconnect_user.user_id))    

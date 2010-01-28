@@ -104,6 +104,19 @@ soundManager.onload = function() {
     loadLocations(maxApiUrl, deepApiUrl, tracksUrl); // load locations from the genre
     return false;
   });
+  
+  // favorites button
+  $("#connect-with-sc-favorites").click(function(ev) {
+    $(".genres .active").removeClass("active");
+    $(".cwsc .active").removeClass("active");
+    $(this).addClass("active");
+    removeAllMarkers();
+    maxApiUrl = "/api/soundcloud-connect/favorites/max/?";
+    deepApiUrl = "/api/soundcloud-connect/favorites/?";
+    tracksUrl = "/api/soundcloud-connect/favorites/tracks-in-location/?";
+    loadLocations(maxApiUrl, deepApiUrl, tracksUrl); // load locations from the genre
+    return false;
+  });  
 
 
   // 

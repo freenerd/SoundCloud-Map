@@ -36,9 +36,9 @@ import util
 from soundcloudconnect import utils
 
 
-def fetch_network(self, type=''):
+def fetch_favorites(self):
   '''
-    Fetching network information for a soundcloud-connect user
+    Fetching favorites information for a soundcloud-connect user
     and putting single fetch task into the taskqeue ...
   '''
   
@@ -47,38 +47,30 @@ def fetch_network(self, type=''):
   soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
   logging.info('scconnectuser_data: ' + str(soundcloudconnect_user))
   
-  # TODO: Fetch with offset to get more than 50 people
+  # TODO: Fetch with offset to get more than 50 favorites
   
   root = utils.get_api_root(soundcloudconnect_user)
   
-  if type == 'followers':
-    network = list(root.me().followers())
-    memcache_namespace = 'soundcloudconnect_follower'
-    taskqueue_url = '/backend/soundcloud-connect/follower/'
-  elif type == 'followings':
-    network = list(root.me().followings())
-    memcache_namespace = 'soundcloudconnect_following'
-    taskqueue_url = '/backend/soundcloud-connect/following/'    
-  else:
-    self.response.out.write('ERROR')
-    return
+  favorites = list(root.me().favorites())
+  memcache_namespace = 'soundcloudconnect_favorites'
+  taskqueue_url = '/backend/soundcloud-connect/favorites/'    
   
-  for person in network:
-    logging.info(person)
-    person_id = unicode(person['id'])
-    memcache_add = memcache.add(person_id, 
-                                person,
+  for favorite in favorites:
+    logging.info(favorite)
+    favorite_id = unicode(favorite['id'])
+    memcache_add = memcache.add(favorite_id, 
+                                favorite,
                                 time=settings.TRACK_BACKEND_UPDATE_LIFETIME*60, 
                                 namespace=memcache_namespace)
                                 
     if memcache_add: 
       taskqueue.add(url=taskqueue_url, 
-                    params={'person_id': person_id, 
+                    params={'favorite': favorite_id, 
                             'session_hash': session_hash,
                             'time_added_to_queue': str(int(time.time()))})
       logging.info('Added to queue')      
     else:
-      logging.error('Error adding to network queue for ' + type)     
+      logging.error('Error adding to favorites queue for ' + str(favorite_id))     
   
   # TODO: Update stat counters for soundcloud connect user
          
@@ -86,22 +78,15 @@ def fetch_network(self, type=''):
   return                        
   
 
-class Followers(webapp.RequestHandler):
+class Favorites(webapp.RequestHandler):
   def get(self):
-    return fetch_network(self,'followers')    
+    return fetch_favorites(self)
   def post(self):
-    return fetch_network(self,'followers')    
-  
-class Followings(webapp.RequestHandler):
-  def get(self):
-    return fetch_network(self,'followings')
-  def post(self):
-    return fetch_network(self,'followings')
+    return fetch_favorites(self)
       
 def main():
   application = webapp.WSGIApplication([\
-                      ('/backend/soundcloud-connect/followers/', Followers),
-                      ('/backend/soundcloud-connect/followings/', Followings)    
+                      ('/backend/soundcloud-connect/favorites/', Favorites),
                       ], debug=util.in_development_enviroment())
   run_wsgi_app(application)            
       
