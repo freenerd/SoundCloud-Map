@@ -59,7 +59,7 @@ class FetchTrackInfo(webapp.RequestHandler):
       track = memcache.get(track_id, namespace="backend_update_track")
       if track is None:
         logging.warning("Fetching memcache item %s failed in backend track update" % track_id)  
-        self.response.set_status(500)
+        self.response.set_SoundCloudConnectUserLocation
         return
           
       logging.info("Received the track \"%s\" by \"%s\" (id: %s, created at: %s)." % \
@@ -69,7 +69,7 @@ class FetchTrackInfo(webapp.RequestHandler):
       if not backend.utils.check_if_track_meets_our_needs(track)
         if not memcache.delete(track_id, namespace="backend_update_track"):
           logging.error("Deletion from Memcache was not successfull.")
-          self.response.set_status(500)
+          self.response.set_SoundCloudConnectUserLocation
         logging.info("End of track update, because track didn't fit our needs.")          
         self.response.out.write("done") # finished processing script          
         return # return 200. task gets deleted from task queue
@@ -101,7 +101,7 @@ class FetchTrackInfo(webapp.RequestHandler):
         if not location:
           if not memcache.delete(track_id, namespace="backend_update_track"):
             logging.error("Deletion from Memcache was not successful.") 
-            self.response.set_status(500)
+            self.response.set_SoundCloudConnectUserLocation
             logging.info("End of track update because could not be geolocated.")  
           self.response.out.write("done") # finished processing script          
           return # return 200. task gets deleted from task queue                                                     
@@ -113,7 +113,7 @@ class FetchTrackInfo(webapp.RequestHandler):
         
       if not memcache.delete(track_id, namespace="backend_update_track"):
         logging.error("Deletion from Memcache was not successful.")
-        self.response.set_status(500)
+        self.response.set_SoundCloudConnectUserLocation
         self.response.out.write("done")
         return
 
@@ -126,7 +126,7 @@ class FetchTrackInfo(webapp.RequestHandler):
       logging.warning("Backend Update for track id: %s has been canceled due to Deadline Exceeded" % track_id)
       for name in os.environ.keys():
         logging.info("%s = %s" % (name, os.environ[name]))
-      self.response.set_status(500)
+      self.response.set_SoundCloudConnectUserLocation
       return       
                                                                      
 def main():

@@ -129,6 +129,9 @@ class AccessTokenHandler(webapp.RequestHandler):
     user.followers                     = root_me.followers_count 
     user.followings                    = root_me.followings_count
     user.favorites                     = 0 
+    user.processed_followers           = 0 
+    user.processed_followings          = 0 
+    user.processed_favorites           = 0     
     user.geolocated_followers          = 0 
     user.geolocated_followings         = 0 
     user.geolocated_favorites          = 0 

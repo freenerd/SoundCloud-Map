@@ -52,6 +52,14 @@ handlers:
   script: backend/soundcloudconnect/person.py
   login: admin  
 
+- url: /backend/soundcloud-connect/favorites/
+  script: backend/soundcloudconnect/favorites.py
+  login: admin
+
+- url: /backend/soundcloud-connect/favorite/
+  script: backend/soundcloudconnect/favorite.py
+  login: admin    
+
 - url: /api/soundcloud-connect/change-favorite/.*
   script: api/soundcloudconnect/change_favorite.py
   login: admin  

@@ -74,7 +74,7 @@ def fetch_person(self, type=''):
   logging.info("Person" + str(person))
   if person is None:
     logging.warning("Fetching memcache item %s failed in soundcloud-connect fetch person" % person_id)  
-    self.response.set_status(500)
+    self.response.set_SoundCloudConnectUserLocation
     return 
   
   # check if user is already in database  
@@ -107,7 +107,7 @@ def fetch_person(self, type=''):
       if not location:
         # if not memcache.delete(track_id, namespace="backend_update_track"):
         #   logging.error("Deletion from Memcache was not successful.") 
-        #   self.response.set_status(500)
+        #   self.response.set_SoundCloudConnectUserLocation
         #   logging.info("End of track update because could not be geolocated.")  
         # self.response.out.write("done") # finished processing script          
         return # return 200. task gets deleted from task queue   
@@ -126,7 +126,7 @@ def fetch_person(self, type=''):
     soundcloudconnect_user.geolocated_followings += 1  
     
   # Update SoundCloudConnectUserLocation Record
-  soundcloudconnect_user_location = models.SoundCloudConnectUserLocations.all()
+  soundcloudconnect_user_location = models.SoundCloudConnectUserLocation.all()
   soundcloudconnect_user_location = soundcloudconnect_user_location.filter('soundcloudconnect_user', soundcloudconnect_user)
   soundcloudconnect_user_location = soundcloudconnect_user_location.filter('location', location).get()
 
@@ -155,7 +155,7 @@ def fetch_person(self, type=''):
       following_count = 1
       if soundcloudconnect_user.max_location_followings_count < 1:
          soundcloudconnect_user.max_location_followings_count += 1      
-    soundcloudconnect_user_location = models.SoundCloudConnectUserLocations(\
+    soundcloudconnect_user_location = models.SoundCloudConnectUserLocation(\
                                               follower_count = follower_count,
                                               following_count = following_count,
                                               favorite_count = 0,

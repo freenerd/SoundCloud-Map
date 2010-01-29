@@ -124,10 +124,10 @@ def update_location_data(track, location):
   logging.info("Updated location lat/lon %s/%s in city: %s country: %s and track_count: %i." % \
               (location.location.lat, location.location.lon, location.city, location.country, location.track_counter))
   update_location_genre_data(track, location)
-  return
+  return location
 
 def check_if_track_meets_our_needs(track):
-  if not track['streamable'] or track['sharing'] != 'public':      
+  if not track['streamable'] or track['sharing'] != 'public' or not track.get('stream_url'):      
     logging.info("The track does not match our needs. Will not be used.")
     return False
   return True
@@ -143,8 +143,9 @@ def write_user_to_datastore(user, location):
             avatar_url = user['avatar_url'],
             location = location.key())           
   user.put()
+  logging.info("User saved to datastore.")  
   return user
-  logging.info("User saved to datastore.")       
+     
 
 def write_track_to_datastore(track, user, location):
   """
@@ -193,6 +194,7 @@ def write_track_to_datastore(track, user, location):
     location = location.key())         
   new_track.put()
   logging.info("Track saved to datastore.")                                    
+  return new_track
       
 def get_location(city, country):
   """

@@ -32,7 +32,7 @@ import settings
 import backend.utils
 import api.utils
 
-class FavoritesHandler(webapp.RequestHandler):
+class LocationsHandler(webapp.RequestHandler):
   def get(self):
     
     # memcached = memcache.get(self.request.path_qs, namespace='api_cache' )
@@ -58,10 +58,10 @@ class FavoritesHandler(webapp.RequestHandler):
     
     soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
     
-    favorites = models.SoundCloudConnectUserLocations.all()
-    favorites = locations.filter('soundcloudconnect_user',  soundcloudconnect_user)
-    favorites = locations.filter('favorites_count >', 0)
-    favorites = locations.fetch(limit, offset)
+    locations = models.SoundCloudConnectUserLocation.all()
+    locations = locations.filter('soundcloudconnect_user',  soundcloudconnect_user)
+    locations = locations.filter('favorite_count >', 0)
+    locations = locations.fetch(limit, offset)
     
     logging.info("Fetched Locations: " + str(locations))
     
@@ -111,21 +111,21 @@ class TracksInLocationHandler(webapp.RequestHandler):
       return
     
     soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
-    
+    logging.info(str(location))
     # get favorites
-    favorites = models.SoundCloudConnectFavorites.all()
-    favorites = followers.filter('soundcloudconnect_user',  soundcloudconnect_user)
-    favorites = followers.filter('location', location)
-    favorites = followers.fetch(limit, offset)
+    favorites = models.SoundCloudConnectFavorite.all()
+    favorites = favorites.filter('soundcloudconnect_user',  soundcloudconnect_user)
+    favorites = favorites.filter('location', location)
+    favorites = favorites.fetch(limit, offset)
     
     logging.info(favorites)
     logging.info(len(favorites))        
     
     track_array = []
     
-    for track in favorites:
-      logging.info("TRACK" + str(track))
-      api.utils.add_to_track_array(track, track_array)
+    for favorite in favorites:
+      logging.info("TRACK" + str(favorite))
+      api.utils.add_to_track_array(favorite.track, track_array)
 
     api.utils.memcache_and_output_array(self, track_array, memcache_name_suffix=str(soundcloudconnect_user.user_id))    
     

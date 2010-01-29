@@ -58,7 +58,7 @@ class LocationsHandler(webapp.RequestHandler):
     
     soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
     
-    locations = models.SoundCloudConnectUserLocations.all()
+    locations = models.SoundCloudConnectUserLocation.all()
     locations = locations.filter('soundcloudconnect_user',  soundcloudconnect_user)
     locations = locations.filter('follower_count >', 0)
     locations = locations.fetch(limit, offset)

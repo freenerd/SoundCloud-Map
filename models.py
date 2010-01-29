@@ -94,13 +94,16 @@ class SoundCloudConnectUser(db.Model):
   followers = db.IntegerProperty()  
   followings = db.IntegerProperty()  
   favorites = db.IntegerProperty()  
+  processed_followers = db.IntegerProperty()  
+  processed_followings = db.IntegerProperty()  
+  processed_favorites = db.IntegerProperty()      
   geolocated_followers = db.IntegerProperty()  
   geolocated_followings = db.IntegerProperty()  
   geolocated_favorites = db.IntegerProperty()  
   
   entry_created_at = db.DateTimeProperty(auto_now_add=True)
   
-class SoundCloudConnectUserLocations(db.Model):
+class SoundCloudConnectUserLocation(db.Model):
   follower_count = db.IntegerProperty()
   following_count = db.IntegerProperty()  
   favorite_count = db.IntegerProperty()
@@ -123,6 +126,6 @@ class SoundCloudConnectFollowing(db.Model):
   
 class SoundCloudConnectFavorite(db.Model):
   soundcloudconnect_user = db.ReferenceProperty(reference_class=SoundCloudConnectUser)
-  favorite = db.ReferenceProperty(reference_class=Track)  
+  track = db.ReferenceProperty(reference_class=Track)  
   location = db.ReferenceProperty(reference_class=Location)
   entry_created_at = db.DateTimeProperty(auto_now_add=True)    

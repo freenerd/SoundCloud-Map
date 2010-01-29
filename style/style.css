@@ -359,6 +359,11 @@ a:hover {
   left:500px;
 }
 
+.cwsc img{
+  top: 5px;
+  border: none;  
+}
+
 .options .jump-to {
   position: relative;
   height: 35px;

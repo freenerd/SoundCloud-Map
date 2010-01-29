@@ -53,24 +53,31 @@ def fetch_favorites(self):
   
   favorites = list(root.me().favorites())
   memcache_namespace = 'soundcloudconnect_favorites'
-  taskqueue_url = '/backend/soundcloud-connect/favorites/'    
+  taskqueue_url = '/backend/soundcloud-connect/favorite/'    
+  
+  #logging.info("Favorites:" + str(favorites))
   
   for favorite in favorites:
-    logging.info(favorite)
-    favorite_id = unicode(favorite['id'])
+    logging.info("Favorite str:" + str(favorite))
+    logging.info("Favourite dict:" + str(favorite.__dict__))
+    favorite_id = unicode(favorite._RESTBase__data['id'])
     memcache_add = memcache.add(favorite_id, 
-                                favorite,
+                                favorite._RESTBase__data,
                                 time=settings.TRACK_BACKEND_UPDATE_LIFETIME*60, 
                                 namespace=memcache_namespace)
                                 
     if memcache_add: 
-      taskqueue.add(url=taskqueue_url, 
-                    params={'favorite': favorite_id, 
-                            'session_hash': session_hash,
-                            'time_added_to_queue': str(int(time.time()))})
-      logging.info('Added to queue')      
+      taskqueue_add = taskqueue.add(url=taskqueue_url, 
+                                    params={'favorite_id': favorite_id, 
+                                            'session_hash': session_hash,
+                                            'time_added_to_queue': \
+                                                      str(int(time.time()))})
+      if taskqueue_add:                                              
+        logging.info('Added to queue')      
+      else:
+        logging.error('Error adding to taskqueue for ' + str(favorite_id))
     else:
-      logging.error('Error adding to favorites queue for ' + str(favorite_id))     
+      logging.error('Error adding to memcache for ' + str(favorite_id))     
   
   # TODO: Update stat counters for soundcloud connect user
          
