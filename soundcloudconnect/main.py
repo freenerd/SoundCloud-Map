@@ -51,7 +51,7 @@ class RequestTokenHandler(webapp.RequestHandler):
     connector = scapi.ApiConnector(host=settings.SOUNDCLOUD_API_URL, 
                                    authenticator=oauth_authenticator)      
     token, secret = connector.fetch_request_token( \
-                    url = "http://api.soundcloud.com/oauth/request_token")
+                    url = settings.SOUNDCLOUD_API_URL + "/oauth/request_token")
     logging.info("Token: " + token)
     logging.info("Secret: " +secret)        
     authorization_url = connector.get_request_token_authorization_url(token)
@@ -149,10 +149,27 @@ class AccessTokenHandler(webapp.RequestHandler):
                   params={'session_hash': session_hash})    
     taskqueue.add(url='/backend/soundcloud-connect/favorites/',
                   params={'session_hash': session_hash})    
+
+class StatusHandler(webapp.RequestHandler):
+  def get(self): 
+    
+    # check if user is having a hash
+    session_hash = self.request.cookies.get("session_hash")
+    if not session_hash:
+      self.response.out.write('{"authorized": false}')
+      return
+    
+    soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+    
+    if soundcloudconnect_user and soundcloudconnect_user.authorized:
+      self.response.out.write('{"authorized": true}')
+    else:
+      self.response.out.write('{"authorized": false}')
     
 def main():
   application = webapp.WSGIApplication([(r'/soundcloud-connect/request-token/', RequestTokenHandler),
-                                        (r'/soundcloud-connect/access-token/', AccessTokenHandler)])
+                                        (r'/soundcloud-connect/access-token/', AccessTokenHandler),
+                                        (r'/soundcloud-connect/status/', StatusHandler)])
   run_wsgi_app(application)
 
 if __name__ == '__main__':

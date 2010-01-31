@@ -43,10 +43,12 @@ soundManager.onload = function() {
 
   var sound = null;
   var playerIsVisible = false;
+  var soundCloudConnectAuthorized = false;
   var genre = "";
   var maxApiUrl = "";
   var deepApiUrl = "";
   var tracksUrl = "";  
+  
   
   var FOOTER_HEIGHT = 180;
   var PLAYER_HEIGHT = 80;
@@ -79,6 +81,31 @@ soundManager.onload = function() {
     
   SC.Connect.prepareButton($('#connect-with-sc'),options);
 
+  function checkSoundCloudConnectAuthorized(){
+    $("#cwsc-button").show()
+                     .find("img")
+                     .attr('src', '/images/ajax-loader.gif');      
+    $.getJSON('/soundcloud-connect/status/', function(data) {
+      if(data.authorized){ soundCloudConnectAuthorized = true; }
+      else { soundCloudConnectAuthorized = false; };
+      if(soundCloudConnectAuthorized){
+        $("#cwsc-button #connect-with-sc")
+                                   .attr('connected', true)
+                                   .find("img")
+                                   .attr('src', '/images/disconnect-small.png');
+        $(".cwsc").show();
+      } 
+      else {
+        $("#cwsc-button #connect-with-sc")
+                                   .attr('connected', false)
+                                   .find("img")
+                                   .attr('src', '/images/connect-small.png');        
+        $(".cwsc:not(#cwsc-button)").hide();                                                                                                 
+      };
+    });
+  };
+  checkSoundCloudConnectAuthorized();
+  
   // followers button
   $("#connect-with-sc-followers").click(function(ev) {
     $(".genres .active").removeClass("active");
@@ -530,6 +557,51 @@ soundManager.onload = function() {
     return Math.floor(ms/60000) + "." + s;
   };
 
+  // display favorite status + register change events
+  function favoriteStatus(track) {
+    if(soundCloudConnectAuthorized) {
+      $("#player-container .metadata .favorite-status img")
+                  .attr("src", "/images/ajax-loader.gif")
+                  .addClass('favorite-spinner')                                                         
+                  .show();
+      $.getJSON("/api/soundcloud-connect/change-favorite/status?track-id=" + track.id, function(data){
+        if(data.favorite){
+          $("#player-container .metadata .favorite-status")
+                      .find("img")
+                      .attr("src", "/images/remove-from-favorites.png")
+                      .removeClass()
+                      .end()
+                      .click(function() {
+                        $("#player-container .metadata .favorite-status")
+                                    .unbind('click')
+                                    .find('img')                        
+                                    .attr("src", "/images/ajax-loader.gif")
+                                    .addClass('favorite-spinner');                                         
+                        $.getJSON("/api/soundcloud-connect/change-favorite/delete?track-id=" + track.id, function(){
+                          favoriteStatus(track);
+                        });
+                      });
+        } else {
+          $("#player-container .metadata .favorite-status")
+                      .find("img")          
+                      .attr("src", "/images/save-to-favorites.png")
+                      .removeClass()                      
+                      .end()
+                      .click(function() {    
+                        $("#player-container .metadata .favorite-status")
+                                    .unbind('click')
+                                    .find('img')
+                                    .attr("src", "/images/ajax-loader.gif")  
+                                    .addClass('favorite-spinner');                                                                              
+                        $.getJSON("/api/soundcloud-connect/change-favorite/set?track-id=" + track.id, function(){
+                          favoriteStatus(track);
+                        });
+                      });        
+        };
+      });                   
+    };
+  };
+
   // shows the track player with a given track
   function showPlayer(e) {
     
@@ -628,6 +700,8 @@ soundManager.onload = function() {
 
     play();
     
+    favoriteStatus(track);
+    
     return false;
   }
 
@@ -708,6 +782,6 @@ soundManager.onload = function() {
     $.each(location,function(i,l) {
       setupLocation(l);
       });
-    });
-  }
+    });    
+  }  
 }

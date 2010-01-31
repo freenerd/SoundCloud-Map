@@ -66,7 +66,7 @@ class FetchTrackInfo(webapp.RequestHandler):
                   (track['title'], track['user']['username'], track['id'], track['created_at']))
                   
       # check if track meets our needs
-      if not backend.utils.check_if_track_meets_our_needs(track)
+      if not backend.utils.check_if_track_meets_our_needs(track):
         if not memcache.delete(track_id, namespace="backend_update_track"):
           logging.error("Deletion from Memcache was not successfull.")
           self.response.set_SoundCloudConnectUserLocation
@@ -107,7 +107,7 @@ class FetchTrackInfo(webapp.RequestHandler):
           return # return 200. task gets deleted from task queue                                                     
         
         # apparently has been geolocated fine so lets continue ...
-        backend.utils.write_user_to_datastore(track['user'], location)
+        user = backend.utils.write_user_to_datastore(track['user'], location)
 
       backend.utils.write_track_to_datastore(track, user, location)
         

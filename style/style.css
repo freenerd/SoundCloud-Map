@@ -354,6 +354,10 @@ a:hover {
   background: transparent url('../images/world.png')  top left no-repeat;
 }
 
+.cwsc {
+  display: none;
+}
+
 .cwsc a{
   position: relative;  
   left:500px;
@@ -362,6 +366,22 @@ a:hover {
 .cwsc img{
   top: 5px;
   border: none;  
+}
+
+.favorite-status {
+  outline: 0 none;
+}
+
+.favorite-status img{
+  padding-left: 10px;
+  display: none;
+  border: none;
+}
+
+.favorite-status .favorite-spinner{
+  height: 18px;
+  width: 18px;
+  padding-left: 35px;
 }
 
 .options .jump-to {

@@ -37,6 +37,7 @@ import time
 import settings
 import models
 import soundcloudconnect.utils
+import api.utils
 
 import scapi
 
@@ -54,12 +55,15 @@ class StatusHandler(webapp.RequestHandler):
     root = soundcloudconnect.utils.get_api_root(soundcloudconnect_user)
     track_id = self.request.get("track-id")
 
-    self.response.out.write("track_id") 
-    self.response.out.write(track_id) 
+    logging.info("Track ID " + str(track_id))
+  
+    track = root.me().tracks(track_id)
     
-    favs = list(root.me().favorites())
-    
-    self.response.out.write(str(favs))
+    if track:
+      logging.info("TRack " + str(track.__dict__))      
+      self.response.out.write('{"favorite": %s}' % str(track.user_favorite).lower())
+    else:
+      self.response.out.write("No Track Found")      
 
 class SetHandler(webapp.RequestHandler):
   
@@ -72,6 +76,20 @@ class SetHandler(webapp.RequestHandler):
       return
     
     soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+    root = soundcloudconnect.utils.get_api_root(soundcloudconnect_user)
+    track_id = self.request.get("track-id")
+
+    logging.info("Track ID " + str(track_id))
+  
+    root.me().favorites.append(track_id)
+
+    track = root.me().tracks(track_id)
+
+    if track:
+      # logging.info("TRack " + str(track.__dict__))   
+      self.response.out.write('{"favorite": %s}' % str(track.user_favorite).lower())
+    else:
+      self.response.out.write("No Track Found") 
 
 
 class DeleteHandler(webapp.RequestHandler):
@@ -85,8 +103,20 @@ class DeleteHandler(webapp.RequestHandler):
       return
     
     soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
+    root = soundcloudconnect.utils.get_api_root(soundcloudconnect_user)
+    track_id = self.request.get("track-id")
 
-      
+    logging.info("Track ID " + str(track_id))
+  
+    root.me().favorites.remove(track_id)
+
+    track = root.me().tracks(track_id)
+
+    if track:
+      # logging.info("TRack " + str(track.__dict__))  
+      self.response.out.write('{"favorite": %s}' % str(track.user_favorite).lower())
+    else:
+      self.response.out.write("No Track Found") 
     
     
 def main():

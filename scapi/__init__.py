@@ -32,6 +32,9 @@ from scapi.util import (
     escape,
     MultiDict,
     )
+    
+import settings
+    
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -47,15 +50,15 @@ PROXY = ''
 """
 The url Soundcould offers to obtain request-tokens
 """
-REQUEST_TOKEN_URL = 'http://api.soundcloud.com/oauth/request_token'
+REQUEST_TOKEN_URL = settings.SOUNDCLOUD_API_URL + '/oauth/request_token'
 """
 The url Soundcould offers to exchange access-tokens for request-tokens.
 """
-ACCESS_TOKEN_URL = 'http://api.soundcloud.com/oauth/access_token'
+ACCESS_TOKEN_URL = settings.SOUNDCLOUD_API_URL + '/oauth/access_token'
 """
 The url Soundcould offers to make users authorize a concrete request token.
 """
-AUTHORIZATION_URL = 'http://api.soundcloud.com/oauth/authorize'
+AUTHORIZATION_URL = settings.SOUNDCLOUD_API_URL + '/oauth/authorize'
 
 __all__ = ['SoundCloudAPI', 'USE_PROXY', 'PROXY', 'REQUEST_TOKEN_URL', 'ACCESS_TOKEN_URL', 'AUTHORIZATION_URL']
 
@@ -492,7 +495,6 @@ class Scope(object):
             scope = "/".join([sc._scope() for sc in scopes]) + "/"
         url = "%(host)s/%(base)s%(scope)s%(method)s%(queryparams)s" % dict(host=connector.host, method=method, base=connector._base, scope=scope, queryparams=self._create_query_string(queryparams))
 #        url = "http://%(host)s/%(base)s%(scope)s%(method)s%(queryparams)s" % dict(host=connector.host, method=method, base=connector._base, scope=scope, queryparams=self._create_query_string(queryparams))
-
         # we need to install SCRedirectHandler
         # to gather possible See-Other redirects
         # so that we can exchange our method
@@ -501,7 +503,8 @@ class Scope(object):
         if USE_PROXY:
             handlers.append(urllib2.ProxyHandler({'http' : PROXY}))
         req = self._create_request(url, connector, urlparams, queryparams, alternate_http_method, use_multipart)
-
+        logging.info("REQ " + str(req.__dict__))        
+        logging.info("METHOD " + str(req.get_method()))
         http_method = req.get_method()
         if urlparams is not None:
             logger.debug("Posting url: %s, method: %s", url, http_method)
@@ -617,10 +620,16 @@ class Scope(object):
                 """
                 If the current scope is 
                 """
-                self._call(_name, str(resource.id), _alternate_http_method="PUT")
+                try:
+                  self._call(_name, str(resource.id), _alternate_http_method="PUT")
+                except AttributeError:
+                  self._call(_name, str(resource), _alternate_http_method="PUT")
 
             def remove(selfish, resource):
-                self._call(_name, str(resource.id), _alternate_http_method="DELETE")
+                try:
+                  self._call(_name, str(resource.id), _alternate_http_method="DELETE")
+                except AttributeError:
+                  self._call(_name, str(resource), _alternate_http_method="DELETE")
                 
         if _name in RESTBase.ALL_DOMAIN_CLASSES:
             cls = RESTBase.ALL_DOMAIN_CLASSES[_name]
@@ -752,7 +761,6 @@ class RESTBase(object):
         @type value: RESTBase | list<RESTBase> | basestring | long | int | float
         @return: None
         """
-
         # update "private" data, such as __data
         if "_RESTBase__" in name:
             self.__dict__[name] = value
