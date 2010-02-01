@@ -63,12 +63,8 @@ class LocationsHandler(webapp.RequestHandler):
     locations = locations.filter('favorite_count >', 0)
     locations = locations.fetch(limit, offset)
     
-    logging.info("Fetched Locations: " + str(locations))
-    
     locations_array = []
-    
     for location in locations:
-      logging.info("Caring for location: " + "")
       location_dict = api.utils.create_location_dict(location.location, location.following_count)
       locations_array.append(location_dict)
     
@@ -111,20 +107,15 @@ class TracksInLocationHandler(webapp.RequestHandler):
       return
     
     soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
-    logging.info(str(location))
+
     # get favorites
     favorites = models.SoundCloudConnectFavorite.all()
     favorites = favorites.filter('soundcloudconnect_user',  soundcloudconnect_user)
     favorites = favorites.filter('location', location)
     favorites = favorites.fetch(limit, offset)
-    
-    logging.info(favorites)
-    logging.info(len(favorites))        
-    
+
     track_array = []
-    
     for favorite in favorites:
-      logging.info("TRACK" + str(favorite))
       api.utils.add_to_track_array(favorite.track, track_array)
 
     api.utils.memcache_and_output_array(self, track_array, memcache_name_suffix=str(soundcloudconnect_user.user_id))    
