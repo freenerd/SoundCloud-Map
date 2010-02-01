@@ -28,8 +28,7 @@ import util
 from api import tracks
 from api import locations
 from api.soundcloudconnect import main as scconnect_main
-from api.soundcloudconnect import followers
-from api.soundcloudconnect import followings
+from api.soundcloudconnect import network
 from api.soundcloudconnect import favorites
 
 def main():
@@ -38,14 +37,14 @@ def main():
                                         ('/api/locations/maxtracks.*', locations.MaxTracksHandler),
                                         (r'/api/locations/([0-9]{1,64})', locations.LocationIDHandler),
                                         ('/api/soundcloud-connect/', scconnect_main.SoundCloudConnectHandler),
-                                        ('/api/soundcloud-connect/followers/max/.*', followers.MaxFollowersHandler),
-                                        ('/api/soundcloud-connect/followings/max/.*', followings.MaxFollowingsHandler),
+                                        ('/api/soundcloud-connect/followers/max/.*', network.MaxFollowersHandler),
+                                        ('/api/soundcloud-connect/followings/max/.*', network.MaxFollowingsHandler),
                                         ('/api/soundcloud-connect/favorites/max/.*', favorites.MaxFavoritesHandler),                                        
-                                        ('/api/soundcloud-connect/followers/tracks-in-location/.*', followers.TracksInLocationHandler),
-                                        ('/api/soundcloud-connect/followings/tracks-in-location/.*', followings.TracksInLocationHandler),                                        
+                                        ('/api/soundcloud-connect/followers/tracks-in-location/.*', network.TracksInLocationFollowersHandler),
+                                        ('/api/soundcloud-connect/followings/tracks-in-location/.*', network.TracksInLocationFollowingsHandler),                                        
                                         ('/api/soundcloud-connect/favorites/tracks-in-location/.*', favorites.TracksInLocationHandler),                                                                                
-                                        ('/api/soundcloud-connect/followers/.*', followers.LocationsHandler),
-                                        ('/api/soundcloud-connect/followings/.*', followings.LocationsHandler),                                        
+                                        ('/api/soundcloud-connect/followers/.*', network.LocationsFollowersHandler),
+                                        ('/api/soundcloud-connect/followings/.*', network.LocationsFollowingsHandler),                                        
                                         ('/api/soundcloud-connect/favorites/.*', favorites.LocationsHandler),                                                                                
                                         ('/api/locations.*', locations.LocationsHandler)], debug=util.in_development_enviroment())
   run_wsgi_app(application)

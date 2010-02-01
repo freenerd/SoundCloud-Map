@@ -62,11 +62,8 @@ class LocationsHandler(webapp.RequestHandler):
     locations = locations.filter('soundcloudconnect_user',  soundcloudconnect_user)
     locations = locations.filter('follower_count >', 0)
     locations = locations.fetch(limit, offset)
-    
-    logging.info("Fetched Locations: " + str(locations))
-    
+        
     locations_array = []
-    
     for location in locations:
       logging.info("Caring for location: " + "")
       location_dict = api.utils.create_location_dict(location.location, location.following_count)
@@ -118,14 +115,10 @@ class TracksInLocationHandler(webapp.RequestHandler):
     followers = followers.filter('location', location)
     followers = followers.fetch(limit, offset)
     
-    logging.info(followers)
-    logging.info(len(followers))        
-    
     track_array = []
     
     for follower in followers:
       track = models.Track.all().filter('user', follower.follower).get()
-      logging.info("TRACK" + str(track))
       if track:
         api.utils.add_to_track_array(track, track_array)
       else:

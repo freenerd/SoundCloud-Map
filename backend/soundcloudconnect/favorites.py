@@ -43,9 +43,7 @@ def fetch_favorites(self):
   '''
   
   session_hash = self.request.get('session_hash')
-  logging.info('SessionHash: ' + session_hash)
   soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
-  logging.info('scconnectuser_data: ' + str(soundcloudconnect_user))
   
   # TODO: Fetch with offset to get more than 50 favorites
   
@@ -53,13 +51,8 @@ def fetch_favorites(self):
   
   favorites = list(root.me().favorites())
   memcache_namespace = 'soundcloudconnect_favorites'
-  taskqueue_url = '/backend/soundcloud-connect/favorite/'    
-  
-  #logging.info("Favorites:" + str(favorites))
-  
+  taskqueue_url = '/backend/soundcloud-connect/favorite/'      
   for favorite in favorites:
-    logging.info("Favorite str:" + str(favorite))
-    logging.info("Favourite dict:" + str(favorite.__dict__))
     favorite_id = unicode(favorite._RESTBase__data['id'])
     memcache_add = memcache.add(favorite_id, 
                                 favorite._RESTBase__data,

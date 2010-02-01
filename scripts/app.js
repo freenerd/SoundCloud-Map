@@ -91,6 +91,8 @@ soundManager.onload = function() {
       if(soundCloudConnectAuthorized){
         $("#cwsc-button #connect-with-sc")
                                    .attr('connected', true)
+                                   .unbind('click')
+                                   .attr('href', 'http://api.sandbox-soundcloud.com/settings/extensions')
                                    .find("img")
                                    .attr('src', '/images/disconnect-small.png');
         $(".cwsc").show();
@@ -244,8 +246,6 @@ soundManager.onload = function() {
       $.getJSON(deepApiUrl + "&limit=" + LIMIT + "&offset=" + offset, loadLocationsRecursive);
       if(locs) {
         $.each(locs,function(i,l) {
-          console.log(i)
-          console.log(l)          
           var delay = i*30;
           setTimeout(function() {
             setupLocation(l);
@@ -413,7 +413,7 @@ soundManager.onload = function() {
                   // add a reference to the location also for all the extra tracks
                   t.loc = l;
                   $("#bubble" + l.firstTrack.id)
-                    .find('.tracks-list').append("<li class='mini-artwork'><a href='' style='background-image:" + artworkBgImage(t) + "'>track</a></li>").end()
+                    .find('.tracks-list').append("<li class='mini-artwork'><a href='#' style='background-image:" + artworkBgImage(t) + "'>track</a></li>").end()
 
                     .find('.tracks-list .mini-artwork:last a').click(function() {
 
@@ -421,13 +421,24 @@ soundManager.onload = function() {
                       $(this).parents("ul.tracks-list").find(".mini-artwork a").removeClass("active");
                       $(this).addClass("active");
 
-                      $("#bubble" + l.firstTrack.id)
-                        .find('.title').html(t.title.substring(0,60)).end()
-                        .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.user.avatar_url)).end()
-                        .find('ul li span.artist').html("<a href='" + t.user.permalink_url + "'>" + t.user.username + "</a>").end()
-                        .find('ul li span.time').html(fuzzyTime(t.created_minutes_ago) + " ago").end()
-                        .find('a.play-button').bind('click',t,showPlayer).end();
-                      return false;
+                      if(t.id < 0) {
+                        // okay, so this is actually not a track but only a user ...   
+                        $("#bubble" + l.firstTrack.id)
+                          .find('.title').html("").end()
+                          .find('.avatar').attr("src",t.user.avatar_url).end()
+                          .find('ul li span.artist').html("<a href='" + t.user.permalink_url + "'>" + t.user.username + "</a>").end()
+                          .find('ul li span.time').html("").end()
+                          .find('a.play-button').unbind('click').end();
+                      } else {
+                        // this is a real track ...
+                        $("#bubble" + l.firstTrack.id)
+                          .find('.title').html(t.title.substring(0,60)).end()
+                          .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.user.avatar_url)).end()
+                          .find('ul li span.artist').html("<a href='" + t.user.permalink_url + "'>" + t.user.username + "</a>").end()
+                          .find('ul li span.time').html(fuzzyTime(t.created_minutes_ago) + " ago").end()
+                          .find('a.play-button').bind('click',t,showPlayer).end();
+                      };
+                    return false;
                     });
                 });
 
@@ -560,10 +571,12 @@ soundManager.onload = function() {
   // display favorite status + register change events
   function favoriteStatus(track) {
     if(soundCloudConnectAuthorized) {
-      $("#player-container .metadata .favorite-status img")
-                  .attr("src", "/images/ajax-loader.gif")
-                  .addClass('favorite-spinner')                                                         
-                  .show();
+      if(!$("#player-container .metadata .favorite-status img").hasClass('favorite-spinner')){
+        $("#player-container .metadata .favorite-status img")
+                    .attr("src", "/images/ajax-loader.gif")
+                    .addClass('favorite-spinner')                                                         
+                    .show();        
+      }
       $.getJSON("/api/soundcloud-connect/change-favorite/status?track-id=" + track.id, function(data){
         if(data.favorite){
           $("#player-container .metadata .favorite-status")

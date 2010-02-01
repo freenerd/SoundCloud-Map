@@ -503,8 +503,6 @@ class Scope(object):
         if USE_PROXY:
             handlers.append(urllib2.ProxyHandler({'http' : PROXY}))
         req = self._create_request(url, connector, urlparams, queryparams, alternate_http_method, use_multipart)
-        logging.info("REQ " + str(req.__dict__))        
-        logging.info("METHOD " + str(req.get_method()))
         http_method = req.get_method()
         if urlparams is not None:
             logger.debug("Posting url: %s, method: %s", url, http_method)

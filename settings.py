@@ -12,7 +12,6 @@ GOOGLE_MAPS_API_KEY = settings_private.GOOGLE_MAPS_API_KEY
 GOOGLE_MAPS_API_URL = "http://maps.google.com/maps/geo?key=" + GOOGLE_MAPS_API_KEY
 API_RETRIES = 10
 SOUNDCLOUD_API_URL = "http://api.sandbox-soundcloud.com"
-# SOUNDCLOUD_API_URL = "http://localhost:64627"
 SOUNDCLOUD_TIMEZONE_ADJUSTMENT = 0 # in hours behind server timezone
 DURATION_LIMIT = "1200000" # in milliseconds to filter out dj-sets + podcasts
 

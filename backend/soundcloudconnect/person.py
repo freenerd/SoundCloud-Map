@@ -169,13 +169,13 @@ def fetch_person(self, type=''):
   if type == 'follower': 
     soundcloudconnect_follower = models.SoundCloudConnectFollower(\
                                             soundcloudconnect_user = soundcloudconnect_user,
-                                            follower = user,
+                                            user = user,
                                             location = location)  
     soundcloudconnect_follower.put()
   elif type == 'following':
     soundcloudconnect_following = models.SoundCloudConnectFollowing(\
                                             soundcloudconnect_user = soundcloudconnect_user,
-                                            following = user,
+                                            user = user,
                                             location = location)   
     soundcloudconnect_following.put()
 

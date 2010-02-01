@@ -65,24 +65,19 @@ def locations(self, type = None):
   locations = locations.filter('soundcloudconnect_user',  soundcloudconnect_user)
   if type == 'following': locations = locations.filter('following_count >', 0)
   elif type == 'follower': locations = locations.filter('follower_count >', 0)
-  
   locations = locations.fetch(limit, offset)
   
-  logging.info("Fetched Locations: " + str(locations))
-  
   locations_array = []
-  
   for location in locations:
-    logging.info("Caring for location: " + str(location))
     location_dict = api.utils.create_location_dict(location.location, location.following_count)
     locations_array.append(location_dict)
   
   api.utils.memcache_and_output_array(self, locations_array, memcache_name_suffix=str(soundcloudconnect_user.user_id))
 
-class LocationsFollowerHandler(webapp.RequestHandler):
+class LocationsFollowersHandler(webapp.RequestHandler):
   def get(self):
     return locations(self, 'follower')
-class LocationsFollowingHandler(webapp.RequestHandler):
+class LocationsFollowingsHandler(webapp.RequestHandler):
   def get(self):
     return locations(self, 'following')
 
@@ -129,27 +124,26 @@ def tracks_in_location(self, type = None):
   soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
   
   # get users
-  followings = models.SoundCloudConnectFollower.all()
-  followings = followings.filter('soundcloudconnect_user',  soundcloudconnect_user)
-  followings = followings.filter('location', location)
-  followings = followings.fetch(limit, offset)
+  if type == 'following': users = models.SoundCloudConnectFollowing.all()
+  elif type == 'follower': users = models.SoundCloudConnectFollower.all()
+  users = users.filter('soundcloudconnect_user',  soundcloudconnect_user)
+  users = users.filter('location', location)
+  users = users.fetch(limit, offset)
   
   track_array = []
-  
-  for following in followings:
-    track = models.Track.all().filter('user', following.following).get()
-    logging.info("TRACK" + str(track))
+  for user in users:
+    track = models.Track.all().filter('user', user.user).get()
     if track:
       api.utils.add_to_track_array(track, track_array)
     else:
-      api.utils.add_to_track_array(api.utils.empty_track(following.following), track_array)
+      api.utils.add_to_track_array(api.utils.empty_track(user.user), track_array)
   
   api.utils.memcache_and_output_array(self, track_array, memcache_name_suffix=str(soundcloudconnect_user.user_id))  
         
-class TracksInLocationFollowerHandler(webapp.RequestHandler):
+class TracksInLocationFollowersHandler(webapp.RequestHandler):
   def get(self):
     return tracks_in_location(self, 'follower')        
-class TracksInLocationFollowingHandler(webapp.RequestHandler):
+class TracksInLocationFollowingsHandler(webapp.RequestHandler):
   def get(self):   
     return tracks_in_location(self, 'following')                 
     
@@ -170,14 +164,16 @@ def max_network(self, type = None):
     return
   
   soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
-  
+  if type == 'following': max_tracks = soundcloudconnect_user.max_location_followings_count
+  elif type == 'follower': max_tracks = soundcloudconnect_user.max_location_followers_count
+    
   api.utils.memcache_and_output_array(self, 
-                                      {'max_tracks': soundcloudconnect_user.max_location_followings_count}, 
+                                      {'max_tracks': max_tracks}, 
                                       memcache_name_suffix=str(soundcloudconnect_user.user_id))
     
-class MaxFollowerHandler(webapp.RequestHandler):
+class MaxFollowersHandler(webapp.RequestHandler):
   def get(self):        
     return max_network(self, 'follower')
-class MaxFollowingHandler(webapp.RequestHandler):
+class MaxFollowingsHandler(webapp.RequestHandler):
   def get(self):        
     return max_network(self, 'following')  

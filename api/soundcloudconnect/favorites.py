@@ -146,4 +146,4 @@ class MaxFavoritesHandler(webapp.RequestHandler):
     
     api.utils.memcache_and_output_array(self, 
                                         {'max_tracks': soundcloudconnect_user.max_location_favorites_count}, 
-                                        memcache_name_suffix=str(soundcloudconnect_user.user_id))    
+                                        memcache_name_suffix=str(soundcloudconnect_user.user_id))   

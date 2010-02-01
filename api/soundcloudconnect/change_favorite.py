@@ -44,19 +44,15 @@ import scapi
 class StatusHandler(webapp.RequestHandler):
   
   def get(self):
-    
     # check if user is logged in
     session_hash = self.request.cookies.get("session_hash")
     if not session_hash:
       self.response.out.write("Not logged in")
       return
-    
+      
     soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
     root = soundcloudconnect.utils.get_api_root(soundcloudconnect_user)
     track_id = self.request.get("track-id")
-
-    logging.info("Track ID " + str(track_id))
-  
     track = root.me().tracks(track_id)
     
     if track:
@@ -68,7 +64,6 @@ class StatusHandler(webapp.RequestHandler):
 class SetHandler(webapp.RequestHandler):
   
   def get(self):
-    
     # check if user is logged in
     session_hash = self.request.cookies.get("session_hash")
     if not session_hash:
@@ -78,24 +73,12 @@ class SetHandler(webapp.RequestHandler):
     soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
     root = soundcloudconnect.utils.get_api_root(soundcloudconnect_user)
     track_id = self.request.get("track-id")
-
-    logging.info("Track ID " + str(track_id))
-  
     root.me().favorites.append(track_id)
-
-    track = root.me().tracks(track_id)
-
-    if track:
-      # logging.info("TRack " + str(track.__dict__))   
-      self.response.out.write('{"favorite": %s}' % str(track.user_favorite).lower())
-    else:
-      self.response.out.write("No Track Found") 
-
+    self.response.out.write('{"done": true}')           
 
 class DeleteHandler(webapp.RequestHandler):
   
   def get(self):
-    
     # check if user is logged in
     session_hash = self.request.cookies.get("session_hash")
     if not session_hash:
@@ -105,19 +88,8 @@ class DeleteHandler(webapp.RequestHandler):
     soundcloudconnect_user = models.SoundCloudConnectUser.all().filter('session_hash', session_hash).get()
     root = soundcloudconnect.utils.get_api_root(soundcloudconnect_user)
     track_id = self.request.get("track-id")
-
-    logging.info("Track ID " + str(track_id))
-  
-    root.me().favorites.remove(track_id)
-
-    track = root.me().tracks(track_id)
-
-    if track:
-      # logging.info("TRack " + str(track.__dict__))  
-      self.response.out.write('{"favorite": %s}' % str(track.user_favorite).lower())
-    else:
-      self.response.out.write("No Track Found") 
-    
+    root.me().favorites.remove(track_id) 
+    self.response.out.write('{"done": true}')           
     
 def main():
   application = webapp.WSGIApplication([(r'/api/soundcloud-connect/change-favorite/status.*', StatusHandler),

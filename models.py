@@ -114,13 +114,13 @@ class SoundCloudConnectUserLocation(db.Model):
 
 class SoundCloudConnectFollower(db.Model):
   soundcloudconnect_user = db.ReferenceProperty(reference_class=SoundCloudConnectUser)
-  follower = db.ReferenceProperty(reference_class=User)  
+  user = db.ReferenceProperty(reference_class=User)  
   location = db.ReferenceProperty(reference_class=Location)
   entry_created_at = db.DateTimeProperty(auto_now_add=True)  
   
 class SoundCloudConnectFollowing(db.Model):
   soundcloudconnect_user = db.ReferenceProperty(reference_class=SoundCloudConnectUser)
-  following = db.ReferenceProperty(reference_class=User)  
+  user = db.ReferenceProperty(reference_class=User)  
   location = db.ReferenceProperty(reference_class=Location)
   entry_created_at = db.DateTimeProperty(auto_now_add=True)  
   
