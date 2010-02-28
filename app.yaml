@@ -33,7 +33,7 @@ handlers:
 - url: /backend/put-my-track-on-a-map/work.*
   script: backend/putmytrackonamap/work_task.py
 
-- url: /backend/put-my-track-on-a-map.*
+- url: /backend/put-my-track-on-a-map/.*
   script: backend/putmytrackonamap/add_task.py
 
 - url: /soundcloud-connect-auth.*

@@ -22,7 +22,6 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from google.appengine.runtime import DeadlineExceededError
-from google.appengine.api import memcache
 from google.appengine.ext import webapp 
 
 import wsgiref.handlers                
@@ -31,6 +30,7 @@ import time
 import os
 import datetime
 
+from api.utils import error_response
 import models
 import backend.utils 
 import settings
@@ -46,7 +46,7 @@ class FetchTrackInfo(webapp.RequestHandler):
     logging.info("Working the taskqueue. Fetching a new track.")
     
     try:                  
-      # check, if track is not already overdue (which may happen, if memcache fails, which happens from time to time)
+      # check, if track is not already overdue
       if (self.request.get('time_track_added_to_queue') == '' or \
          time.time() > (int(self.request.get('time_track_added_to_queue')) + settings.TRACK_BACKEND_UPDATE_LIFETIME * 60)):
         # track is overdue
@@ -54,12 +54,17 @@ class FetchTrackInfo(webapp.RequestHandler):
         self.response.out.write("done") # finished processing script          
         return # return 200. task gets deleted from task queue           
         
-      # fetch track info from memcache
+
+      # fetch track info from soundcloud
       track_id = self.request.get('track_id')
-      track = memcache.get(track_id, namespace="put_my_track_on_a_map")
-      if track is None:
-        logging.warning("Fetching memcache item %s failed in backend track update" % track_id)  
-        self.response.set_SoundCloudConnectUserLocation
+      query = "/tracks/%s.json" % track_id
+      track = backend.utils.open_remote_api(query, "soundcloud")
+
+      if track.get('error', False):
+        logging.warning("Fetching track failed in backend track update")  
+        error_response(self, 
+                       "TrackNotFound",
+                       "SoundCloud does not have track with id %s" % track_id)
         return
           
       logging.info("Received the track \"%s\" by \"%s\" (id: %s, created at: %s)." % \
@@ -67,9 +72,6 @@ class FetchTrackInfo(webapp.RequestHandler):
                   
       # check if track meets our needs
       if not backend.utils.check_if_track_meets_our_needs(track):
-        if not memcache.delete(track_id, namespace="put_my_track_on_a_map"):
-          logging.error("Deletion from Memcache was not successfull.")
-          self.response.set_SoundCloudConnectUserLocation
         logging.info("End of track update, because track didn't fit our needs.")          
         self.response.out.write("done") # finished processing script          
         return # return 200. task gets deleted from task queue
@@ -99,10 +101,7 @@ class FetchTrackInfo(webapp.RequestHandler):
                                           track['user']['country'],
                                           track)
         if not location:
-          if not memcache.delete(track_id, namespace="backend_update_track"):
-            logging.error("Deletion from Memcache was not successful.") 
-            self.response.set_SoundCloudConnectUserLocation
-            logging.info("End of track update because could not be geolocated.")  
+          logging.info("End of track update because could not be geolocated.")  
           self.response.out.write("done") # finished processing script          
           return # return 200. task gets deleted from task queue                                                     
         
@@ -110,13 +109,7 @@ class FetchTrackInfo(webapp.RequestHandler):
         user = backend.utils.write_user_to_datastore(track['user'], location)
 
       backend.utils.write_track_to_datastore(track, user, location)
-        
-      if not memcache.delete(track_id, namespace="backend_update_track"):
-        logging.error("Deletion from Memcache was not successful.")
-        self.response.set_SoundCloudConnectUserLocation
-        self.response.out.write("done")
-        return
-
+      
       logging.info("End of track update.")      
       self.response.set_status(200)
       self.response.out.write("done") # finished processing script

@@ -44,39 +44,16 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
     """
     try:
       logging.info("Backend put my track on a map started")
-    
-      track_id = self.request.post('trackid')
-      logging.info(self.request.post)
-      
-      # TODO: check if already in database and return that if true
-      
-      query = "/tracks/%s.json" % track_id
-      try:
-        track = backend.utils.open_remote_api(query, "soundcloud") 
-        logging.info(track)        
-      except ValueError:
-        error_response(self, 
-                       "TrackNotFound",
-                       "SoundCloud is behaving strange")
-        return
-        
-      if track.get('error', False):
-        error_response(self, 
-                       "TrackNotFound",
-                       "SoundCloud does not have track with id %s" % track_id)
-        return
-      else:
-        logging.info("adding to memcache and taskqueue")        
-        memcache_add = memcache.add(track_id, 
-                                    track,
-                                    time=settings.TRACK_BACKEND_UPDATE_LIFETIME*60, 
-                                    namespace="put_my_track_on_a_map")
-        if memcache_add: 
-          taskqueue.add(url='/backend/put-my-track-on-a-map/work', 
-                        params={'track_id': track_id, 
-                                'time_track_added_to_queue': str(int(time.time()))})
-          logging.info("Added track_id %s to memcache and task queue." % track['id'])
-        self.response.out.write("done")
+
+      logging.info(self.request.get_all)    
+      track_id = self.request.get('trackid')
+
+      logging.info("adding to taskqueue")        
+      taskqueue.add(url='/backend/put-my-track-on-a-map/work', 
+                    params={'track_id': track_id, 
+                            'time_track_added_to_queue': str(int(time.time()))})
+      logging.info("Added track_id %s to task queue." % track_id)
+      self.response.out.write("done")
           
           
       
@@ -131,7 +108,7 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
 
 def main():
   wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([
-    (r'/backend/put-my-track-on-a-map.*', PutMyTrackOnAMap),
+    (r'/backend/put-my-track-on-a-map', PutMyTrackOnAMap),
   ]))            
       
 if __name__ == '__main__':
