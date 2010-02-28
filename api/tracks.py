@@ -37,10 +37,10 @@ def fetch_track_by_id(self, track_id):
   track_array = []
   track = models.Track.all().filter('track_id', int(track_id)).get()
   if track:
-    add_to_track_array(track, track_array)
-    return memcache_and_output_array(self, track_array)
+    utils.add_to_track_array(track, track_array)
+    return utils.memcache_and_output_array(self, track_array)
   else:
-    error_response(self, 'track_not_found', 'The track with the track_id %s is not in the datastore.' % track_id)
+    utils.error_response(self, 'track_not_found', 'The track with the track_id %s is not in the datastore.' % track_id)
   return     
            
 class TracksHandler(webapp.RequestHandler):
@@ -144,7 +144,7 @@ class TrackIDHandler(webapp.RequestHandler):
       return self.response.out.write(memcached)   
         
     if track_id:
-      return utils.fetch_track_by_id(self, track_id)
+      return fetch_track_by_id(self, track_id)
     else:
       utils.error_response(self, 'no_track', 'You have provided no track id.')  
     return

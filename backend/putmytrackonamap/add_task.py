@@ -34,17 +34,19 @@ import os
 import models
 import backend.utils 
 import settings
+from api.utils import error_response
 
 class PutMyTrackOnAMap(webapp.RequestHandler):
   
-  def get(self):
+  def post(self):
     """
     Take a track-id and some more information and queue it up.
     """
     try:
       logging.info("Backend put my track on a map started")
     
-      track_id = time_from = self.request.get('trackid')
+      track_id = self.request.post('trackid')
+      logging.info(self.request.post)
       
       # TODO: check if already in database and return that if true
       
@@ -53,11 +55,15 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
         track = backend.utils.open_remote_api(query, "soundcloud") 
         logging.info(track)        
       except ValueError:
-        self.response.out.write("Soundcloud api is strange or what?")
+        error_response(self, 
+                       "TrackNotFound",
+                       "SoundCloud is behaving strange")
         return
         
       if track.get('error', False):
-        self.response.out.write("That track does not exist")
+        error_response(self, 
+                       "TrackNotFound",
+                       "SoundCloud does not have track with id %s" % track_id)
         return
       else:
         logging.info("adding to memcache and taskqueue")        
@@ -70,7 +76,7 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
                         params={'track_id': track_id, 
                                 'time_track_added_to_queue': str(int(time.time()))})
           logging.info("Added track_id %s to memcache and task queue." % track['id'])
-      logging.info("done")
+        self.response.out.write("done")
           
           
       

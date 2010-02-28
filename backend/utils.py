@@ -55,9 +55,12 @@ def open_remote_api(query, api):
     if (i >= settings.API_RETRIES):
       break
     try:
-      result = urlfetch.fetch(query, 
+      try:
+        result = urlfetch.fetch(query, 
                               headers={'Accept:' : 'application/json'},
                               deadline=10) # raises DownloadError sometimes
+      except ValueError:
+        pass
       i = 0
       break
     except DownloadError:

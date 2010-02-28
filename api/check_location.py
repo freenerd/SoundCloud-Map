@@ -23,6 +23,7 @@
 
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
+from django.utils import simplejson as json
 
 import util
 import settings
@@ -47,7 +48,8 @@ class CheckLocationHandler(webapp.RequestHandler):
 
     try:
       result = get_location(city, country)
-      self.response.out.write(result)      
+      del result['location']
+      self.response.out.write(json.dumps(result))      
     except RuntimeError:
       error_response(self,
                      "NotLocalizable",
