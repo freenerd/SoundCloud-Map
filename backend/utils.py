@@ -55,7 +55,9 @@ def open_remote_api(query, api):
     if (i >= settings.API_RETRIES):
       break
     try:
-      result = urlfetch.fetch(query, deadline=10) # raises DownloadError sometimes
+      result = urlfetch.fetch(query, 
+                              headers={'Accept:' : 'application/json'},
+                              deadline=10) # raises DownloadError sometimes
       i = 0
       break
     except DownloadError:
@@ -223,10 +225,13 @@ def get_location(city, country):
         logging.info("No Country found in %s" % unicode(dict(position)))
         country = None  
       try:
-        if 'SubAdministrativeArea' in position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']:                                            
-          city =  unicode(position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']['SubAdministrativeArea']['Locality']['LocalityName'])
+        if 'AdministrativeArea' in position['Placemark'][0]['AddressDetails']['Country']: 
+          if 'SubAdministrativeArea' in position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']:                                            
+            city =  unicode(position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']['SubAdministrativeArea']['Locality']['LocalityName'])
+          else:
+            city =  unicode(position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']['Locality']['LocalityName']) 
         else:
-          city =  unicode(position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']['Locality']['LocalityName']) 
+          city = unicode(position['Placemark'][0]['AddressDetails']['Country']['SubAdministrativeArea']['Locality']['LocalityName']) 
       except KeyError:
         logging.info("No City found in %s" % unicode(dict(position)))
         city = None

@@ -1,4 +1,4 @@
-application: tracksonamap
+application: twestivaltracksonamp
 version: dev
 runtime: python
 api_version: 1
@@ -29,6 +29,12 @@ handlers:
 - url: /backend-refill-memcache
   script: backend/refill_memcache.py
   login: admin
+
+- url: /backend/put-my-track-on-a-map/work.*
+  script: backend/putmytrackonamap/work_task.py
+
+- url: /backend/put-my-track-on-a-map.*
+  script: backend/putmytrackonamap/add_task.py
 
 - url: /soundcloud-connect-auth.*
   script: soundcloud_connect_auth.py

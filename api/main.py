@@ -27,6 +27,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 import util
 from api import tracks
 from api import locations
+from api import check_location
 from api.soundcloudconnect import main as scconnect_main
 from api.soundcloudconnect import network
 from api.soundcloudconnect import favorites
@@ -46,7 +47,8 @@ def main():
                                         ('/api/soundcloud-connect/followers/.*', network.LocationsFollowersHandler),
                                         ('/api/soundcloud-connect/followings/.*', network.LocationsFollowingsHandler),                                        
                                         ('/api/soundcloud-connect/favorites/.*', favorites.LocationsHandler),                                                                                
-                                        ('/api/locations.*', locations.LocationsHandler)], debug=util.in_development_enviroment())
+                                        ('/api/locations.*', locations.LocationsHandler),
+                                        ('/api/check-location.*', check_location.CheckLocationHandler)], debug=util.in_development_enviroment())
   run_wsgi_app(application)
 
 if __name__ == '__main__':
