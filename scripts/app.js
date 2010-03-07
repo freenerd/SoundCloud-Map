@@ -50,8 +50,8 @@ soundManager.onload = function() {
   var tracksUrl = "";  
   
   
-  var FOOTER_HEIGHT = 180;
-  var PLAYER_HEIGHT = 80;
+  var FOOTER_HEIGHT = 140;
+  var PLAYER_HEIGHT = 40;
 
   if (GBrowserIsCompatible()) {
     map = new GMap2($("#map_canvas")[0]);
@@ -759,10 +759,10 @@ soundManager.onload = function() {
   });
   
   // show about box, if on live server and user hasn't seen it for 24 hours
-  if(location.href.split(".").length > 1 && !$.cookie('viewed_intro') == '1'){
-    $.cookie('viewed_intro', '1', { expires: 1 });
-    $("#about-box").fadeIn();
-  }
+  // if(location.href.split(".").length > 1 && !$.cookie('viewed_intro') == '1'){
+  //   $.cookie('viewed_intro', '1', { expires: 1 });
+  //   $("#about-box").fadeIn();
+  // }
 
   // start the app, then play a random track
   maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
