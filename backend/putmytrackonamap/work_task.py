@@ -119,7 +119,7 @@ class FetchTrackInfo(webapp.RequestHandler):
 
       backend.utils.write_track_to_datastore(track, user, location)
       
-      # notify twestival.fm of the saved track
+      # notify twestival.fm of the saved track to make a tweet
       md5base = str(track['id'])
       md5base += twitter_name
       md5base += settings.TWESTIVAL_FM_TWITTER_SALT
@@ -131,6 +131,14 @@ class FetchTrackInfo(webapp.RequestHandler):
                             'twitter_name': twitter_name,
                             'hash': md5digest,
                             'time_added_to_queue': str(int(time.time()))})
+            
+      # send mail to notify about new tracks
+      from google.appengine.api import mail
+      url = settings.TWESTIVAL_FM_URL + "/tracks/" + str(track['id'])
+      mail.send_mail(sender=settings.SEND_MAIL_FROM,
+                     to=settings.SEND_MAIL_TO,
+                     subject="[Twestival.fm] New Track by " + twitter_name,
+                     body=url)
             
       logging.info("End of track update.")      
       self.response.set_status(200)
