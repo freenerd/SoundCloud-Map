@@ -53,8 +53,11 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
       twitter_name = self.request.get('twitter_name', None)      
       twitter_url = self.request.get('twitter_url', None)
       
-      if not track_id or not city or not country or \
-         not twitter_name or not twitter_url:
+      logging.info("Track_ID: %s" % track_id)
+      logging.info("city / country: %s / %s" % (city, country))      
+      logging.info("twitter name / url: %s / %s" % (twitter_name, twitter_url))            
+      
+      if not track_id or not city or not country or not twitter_name:
          logging.error("Not Enough post data provided. Break!")
          return error_response(self, "NotEnoughData", "Give more POST data")
 

@@ -22,6 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from google.appengine.runtime import DeadlineExceededError
+from google.appengine.api.labs import taskqueue 
 from google.appengine.ext import webapp 
 
 import wsgiref.handlers                
@@ -29,6 +30,7 @@ import logging
 import time
 import os
 import datetime
+import hashlib
 
 from api.utils import error_response
 import models
@@ -50,12 +52,12 @@ class FetchTrackInfo(webapp.RequestHandler):
       if (self.request.get('time_track_added_to_queue') == '' or \
          time.time() > (int(self.request.get('time_track_added_to_queue')) + settings.TRACK_BACKEND_UPDATE_LIFETIME * 60)):
         # track is overdue
-        logging.info("Track with Track ID %s is overdue with time %s." % ((self.request.get('track_id') or ''), (self.request.get('time_track_added_to_queue') or ''))) 
+        logging.error("Track with Track ID %s is overdue with time %s." % ((self.request.get('track_id') or ''), (self.request.get('time_track_added_to_queue') or ''))) 
         self.response.out.write("done") # finished processing script          
         return # return 200. task gets deleted from task queue           
         
       # get all the other data from the POST request
-      track_id = self.request.get('trackid', None)
+      track_id = self.request.get('track_id', None)
       city = self.request.get('city', None)
       country = self.request.get('country', None)
       twitter_name = self.request.get('twitter_name', None)      
@@ -117,6 +119,19 @@ class FetchTrackInfo(webapp.RequestHandler):
 
       backend.utils.write_track_to_datastore(track, user, location)
       
+      # notify twestival.fm of the saved track
+      md5base = str(track['id'])
+      md5base += twitter_name
+      md5base += settings.TWESTIVAL_FM_TWITTER_SALT
+      md5digest = hashlib.md5(md5base).hexdigest()
+      
+      logging.info("Adding Make Tweet to taskqueue")        
+      taskqueue.add(url='/backend/put-my-track-on-a-map/make-tweet', 
+                    params={'track_id': str(track['id']), 
+                            'twitter_name': twitter_name,
+                            'hash': md5digest,
+                            'time_added_to_queue': str(int(time.time()))})
+            
       logging.info("End of track update.")      
       self.response.set_status(200)
       self.response.out.write("done") # finished processing script

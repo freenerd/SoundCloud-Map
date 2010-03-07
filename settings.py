@@ -7,6 +7,8 @@ APPLICATION_URL = "http://twestivaltracksonamap.appspot.com"
 OAUTH_CONSUMER_KEY = settings_private.OAUTH_CONSUMER_KEY
 OAUTH_CONSUMER_SECRET =  settings_private.OAUTH_CONSUMER_SECRET
 GOOGLE_MAPS_API_KEY = settings_private.GOOGLE_MAPS_API_KEY
+TWESTIVAL_FM_TWITTER_SALT = settings_private.TWESTIVAL_FM_TWITTER_SALT
+TWESTIVAL_FM_MAKE_TWEET_URL = settings_private.TWESTIVAL_FM_MAKE_TWEET_URL
 
 # API
 GOOGLE_MAPS_API_URL = "http://maps.google.com/maps/geo?key=" + GOOGLE_MAPS_API_KEY

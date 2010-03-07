@@ -34,6 +34,10 @@ handlers:
   script: backend/putmytrackonamap/work_task.py
   login: admin  
 
+- url: /backend/put-my-track-on-a-map/make-tweet.*
+  script: backend/putmytrackonamap/make_tweet.py
+  login: admin  
+
 - url: /backend/put-my-track-on-a-map/.*
   script: backend/putmytrackonamap/add_task.py
 

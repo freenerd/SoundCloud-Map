@@ -45,6 +45,9 @@ def open_remote_api(query, api):
   if api == "googlemaps":
     api_url = settings.GOOGLE_MAPS_API_URL
     api_name = "Google Maps API"
+  if api == "other":
+    api_url = ""
+    api_name = "Unknown API"    
   
   query = api_url + query
   
@@ -151,7 +154,6 @@ def write_user_to_datastore(user, location):
             fullname = user['full_name'],
             avatar_url = user['avatar_url'],
             twitter_name = user['twitter_name'],
-            twitter_url = user['twitter_url'],
             location = location.key())           
   user.put()
   logging.info("User saved to datastore.")  
@@ -184,7 +186,7 @@ def write_track_to_datastore(track, user, location):
     stream_url = track['stream_url'],
     waveform_url = track['waveform_url'],
     artwork_url = track['artwork_url'],
-    purchase_url = track['purchase_url'] or "http://",
+    purchase_url = track['purchase_url'] or "http://www.example.com",
     \
     created_at = created_at,
     downloadable = track['downloadable'],        
