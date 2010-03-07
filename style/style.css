@@ -40,12 +40,12 @@ h3 {
 }
 
 a {
-  color: #f06;
+  color: #FF4700;
   text-decoration: none;
 }
 
 a:hover {
-  color: #f06;
+  color: #FF4700;
   text-decoration: none;
 }
 
@@ -86,7 +86,7 @@ a:hover {
 }
 
 #about-box #built-by a:hover {
-  color: #f06;
+  color: #FF4700;
 }
 
 #about-box #built-by p {
@@ -107,7 +107,7 @@ a:hover {
 
 #about-box h3 a {
   color: #fff;
-  background: #f06;
+  background: #FF4700;
   -moz-border-radius: 3px;
   border-radius: 3px;
   -webkit-border-radius: 3px; 
@@ -155,7 +155,7 @@ a:hover {
   height: 100px;
   float: left;
   margin-right: 10px;
-  background: #f06;
+  background: #FF4700;
 }
 
 .bubble .artwork img {
@@ -180,7 +180,7 @@ a:hover {
   margin: 10px 0 0 110px;
   padding: 2px 5px 5px 5px;
   outline: 0;
-  background: #f06;
+  background: #FF4700;
   -moz-border-radius: 3px;
   border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -298,7 +298,7 @@ a:hover {
 }
 
 .bubble ul.tracks-list li.mini-artwork a.active {
-  border: 2px solid #f06;
+  border: 2px solid #FF4700;
 }
 
 .bubble h5 {
@@ -340,7 +340,7 @@ a:hover {
 
 .options .genres a.active {
   color: #fff;
-  background: #f06;
+  background: #FF4700;
   -moz-border-radius: 3px;
   border-radius: 3px;
   -webkit-border-radius: 3px;

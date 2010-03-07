@@ -172,8 +172,8 @@ body.playing #player .pause {
 #player .waveform .progress {
   height: 50px;
   width: 0;
-  background: #c2366e;
-  border-right: 1px solid #f06;
+  background: #FF4700;
+  border-right: 1px solid #FF9800;
   position: absolute;
   top: 0;
 }

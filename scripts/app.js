@@ -673,8 +673,18 @@ soundManager.onload = function() {
     facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
     $("#player-container .share-on-facebook").attr("href", facebookShareLink);    
 
-    $("#player-container .metadata div:last").html("<a target='_blank' href='" + track.user.permalink_url + "/" + track.permalink + "'>" + track.title + "</a>" + " uploaded by <a target='_blank' href='" + track.user.permalink_url + "'>" + track.user.username + "</a>");
+    var metaDataHtml = "<a target='_blank' href='" + track.user.permalink_url + 
+                       "/" + track.permalink + "'>" + track.title + "</a>" + 
+                       " uploaded by <a target='_blank' href='" + track.user.permalink_url + 
+                       "'>" + track.user.username + "</a>";
+    $("#player-container .metadata .metadata-html").html(metaDataHtml);
     
+    if(track.downloadable) {
+      var downloadHTML = "<a href='" + track.permalink_url +
+                         "/download'>Click to download</a>";
+      $("#player-container .metadata .download-link").html(downloadHTML);
+    };
+        
     $("#player-container #player .waveform img").attr("src", track.waveform_url);
     
     // show the spinner
