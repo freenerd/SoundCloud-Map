@@ -46,7 +46,6 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
       logging.info("Backend put my track on a map started")
 
       logging.info("Arguments %s" % self.request.arguments())   
-      logging.info("Get_All: %s" % self.request.get_all())  
         
       track_id = self.request.get('trackid', None)
       city = self.request.get('city', None)
@@ -54,7 +53,7 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
       twitter_name = self.request.get('twitter_name', None)      
       twitter_url = self.request.get('twitter_url', None)
       
-      if not track_id or not city or not country \
+      if not track_id or not city or not country or \
          not twitter_name or not twitter_url:
          logging.error("Not Enough post data provided. Break!")
          return error_response(self, "NotEnoughData", "Give more POST data")
@@ -126,7 +125,7 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
       
 def main():
   wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([
-    (r'/backend/put-my-track-on-a-map', PutMyTrackOnAMap),
+    (r'/backend/put-my-track-on-a-map/', PutMyTrackOnAMap),
   ]))            
       
 if __name__ == '__main__':

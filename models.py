@@ -47,7 +47,7 @@ class User(db.Model):
   avatar_url = db.LinkProperty()      
   location = db.ReferenceProperty(reference_class=Location) 
   twitter_name = db.StringProperty()
-  twitter_url = db.LinkProperty()
+  twitter_url = db.StringProperty()
   twitter_location = db.StringProperty()
   twitter_description = db.StringProperty()
 
