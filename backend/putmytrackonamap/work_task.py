@@ -54,9 +54,14 @@ class FetchTrackInfo(webapp.RequestHandler):
         self.response.out.write("done") # finished processing script          
         return # return 200. task gets deleted from task queue           
         
+      # get all the other data from the POST request
+      track_id = self.request.get('trackid', None)
+      city = self.request.get('city', None)
+      country = self.request.get('country', None)
+      twitter_name = self.request.get('twitter_name', None)      
+      twitter_url = self.request.get('twitter_url', None)  
 
       # fetch track info from soundcloud
-      track_id = self.request.get('track_id')
       query = "/tracks/%s.json" % track_id
       track = backend.utils.open_remote_api(query, "soundcloud")
 
@@ -97,8 +102,8 @@ class FetchTrackInfo(webapp.RequestHandler):
         
         # determining location
         location = backend.utils.wrapped_get_location( \
-                                          track['user']['city'],
-                                          track['user']['country'],
+                                          city,
+                                          country,
                                           track)
         if not location:
           logging.info("End of track update because could not be geolocated.")  
@@ -106,6 +111,8 @@ class FetchTrackInfo(webapp.RequestHandler):
           return # return 200. task gets deleted from task queue                                                     
         
         # apparently has been geolocated fine so lets continue ...
+        track['user']['twitter_name'] = twitter_name
+        track['user']['twitter_url'] = twitter_url
         user = backend.utils.write_user_to_datastore(track['user'], location)
 
       backend.utils.write_track_to_datastore(track, user, location)

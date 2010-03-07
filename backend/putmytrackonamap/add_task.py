@@ -45,12 +45,27 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
     try:
       logging.info("Backend put my track on a map started")
 
-      logging.info(self.request.get_all)    
-      track_id = self.request.get('trackid')
+      logging.info("Arguments %s" % self.request.arguments())   
+      logging.info("Get_All: %s" % self.request.get_all())  
+        
+      track_id = self.request.get('trackid', None)
+      city = self.request.get('city', None)
+      country = self.request.get('country', None)
+      twitter_name = self.request.get('twitter_name', None)      
+      twitter_url = self.request.get('twitter_url', None)
+      
+      if not track_id or not city or not country \
+         not twitter_name or not twitter_url:
+         logging.error("Not Enough post data provided. Break!")
+         return error_response(self, "NotEnoughData", "Give more POST data")
 
       logging.info("adding to taskqueue")        
       taskqueue.add(url='/backend/put-my-track-on-a-map/work', 
                     params={'track_id': track_id, 
+                            'city': city,
+                            'country': country,
+                            'twitter_name': twitter_name,
+                            'twitter_url': twitter_url,
                             'time_track_added_to_queue': str(int(time.time()))})
       logging.info("Added track_id %s to task queue." % track_id)
       self.response.out.write("done")
@@ -106,6 +121,9 @@ class PutMyTrackOnAMap(webapp.RequestHandler):
       for name in os.environ.keys():
         logging.info("%s = %s" % (name, os.environ[name]))
 
+  def get(self):
+    self.response.out.write("Use POST instead of GET")
+      
 def main():
   wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([
     (r'/backend/put-my-track-on-a-map', PutMyTrackOnAMap),

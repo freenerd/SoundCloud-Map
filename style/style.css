@@ -315,7 +315,8 @@ a:hover {
 .options {
   position: absolute;
   bottom: 0;
-  height: 40px;
+/*  height: 40px;*/
+  height: 0px;
   width: 100%;
   background: #efefef;
   font-family: "Interstate light", interstate-light, "Lucida Grande", Helvetica, Arial, sans-serif;

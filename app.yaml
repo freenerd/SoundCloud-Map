@@ -32,6 +32,7 @@ handlers:
 
 - url: /backend/put-my-track-on-a-map/work.*
   script: backend/putmytrackonamap/work_task.py
+  login: admin  
 
 - url: /backend/put-my-track-on-a-map/.*
   script: backend/putmytrackonamap/add_task.py

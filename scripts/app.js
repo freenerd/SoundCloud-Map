@@ -50,7 +50,7 @@ soundManager.onload = function() {
   var tracksUrl = "";  
   
   
-  var FOOTER_HEIGHT = 140;
+  var FOOTER_HEIGHT = 0;
   var PLAYER_HEIGHT = 40;
 
   if (GBrowserIsCompatible()) {
@@ -59,13 +59,13 @@ soundManager.onload = function() {
     map.setMapType(G_PHYSICAL_MAP);  
     map.setCenter(new GLatLng(-10.973349, 26.875), 2);    
     map.enableScrollWheelZoom();        
-    $("#map_canvas").height($(window).height()-PLAYER_HEIGHT);
+    $("#map_canvas").height($(window).height()-FOOTER_HEIGHT);
     map.checkResize();    
   }                                          
   
   // window resize handler
   $(window).resize(function() {
-    $("#map_canvas").height($(window).height()-(playerIsVisible ? FOOTER_HEIGHT : PLAYER_HEIGHT));
+    $("#map_canvas").height($(window).height()-(playerIsVisible ? PLAYER_HEIGHT : FOOTER_HEIGHT));
     map.checkResize();
   }); 
 

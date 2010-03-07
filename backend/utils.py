@@ -71,7 +71,11 @@ def open_remote_api(query, api):
     logging.error("Connection to %s failed." % api_name)
     raise DownloadError("Connection to %s failed." % api_name)
   logging.info("Result for %s Query: %s" % (api_name, result.content))
-  return json.loads(result.content)
+  try:
+    return json.loads(result.content)
+  except ValueError:
+    logging.error("Return value from API %s is not JSON conform" % api_name)
+    raise DownloadError("Return value from API %s is not JSON conform" % api_name)
 
 def calculate_time_from():
   time_from = datetime.datetime.now()
@@ -146,6 +150,8 @@ def write_user_to_datastore(user, location):
             username = user['username'],
             fullname = user['full_name'],
             avatar_url = user['avatar_url'],
+            twitter_name = user['twitter_name'],
+            twitter_url = user['twitter_url'],
             location = location.key())           
   user.put()
   logging.info("User saved to datastore.")  
