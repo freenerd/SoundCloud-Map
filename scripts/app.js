@@ -663,7 +663,7 @@ soundManager.onload = function() {
     });    
     
     // set up share to twitter, no url shortener yet
-    var twitterShareLink = track.title  + " by " + track.user.username + " on " + linkToBeShared + " via @tracksonamap";                                          
+    var twitterShareLink = track.title  + " by @" + track.user.twitter_name + " on " + linkToBeShared + " via @tracksonamap";                                          
     twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
     $("#player-container .share-on-twitter").attr("href", twitterShareLink);
    
