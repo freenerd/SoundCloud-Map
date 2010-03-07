@@ -135,10 +135,14 @@ class FetchTrackInfo(webapp.RequestHandler):
       # send mail to notify about new tracks
       from google.appengine.api import mail
       url = settings.TWESTIVAL_FM_URL + "/tracks/" + str(track['id'])
+      body = "%s \n by SC Fullname %s aka Twitter Username %s" % \
+              (track['title'] ,user.username, twitter_name)
+      body += "\n \n %s" % url 
       mail.send_mail(sender=settings.SEND_MAIL_FROM,
                      to=settings.SEND_MAIL_TO,
                      subject="[Twestival.fm] New Track by " + twitter_name,
-                     body=url)
+                     body=body)
+      logging.info("Sent out a mail to %s hopefully" % settings.SEND_MAIL_TO)
             
       logging.info("End of track update.")      
       self.response.set_status(200)
