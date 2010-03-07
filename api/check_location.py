@@ -21,6 +21,7 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from google.appengine.api.urlfetch_errors import DownloadError
 from google.appengine.ext import webapp
 from google.appengine.api import memcache
 from django.utils import simplejson as json
@@ -56,3 +57,8 @@ class CheckLocationHandler(webapp.RequestHandler):
                      "Google Maps can not find city %s and country %s" %
                      (city, country))
       return
+    except DownloadError:
+      error_response(self,
+                     "APIError",
+                     "Google Maps API is having problems")
+      return      
