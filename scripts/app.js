@@ -48,7 +48,7 @@ soundManager.onload = function() {
   var maxApiUrl = "";
   var deepApiUrl = "";
   var tracksUrl = "";  
-  
+  var siteURL = "http://twestival-fm.heroku.com";
   
   var FOOTER_HEIGHT = 0;
   var PLAYER_HEIGHT = 40;
@@ -320,13 +320,13 @@ soundManager.onload = function() {
           tracks[0].loc = l; 
           
           
-          var linkToBeShared = "http://tracksonamap.com/#city-" + l.id;
+          var linkToBeShared = siteURL + "/cities/" + l.id;
 
           // set up share to twitter, no url shortener yet
           var twitterShareLink = "I am listening to " + l.city + " on " + linkToBeShared + " via @tracksonamap";                                          
           twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
           
-          var facebookLinkToBeShared = "http://tracksonamap.com/from-facebook?type=city&id=" + l.id
+          var facebookLinkToBeShared = siteURL + "/cities/" + l.id
           // set up share to Facebook
           var facebookShareLink = "I am listening to " + l.city;                                                                          
           facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);          
@@ -640,7 +640,7 @@ soundManager.onload = function() {
       return false;
     });
 
-    var linkToBeShared = "http://tracksonamap.com/#track-" + track.id;
+    var linkToBeShared = siteURL + "/tracks/" + track.id;
     
     // set up share link (share box)
     $("#player-container .share-link").attr('href',linkToBeShared); 
@@ -668,8 +668,8 @@ soundManager.onload = function() {
     $("#player-container .share-on-twitter").attr("href", twitterShareLink);
    
     // set up share to Facebook
-    var facebookLinkToBeShared = "http://www.tracksonamap.com/from-facebook?type=track&id=" + track.id
-    var facebookShareLink = "Tracks On A Map: " + track.title  + " by " + track.user.username;                                                                          
+    var facebookLinkToBeShared = siteURL + "/tracks/" + track.id
+    var facebookShareLink = "Twestival.fm: " + track.title  + " by " + track.user.username;                                                                          
     facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
     $("#player-container .share-on-facebook").attr("href", facebookShareLink);    
 
