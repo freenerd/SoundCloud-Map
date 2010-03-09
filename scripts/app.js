@@ -48,7 +48,7 @@ soundManager.onload = function() {
   var maxApiUrl = "";
   var deepApiUrl = "";
   var tracksUrl = "";  
-  var siteURL = "http://twestival-fm.heroku.com";
+  var siteURL = "http://twestival-fm.com";
   
   var FOOTER_HEIGHT = 0;
   var PLAYER_HEIGHT = 40;
@@ -323,8 +323,8 @@ soundManager.onload = function() {
           var linkToBeShared = siteURL + "/cities/" + l.id;
 
           // set up share to twitter, no url shortener yet
-          var twitterShareLink = "I am listening to " + l.city + " on " + linkToBeShared + " via @tracksonamap";                                          
-          twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
+          var twitterShareLink = "Enjoying the sounds of " + l.city + " on " + linkToBeShared + " < please donate @twestival";                                          
+          twitterShareLink = "http://twitter.com/home/?source=twestivalfm&status=" + encodeURIComponent(twitterShareLink);
           
           var facebookLinkToBeShared = siteURL + "/cities/" + l.id
           // set up share to Facebook
@@ -663,8 +663,8 @@ soundManager.onload = function() {
     });    
     
     // set up share to twitter, no url shortener yet
-    var twitterShareLink = track.title  + " by @" + track.user.twitter_name + " on " + linkToBeShared + " via @tracksonamap";                                          
-    twitterShareLink = "http://twitter.com/home/?source=soundcloud&status=" + encodeURIComponent(twitterShareLink);
+    var twitterShareLink = "Loving " + track.title  + " by @" + track.user.twitter_name + " on " + linkToBeShared + " < please donate @twestivalfm";                                          
+    twitterShareLink = "http://twitter.com/home/?source=twestivalfm&status=" + encodeURIComponent(twitterShareLink);
     $("#player-container .share-on-twitter").attr("href", twitterShareLink);
    
     // set up share to Facebook
