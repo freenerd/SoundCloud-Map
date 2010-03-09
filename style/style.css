@@ -57,7 +57,7 @@ a:hover {
   display:none;
 }     
 
-#about-box, .share-box {
+.box, .share-box {
   position: absolute;
   left: 50%;
   top: 40%;
@@ -77,23 +77,23 @@ a:hover {
   z-index: 20;
 } 
 
-#about-box #built-by {
+.box #built-by {
   color: #666;
 }
 
-#about-box #built-by a {
+.box #built-by a {
   color: #333;
 }
 
-#about-box #built-by a:hover {
+.box #built-by a:hover {
   color: #FF4700;
 }
 
-#about-box #built-by p {
+.box #built-by p {
   margin: 7px 0 0 0;
 }
 
-#about-box h3 {
+.box h3 {
   margin: 0 -5px 20px 0px;
   padding: 10px 10px 10px 133px;
   color: #eee;
@@ -105,7 +105,7 @@ a:hover {
   background: #696969 url('../images/world_white.png') 7px 12px no-repeat;
 }
 
-#about-box h3 a {
+.box h3 a {
   color: #fff;
   background: #FF4700;
   -moz-border-radius: 3px;
@@ -130,7 +130,7 @@ a:hover {
     font-size: 16px;
   }
 
-#about-box a.close, .share-box a.close {
+.box a.close, .share-box a.close {
   text-decoration: none;
   float: right;
   margin-right: -5px;

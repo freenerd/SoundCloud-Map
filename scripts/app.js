@@ -222,6 +222,25 @@ soundManager.onload = function() {
   GEvent.addListener(map, "zoomend", function() {
     $("#about-box").fadeOut();
   });
+  
+   // about box closable
+  $("#about-box a.close").click(function(ev) {
+    $("#about-box").fadeOut();
+    ev.preventDefault();
+  });    
+
+  // donate box download closes when action on map
+  GEvent.addListener(map, "movestart", function() {
+    $("#donate-box-download").fadeOut();
+  }); 
+
+  GEvent.addListener(map, "click", function() {
+    $("#donate-box-download").fadeOut();
+  });                           
+  
+  GEvent.addListener(map, "zoomend", function() {
+    $("#donate-box-download").fadeOut();
+  });  
 
   // genre buttons
   $(".genres a").click(function(ev) {
@@ -680,9 +699,15 @@ soundManager.onload = function() {
     $("#player-container .metadata .metadata-html").html(metaDataHtml);
     
     if(track.downloadable) {
-      var downloadHTML = "<a href='" + track.permalink_url +
-                         "/download'>Click to download</a>";
-      $("#player-container .metadata .download-link").html(downloadHTML);
+      // set download link in donate-box-download
+      $("#donate-box-download .download-link").attr("href", track.permalink_url + '/download');
+      // set link to open doante-box-download
+      $("#player-container .metadata .download-link-div").html("<a href='#'>Click to download</a>");
+      // make donate-box-download openable
+      $("#player-container .metadata .download-link-div a").click(function(ev) {
+        $("#donate-box-download").fadeIn(); 
+        ev.preventDefault();
+      });  
     };
         
     $("#player-container #player .waveform img").attr("src", track.waveform_url);
@@ -770,9 +795,10 @@ soundManager.onload = function() {
   
   // show about box, if on live server and user hasn't seen it for 24 hours
   // if(location.href.split(".").length > 1 && !$.cookie('viewed_intro') == '1'){
-  //   $.cookie('viewed_intro', '1', { expires: 1 });
-  //   $("#about-box").fadeIn();
-  // }
+  if(!$.cookie('viewed_intro') == '1'){
+    // $.cookie('viewed_intro', '1', { expires: 1 });
+    $("#about-box").fadeIn();
+  }
 
   // start the app, then play a random track
   maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
