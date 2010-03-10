@@ -105,6 +105,12 @@ a:hover {
   background: #696969 url('../images/world_white.png') 7px 12px no-repeat;
 }
 
+.donate-box h3 {  
+  padding: 10px 10px 10px 200px;  
+  line-height: 3em;  
+  background: #696969 url('../images/concern_worldwide_white_smaller.png') 7px 12px no-repeat;  
+}
+
 .box h3 a {
   color: #fff;
   background: #FF4700;

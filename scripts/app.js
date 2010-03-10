@@ -48,8 +48,10 @@ soundManager.onload = function() {
   var maxApiUrl = "";
   var deepApiUrl = "";
   var tracksUrl = "";  
+  var streamsPlayed = 0;
+
   var siteURL = "http://twestival-fm.com";
-  
+  var imageSiteURL = "http://twestivaltracksonamap.appspot.com/images";  
   var FOOTER_HEIGHT = 0;
   var PLAYER_HEIGHT = 40;
 
@@ -229,6 +231,12 @@ soundManager.onload = function() {
     ev.preventDefault();
   });    
 
+   // donate box download closable
+  $("#donate-box-download a.close").click(function(ev) {
+    $("#donate-box-download").fadeOut();
+    ev.preventDefault();
+  });    
+
   // donate box download closes when action on map
   GEvent.addListener(map, "movestart", function() {
     $("#donate-box-download").fadeOut();
@@ -241,6 +249,25 @@ soundManager.onload = function() {
   GEvent.addListener(map, "zoomend", function() {
     $("#donate-box-download").fadeOut();
   });  
+  
+  // donate box download closable
+  $("#donate-box-stream a.close").click(function(ev) {
+    $("#donate-box-stream").fadeOut();
+    ev.preventDefault();
+  });      
+  
+  // donate box stream closes when action on map
+  GEvent.addListener(map, "movestart", function() {
+    $("#donate-box-stream").fadeOut();
+  }); 
+
+  GEvent.addListener(map, "click", function() {
+    $("#donate-box-stream").fadeOut();
+  });                           
+  
+  GEvent.addListener(map, "zoomend", function() {
+    $("#donate-box-stream").fadeOut();
+  });    
 
   // genre buttons
   $(".genres a").click(function(ev) {
@@ -399,7 +426,7 @@ soundManager.onload = function() {
           // hide avatar if default user image is shown
           if(l.html.find(".avatar").attr("src").search(/default/) != -1) {
             // l.html.find(".avatar").hide();
-            l.html.find(".avatar").attr("src", siteURL + "/images/default-avatar-big.png");
+            l.html.find(".avatar").attr("src", imageSiteURL + "/default-avatar-big.png");
           }
 
           // load more tracks from the same city
@@ -505,7 +532,7 @@ soundManager.onload = function() {
     // hide avatar if default user image is shown
     if(artwork.search(/default/) != -1) {
       // artwork = "none";
-      artwork = "url(" + siteURL + "/images/default-avatar-small.png)";
+      artwork = "url(" + imageSiteURL + "/images/default-avatar-small.png)";
     } else {
       artwork = "url(" + artwork + ")";
     }
@@ -703,7 +730,7 @@ soundManager.onload = function() {
     if(track.downloadable) {
       // set download link in donate-box-download
       $("#donate-box-download .download-link").attr("href", track.permalink_url + '/download');
-      // set link to open doante-box-download
+      // set link to open donate-box-download
       $("#player-container .metadata .download-link-div").html("<a href='#'>Click to download</a>");
       // make donate-box-download openable
       $("#player-container .metadata .download-link-div a").click(function(ev) {
@@ -751,6 +778,12 @@ soundManager.onload = function() {
     play();
     
     favoriteStatus(track);
+
+    streamsPlayed = streamsPlayed + 1;  
+    if (streamsPlayed > 4) {
+      $("#donate-box-stream").fadeIn();
+      streamsPlayed = 0;
+    };
     
     return false;
   }
