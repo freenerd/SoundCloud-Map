@@ -398,7 +398,8 @@ soundManager.onload = function() {
 
           // hide avatar if default user image is shown
           if(l.html.find(".avatar").attr("src").search(/default/) != -1) {
-            l.html.find(".avatar").hide();
+            // l.html.find(".avatar").hide();
+            l.html.find(".avatar").attr("src", siteURL + "/images/default-avatar-big.png");
           }
 
           // load more tracks from the same city
@@ -503,7 +504,8 @@ soundManager.onload = function() {
     var artwork = (t.artwork_url ? t.artwork_url.replace(/large/,"small") : t.user.avatar_url.replace(/large/,"small"));
     // hide avatar if default user image is shown
     if(artwork.search(/default/) != -1) {
-      artwork = "none";
+      // artwork = "none";
+      artwork = "url(" + siteURL + "/images/default-avatar-small.png)";
     } else {
       artwork = "url(" + artwork + ")";
     }
