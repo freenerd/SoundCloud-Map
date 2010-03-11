@@ -354,7 +354,7 @@ soundManager.onload = function() {
       if(!l.marker.setupDone) {
       
         // load all tracks in the location, start with the first
-
+        
         var tracksUrl_first = "";
         if(trackToShowFirst) { // load the track to show first
           tracksUrl_first = tracksUrl + trackToShowFirst;
@@ -364,7 +364,6 @@ soundManager.onload = function() {
         $.getJSON(tracksUrl_first,function(tracks) {
           l.firstTrack = tracks[0];
           tracks[0].loc = l; 
-          
           
           var linkToBeShared = siteURL + "/cities/" + l.id;
 
@@ -433,12 +432,11 @@ soundManager.onload = function() {
           GEvent.clearListeners(l.marker,'infowindowopen');
           GEvent.addListener(l.marker, "infowindowopen", function() {
             if(!l.marker.setupDone) {
-          
+
               // clear the tracks list
               $("#bubble" + l.firstTrack.id).find('.tracks-list').html("");
             
               $.getJSON(tracksUrl + "location=" + l.id + "&genre=" + genre + "&limit=9",function(extraTracks) {
-            
                 if(trackToShowFirst) { // make sure that the first track loaded in the list is the track first shown in the bubble (used for track permalinks)
               
                   // remove occurances of the first track
@@ -835,16 +833,13 @@ soundManager.onload = function() {
     $("#about-box").fadeIn();
   }
 
-  // start the app, then play a random track
-  maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
-  deepApiUrl = "/api/locations/?genre=" + "all";
-  tracksUrl = "/api/tracks/?";
-  loadLocations(maxApiUrl, deepApiUrl, tracksUrl, function() {
-    playRandom();
-  });
-  map.setCenter(new GLatLng(-10.973349, 26.875), 2);    
-  //pop up the track that was shared if /#track-123123 detected
+
+
+  //pop up the track that was shared if /#track-123123 or /#city-123 detected
   if(location.hash && location.hash.search(/track|city/) != -1) {
+    maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
+    deepApiUrl = "/api/locations/?genre=" + "all";
+    tracksUrl = "/api/tracks/";    
     var id = location.hash.split("-")[1];
     var q = "/api/tracks/";
     if(location.hash.search(/track/) != -1) { // track permalink
@@ -858,6 +853,14 @@ soundManager.onload = function() {
       setupLocation(track[0].location,track[0].id);
       GEvent.trigger(locations[locations.length-1].marker,'click'); // play the track (is this really clean?)
     });      
+  } else {
+    // no sharing, so start the app, then play a random track
+    maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
+    deepApiUrl = "/api/locations/?genre=" + "all";
+    tracksUrl = "/api/tracks/?";
+    loadLocations(maxApiUrl, deepApiUrl, tracksUrl, function() {
+      playRandom();
+    });    
   }
   
   if(location.hash && location.hash.search(/scconnect/) != -1) {
