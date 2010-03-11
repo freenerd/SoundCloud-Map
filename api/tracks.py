@@ -76,7 +76,7 @@ class TracksHandler(webapp.RequestHandler):
         utils.error_response(self, 'unknown_genre', 'Sorry, but we do not know the genre %s.' % genre) 
         return
       else:
-        tracks = models.Track.all().filter('genre IN', util.genres.get(genre)).order('-created_at').fetch(limit, offset)
+        tracks = models.Track.all().filter('genre IN', util.genres.get(genre)).order('-entry_created_at').fetch(limit, offset)
         if tracks:                           
           for track in tracks:
             utils.add_to_track_array(track, track_array)
@@ -91,7 +91,7 @@ class TracksHandler(webapp.RequestHandler):
       if not location:
         utils.error_response(self, 'location_not_found', 'The location with the id %s is not in the datastore.' % self.request.get('location'))
       else:
-        tracks = models.Track.all().filter('location', location.key()).order('-created_at').fetch(limit, offset)
+        tracks = models.Track.all().filter('location', location.key()).order('-entry_created_at').fetch(limit, offset)
         if tracks:
           for track in tracks:
             utils.add_to_track_array(track, track_array)              
@@ -112,7 +112,7 @@ class TracksHandler(webapp.RequestHandler):
         return
       else:
         tracks = models.Track.all().filter('location', location.key()).filter('genre IN', util.genres.get(genre))
-        tracks = tracks.order('-created_at').fetch(limit, offset)
+        tracks = tracks.order('-entry_created_at').fetch(limit, offset)
         if tracks:
           for track in tracks:
             utils.add_to_track_array(track, track_array)              
@@ -124,7 +124,7 @@ class TracksHandler(webapp.RequestHandler):
     # Processing for api/tracks and api/tracks/?genre=all
     if (self.request.get('genre') == 'all' or not self.request.get('genre')) and not \
        (self.request.get('location') or self.request.get('location_lat') or self.request.get('location_lon')): 
-      tracks = models.Track.all().order('-created_at').fetch(limit, offset)
+      tracks = models.Track.all().order('-entry_created_at').fetch(limit, offset)
       if tracks:                           
         for track in tracks:
           utils.add_to_track_array(track, track_array)
