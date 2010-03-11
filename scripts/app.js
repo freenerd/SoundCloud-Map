@@ -532,7 +532,7 @@ soundManager.onload = function() {
     // hide avatar if default user image is shown
     if(artwork.search(/default/) != -1) {
       // artwork = "none";
-      artwork = "url(" + imageSiteURL + "/images/default-avatar-small.png)";
+      artwork = "url(" + imageSiteURL + "/default-avatar-small.png)";
     } else {
       artwork = "url(" + artwork + ")";
     }

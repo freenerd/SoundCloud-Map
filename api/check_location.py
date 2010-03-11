@@ -47,6 +47,12 @@ class CheckLocationHandler(webapp.RequestHandler):
     city = self.request.get('city')     
     country = self.request.get('country')     
 
+    if not city and not country:
+      error_response(self,
+           "NotLocalizable",
+           "No city or country provided")
+      return
+
     try:
       result = get_location(city, country)
       del result['location']
