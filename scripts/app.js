@@ -118,7 +118,7 @@ soundManager.onload = function() {
     removeAllMarkers();
     maxApiUrl = "/api/soundcloud-connect/followers/max/?";
     deepApiUrl = "/api/soundcloud-connect/followers/?";
-    tracksUrl = "/api/soundcloud-connect/followers/tracks-in-location/?";
+    tracksUrl = "/api/soundcloud-connect/followers/tracks-in-location/";
     loadLocations(maxApiUrl, deepApiUrl, tracksUrl); // load locations from the genre
     return false;
   });
@@ -131,7 +131,7 @@ soundManager.onload = function() {
     removeAllMarkers();
     maxApiUrl = "/api/soundcloud-connect/followings/max/?";
     deepApiUrl = "/api/soundcloud-connect/followings/?";
-    tracksUrl = "/api/soundcloud-connect/followings/tracks-in-location/?";
+    tracksUrl = "/api/soundcloud-connect/followings/tracks-in-location/";
     loadLocations(maxApiUrl, deepApiUrl, tracksUrl); // load locations from the genre
     return false;
   });
@@ -144,7 +144,7 @@ soundManager.onload = function() {
     removeAllMarkers();
     maxApiUrl = "/api/soundcloud-connect/favorites/max/?";
     deepApiUrl = "/api/soundcloud-connect/favorites/?";
-    tracksUrl = "/api/soundcloud-connect/favorites/tracks-in-location/?";
+    tracksUrl = "/api/soundcloud-connect/favorites/tracks-in-location/";
     loadLocations(maxApiUrl, deepApiUrl, tracksUrl); // load locations from the genre
     return false;
   });  
@@ -359,12 +359,12 @@ soundManager.onload = function() {
         if(trackToShowFirst) { // load the track to show first
           tracksUrl_first = tracksUrl + trackToShowFirst;
         } else { // load the first track from the location
-          tracksUrl_first = tracksUrl + "genre=" + genre + "&location=" + l.id + "&limit=1";
+          tracksUrl_first = tracksUrl + "?genre=" + genre + "&location=" + l.id + "&limit=1";
         }
         $.getJSON(tracksUrl_first,function(tracks) {
           l.firstTrack = tracks[0];
           tracks[0].loc = l; 
-          
+  
           var linkToBeShared = siteURL + "/cities/" + l.id;
 
           // set up share to twitter, no url shortener yet
@@ -432,11 +432,10 @@ soundManager.onload = function() {
           GEvent.clearListeners(l.marker,'infowindowopen');
           GEvent.addListener(l.marker, "infowindowopen", function() {
             if(!l.marker.setupDone) {
-
               // clear the tracks list
               $("#bubble" + l.firstTrack.id).find('.tracks-list').html("");
             
-              $.getJSON(tracksUrl + "location=" + l.id + "&genre=" + genre + "&limit=9",function(extraTracks) {
+              $.getJSON(tracksUrl + "?location=" + l.id + "&genre=" + genre + "&limit=9",function(extraTracks) {
                 if(trackToShowFirst) { // make sure that the first track loaded in the list is the track first shown in the bubble (used for track permalinks)
               
                   // remove occurances of the first track
@@ -833,13 +832,16 @@ soundManager.onload = function() {
     $("#about-box").fadeIn();
   }
 
+  // start the app, then play a random track
+  maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
+  deepApiUrl = "/api/locations/?genre=" + "all";
+  tracksUrl = "/api/tracks/";
+  loadLocations(maxApiUrl, deepApiUrl, tracksUrl, function() {
+    playRandom();
+  });
 
-
-  //pop up the track that was shared if /#track-123123 or /#city-123 detected
+  //pop up the track that was shared if /#track-123123 detected
   if(location.hash && location.hash.search(/track|city/) != -1) {
-    maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
-    deepApiUrl = "/api/locations/?genre=" + "all";
-    tracksUrl = "/api/tracks/";    
     var id = location.hash.split("-")[1];
     var q = "/api/tracks/";
     if(location.hash.search(/track/) != -1) { // track permalink
@@ -848,19 +850,11 @@ soundManager.onload = function() {
       q += "?limit=1&location="+ id;
     }
     $.getJSON(q,function(track) {
-      showPlayer(track[0]);      
-      map.setZoom(5);      
+      showPlayer(track[0]);
+      map.setZoom(5);
       setupLocation(track[0].location,track[0].id);
-      GEvent.trigger(locations[locations.length-1].marker,'click'); // play the track (is this really clean?)
-    });      
-  } else {
-    // no sharing, so start the app, then play a random track
-    maxApiUrl = "/api/locations/maxtracks?genre=" + "all";
-    deepApiUrl = "/api/locations/?genre=" + "all";
-    tracksUrl = "/api/tracks/?";
-    loadLocations(maxApiUrl, deepApiUrl, tracksUrl, function() {
-      playRandom();
-    });    
+      GEvent.trigger(locations[locations.length-1].marker,'click'); // play the track (is this really clean?)      
+    });
   }
   
   if(location.hash && location.hash.search(/scconnect/) != -1) {
