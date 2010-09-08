@@ -8,6 +8,7 @@ GOOGLE_MAPS_API_URL = "http://maps.google.com/maps/geo?key=" + GOOGLE_MAPS_API_K
 API_RETRIES = 10
 SOUNDCLOUD_API_URL = "http://api.soundcloud.com"
 SOUNDCLOUD_TIMEZONE_ADJUSTMENT = 0 # in hours behind server timezone
+SOUNDCLOUD_CONSUMER_KEY = "zCLYNE4IUUX3mhzfCBD6Qw"
 DURATION_LIMIT = "1200000" # in milliseconds to filter out dj-sets + podcasts
 
 # Frontend

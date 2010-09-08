@@ -91,7 +91,7 @@ class FetchTrackInfo(webapp.RequestHandler):
       else:
         # fetch complete user data
         logging.info("User is not in the datastore yet. Fetching user data.")
-        track['user'] = backend_utils.open_remote_api("/users/%s.json" % track['user_id'], 'soundcloud') 
+        track['user'] = backend_utils.open_remote_api("/users/%s.json?consumer_key=%s" % (track['user_id'], settings.SOUNDCLOUD_CONSUMER_KEY), 'soundcloud') 
         logging.info("User data fetched.")              
         
         # determining location

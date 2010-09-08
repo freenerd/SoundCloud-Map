@@ -85,6 +85,7 @@ def get_latest_tracks_from_soundcloud(time_from=None, time_to=None):
   query += "created_at[from]=" + time_from
   query += "&created_at[to]=" + time_to
   query += "&duration[to]=" + settings.DURATION_LIMIT
+  query += "&consumer_key=" + settings.SOUNDCLOUD_CONSUMER_KEY
   tracks = open_remote_api(query, "soundcloud") 
   return tracks 
 
