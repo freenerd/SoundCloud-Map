@@ -95,9 +95,11 @@ def get_latest_tracks_from_soundcloud(time_from=None, time_to=None):
   if not time_from: time_from = calculate_time_from()    
   if not time_to: time_to = datetime.datetime.now().isoformat()
   query = "/tracks.json?"
-  query += "created_at[from]=" + time_from
+  query += "tags=beatbox"
+  query += "&created_at[from]=" + time_from
   query += "&created_at[to]=" + time_to
   query += "&duration[to]=" + settings.DURATION_LIMIT
+  query += "&consumer_key=" + settings.CONSUMER_KEY
   tracks = open_remote_api(query, "soundcloud") 
   return tracks 
 
