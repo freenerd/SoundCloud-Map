@@ -155,7 +155,6 @@ def write_user_to_datastore(user, location):
             username = user['username'],
             fullname = user['full_name'],
             avatar_url = user['avatar_url'],
-            twitter_name = user['twitter_name'],
             location = location.key())           
   user.put()
   logging.info("User saved to datastore.")  

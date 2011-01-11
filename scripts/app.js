@@ -395,7 +395,7 @@ soundManager.onload = function() {
               .find('.city span.city-name').html(l.city).end()
               .find('.title').html(tracks[0].title.substring(0,60)).end()
               .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
-              .find('ul li span.artist').html("<a href='http://www.twitter.com/" + tracks[0].user.twitter_name + "'>@" + tracks[0].user.twitter_name + "</a>").end()
+              .find('ul li span.artist').html("<a href='http://www.soundcloud.com/" + tracks[0].user.parmalink + "'>" + tracks[0].user.username + "</a>").end()
               .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
               .find('a.play-button').bind('click',tracks[0],showPlayer).end()
               .find('.city .share-on-twitter').attr("href", twitterShareLink).end()
@@ -470,7 +470,7 @@ soundManager.onload = function() {
                         $("#bubble" + l.firstTrack.id)
                           .find('.title').html("").end()
                           .find('.avatar').attr("src",t.user.avatar_url).end()
-                          .find('ul li span.artist').html("<a href='http://www.twitter.com/" + t.user.twitter_name + "'>@" + t.user.twitter_name + "</a>").end()
+                          .find('ul li span.artist').html("<a href='http://www.soundcloud.com/" + t.user.permalink + "'>" + t.user.username + "</a>").end()
                           .find('ul li span.time').html("").end()
                           .find('a.play-button').unbind('click').end();
                       } else {
@@ -478,7 +478,7 @@ soundManager.onload = function() {
                         $("#bubble" + l.firstTrack.id)
                           .find('.title').html(t.title.substring(0,60)).end()
                           .find('.avatar').attr("src",(t.artwork_url ? t.artwork_url : t.user.avatar_url)).end()
-                          .find('ul li span.artist').html("<a href='http://www.twitter.com/" + t.user.twitter_name + "'>@" + t.user.twitter_name + "</a>").end()
+                          .find('ul li span.artist').html("<a href='http://www.soundcloud.com/" + t.user.permalink + "'>" + t.user.username + "</a>").end()
                           .find('ul li span.time').html(fuzzyTime(t.created_minutes_ago) + " ago").end()
                           .find('a.play-button').bind('click',t,showPlayer).end();
                       };
@@ -720,8 +720,7 @@ soundManager.onload = function() {
 
     var metaDataHtml = "<a target='_blank' href='" + track.permalink_url + 
                        "/" + track.permalink + "'>" + track.title + "</a>" + 
-                       " uploaded by <a target='_blank' href='http://www.twitter.com/" + track.user.twitter_name + 
-                       "'>@" + track.user.twitter_name + "</a>";
+                       " uploaded by <a target='_blank' href='http://www.soundcloud.com/" + track.user.permalink + "'>" + track.user.username + "</a>";
     $("#player-container .metadata .metadata-html").html(metaDataHtml);
     
     if(track.downloadable) {
