@@ -59,7 +59,7 @@ soundManager.onload = function() {
     map = new GMap2($("#map_canvas")[0]);
     map.addControl(new GSmallZoomControl());
     map.setMapType(G_PHYSICAL_MAP);      
-    map.setCenter(new GLatLng(-10, 26), 2);    
+    map.setCenter(new GLatLng(44, -37), 2);    
     map.enableScrollWheelZoom();        
     $("#map_canvas").height($(window).height()-FOOTER_HEIGHT);
     map.checkResize();    
