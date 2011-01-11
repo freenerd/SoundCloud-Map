@@ -776,11 +776,11 @@ soundManager.onload = function() {
     
     favoriteStatus(track);
 
-    streamsPlayed = streamsPlayed + 1;  
-    if (streamsPlayed > 4) {
-      $("#donate-box-stream").fadeIn();
-      streamsPlayed = 0;
-    };
+    //streamsPlayed = streamsPlayed + 1;  
+    //if (streamsPlayed > 4) {
+      //$("#donate-box-stream").fadeIn();
+      //streamsPlayed = 0;
+    //};
     
     return false;
   }
