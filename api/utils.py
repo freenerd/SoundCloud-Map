@@ -53,8 +53,7 @@ def add_to_track_array(track, track_array):
                'permalink_url': track.user.permalink_url,
                'username': track.user.username,
                'fullname': track.user.fullname,
-               'avatar_url': track.user.avatar_url,
-               'twitter_name': track.user.twitter_name}
+               'avatar_url': track.user.avatar_url}
 
   if track.track_id < 0:
     track_array.append({'id': track.track_id,
