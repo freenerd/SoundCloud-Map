@@ -87,7 +87,7 @@ def calculate_time_from():
   time_from -= datetime.timedelta(minutes=settings.SOUNDCLOUD_API_DELAY)
   return time_from
 
-def calculate_time_to:
+def calculate_time_to():
   time_to = datetime.datetime.now()
   time_to -= datetime.timedelta(minutes=settings.SOUNDCLOUD_API_DELAY)
   return time_to
