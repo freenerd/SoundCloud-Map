@@ -84,20 +84,25 @@ def calculate_time_from():
   time_from = datetime.datetime.now()
   time_from -= datetime.timedelta(hours=settings.SOUNDCLOUD_TIMEZONE_ADJUSTMENT)
   time_from -= datetime.timedelta(minutes=settings.API_QUERY_INTERVAL)
-  time_from = time_from.isoformat()
+  time_from -= datetime.timedelta(minutes=settings.SOUNDCLOUD_API_DELAY)
   return time_from
+
+def calculate_time_to:
+  time_to = datetime.datetime.now()
+  time_to -= datetime.timedelta(minutes=settings.SOUNDCLOUD_API_DELAY)
+  return time_to
 
 def get_latest_tracks_from_soundcloud(time_from=None, time_to=None):
   """
   time_form and time_to must be datetime.isoformat()
   Get Latest Tracks from Soundcloud
   """
-  if not time_from: time_from = calculate_time_from()    
-  if not time_to: time_to = datetime.datetime.now().isoformat()
+  time_from = time_from or calculate_time_from()
+  time_to = time_to or calculate_time_to()
   query = "/tracks.json?"
   query += "q=beatbox"
-  query += "&created_at[from]=" + time_from
-  query += "&created_at[to]=" + time_to
+  query += "&created_at[from]=" + time_from.isoformat()
+  query += "&created_at[to]=" + time_to.isoformat()
   query += "&duration[to]=" + settings.DURATION_LIMIT
   query += "&consumer_key=" + settings.CONSUMER_KEY
   tracks = open_remote_api(query, "soundcloud") 
