@@ -231,44 +231,6 @@ soundManager.onload = function() {
     ev.preventDefault();
   });    
 
-   // donate box download closable
-  $("#donate-box-download a.close").click(function(ev) {
-    $("#donate-box-download").fadeOut();
-    ev.preventDefault();
-  });    
-
-  // donate box download closes when action on map
-  GEvent.addListener(map, "movestart", function() {
-    $("#donate-box-download").fadeOut();
-  }); 
-
-  GEvent.addListener(map, "click", function() {
-    $("#donate-box-download").fadeOut();
-  });                           
-  
-  GEvent.addListener(map, "zoomend", function() {
-    $("#donate-box-download").fadeOut();
-  });  
-  
-  // donate box download closable
-  $("#donate-box-stream a.close").click(function(ev) {
-    $("#donate-box-stream").fadeOut();
-    ev.preventDefault();
-  });      
-  
-  // donate box stream closes when action on map
-  GEvent.addListener(map, "movestart", function() {
-    $("#donate-box-stream").fadeOut();
-  }); 
-
-  GEvent.addListener(map, "click", function() {
-    $("#donate-box-stream").fadeOut();
-  });                           
-  
-  GEvent.addListener(map, "zoomend", function() {
-    $("#donate-box-stream").fadeOut();
-  });    
-
   // genre buttons
   $(".genres a").click(function(ev) {
     $(".genres .active").removeClass("active");
@@ -723,18 +685,6 @@ soundManager.onload = function() {
                        " uploaded by <a target='_blank' href='http://www.soundcloud.com/" + track.user.permalink + "'>" + track.user.username + "</a>";
     $("#player-container .metadata .metadata-html").html(metaDataHtml);
     
-    if(track.downloadable) {
-      // set download link in donate-box-download
-      $("#donate-box-download .download-link").attr("href", track.permalink_url + '/download');
-      // set link to open donate-box-download
-      $("#player-container .metadata .download-link-div").html("<a href='#'>Click to download</a>");
-      // make donate-box-download openable
-      $("#player-container .metadata .download-link-div a").click(function(ev) {
-        $("#donate-box-download").fadeIn(); 
-        ev.preventDefault();
-      });  
-    };
-        
     $("#player-container #player .waveform img").attr("src", track.waveform_url);
     
     // show the spinner
