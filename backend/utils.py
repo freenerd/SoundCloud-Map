@@ -242,24 +242,27 @@ def get_location(city, country):
         logging.info("No Country found in %s" % unicode(dict(position)))
         country = None  
       try:
-        if 'AdministrativeArea' in position['Placemark'][0]['AddressDetails']['Country']: 
-          if 'SubAdministrativeArea' in position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']:                                            
-            city =  unicode(position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']['SubAdministrativeArea']['Locality']['LocalityName'])
-          else:
-            city =  unicode(position['Placemark'][0]['AddressDetails']['Country']['AdministrativeArea']['Locality']['LocalityName']) 
+        # search on different places in the gmap return for the city
+        base = position['Placemark'][0]['AddressDetails']['Country']
+        if 'AdministrativeArea' in base:
+          base_adm = base['AdministrativeArea']
+          if 'SubAdministrativeArea' in base_adm:
+            city = unicode(base_adm['SubAdministrativeArea']['Locality']['LocalityName'])
+          elif 'Locality' in base_adm:
+            city = unicode(base_adm['Locality']['LocalityName'])
         else:
-          city = unicode(position['Placemark'][0]['AddressDetails']['Country']['SubAdministrativeArea']['Locality']['LocalityName']) 
+          city = unicode(base['Locality']['LocalityName'])
       except KeyError:
         logging.info("No City found in %s" % unicode(dict(position)))
         city = None
-        
+
       time.sleep(1) # wait to avoid Google Maps' 620 "Too many requests" error in next query
       return {'location': db.GeoPt(lat,lon), 'country': country, 'city': city}
-      
+
     if position['Status']['code'] in (602, 603):
       # 602 and 603 = "Address could not be localized"
       raise RuntimeError, "Cannot be localized"
-      
+
     else:
       # Something worse must have happened than just not being able to find an address
       logging.error("Localization via maps.google.com failed with error code %i" % position['Status']['code'])
