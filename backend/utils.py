@@ -244,13 +244,19 @@ def get_location(city, country):
       try:
         # search on different places in the gmap return for the city
         base = position['Placemark'][0]['AddressDetails']['Country']
-        if 'AdministrativeArea' in base:
+        if 'SubAdministrativeArea' in base:
+          if 'Locality' in base['SubAdministrativeArea']:
+            city = unicode(base['SubAdministrativeArea']['Locality']['LocalityName'])
+        elif 'AdministrativeArea' in base:
           base_adm = base['AdministrativeArea']
           if 'SubAdministrativeArea' in base_adm:
             city = unicode(base_adm['SubAdministrativeArea']['Locality']['LocalityName'])
+          elif 'AdministrativeAreaName' in base_adm:
+            city = unicode(base_adm['AdministrativeAreaName'])
           elif 'Locality' in base_adm:
             city = unicode(base_adm['Locality']['LocalityName'])
         else:
+          # if nothing else before worked and this one does neither, exception is raised
           city = unicode(base['Locality']['LocalityName'])
       except KeyError:
         logging.info("No City found in %s" % unicode(dict(position)))
