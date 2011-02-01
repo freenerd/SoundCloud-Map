@@ -1,5 +1,12 @@
 /* Styles for the SC player */
 
+body {
+  overflow:hidden;
+}
+
+a img {
+  border:0;
+}
 
 #player-container {
   padding: 10px 0;
@@ -199,12 +206,17 @@ body.playing #player .pause {
   background:url(../images/bg2.png) 0 0 repeat-x;
 }
 
+.by-soundcloud {
+  float:left;
+}
+
 .by-soundcloud a {
   color:#fff;
 }
 
 .by-soundcloud > a {
-  float:right;
+  position:absolute;
+  right:0;
   margin:3px 18px 0 0;
 }
 
