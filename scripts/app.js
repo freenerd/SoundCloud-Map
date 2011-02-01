@@ -52,8 +52,9 @@ soundManager.onload = function() {
 
   var siteURL = "http://twestival-fm.com";
   var imageSiteURL = "http://twestivaltracksonamap.appspot.com/images";  
-  var FOOTER_HEIGHT = 0;
+  var FOOTER_HEIGHT = 35;
   var PLAYER_HEIGHT = 40;
+  var HEADER_HEIGHT = 36;
 
   if (GBrowserIsCompatible()) {
     map = new GMap2($("#map_canvas")[0]);
@@ -61,7 +62,7 @@ soundManager.onload = function() {
     map.setMapType(G_PHYSICAL_MAP);      
     map.setCenter(new GLatLng(44, -37), 3);    
     map.enableScrollWheelZoom();        
-    $("#map_canvas").height($(window).height()-FOOTER_HEIGHT);
+    $("#map_canvas").height($(window).height()-FOOTER_HEIGHT-HEADER_HEIGHT);
     map.checkResize();    
   }                                          
   
