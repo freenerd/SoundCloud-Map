@@ -4,6 +4,8 @@ runtime: python
 api_version: 1
 
 handlers:
+- datastore_admin: on
+
 - url: /scripts
   static_dir: scripts  
 
