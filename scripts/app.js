@@ -336,7 +336,7 @@ soundManager.onload = function() {
           var facebookLinkToBeShared = siteURL + "/from-facebook?type=city&id=" + l.id
 
           // set up share to Facebook
-          var facebookShareLink = "I am listening SoundCloud Meeetup " + l.city;
+          var facebookShareLink = "I am listening SoundCloud Meetup " + l.city;
           facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);          
           
           if(tracks[0].id < 0) {

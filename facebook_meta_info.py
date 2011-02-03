@@ -44,6 +44,7 @@ class MainHandler(webapp.RequestHandler):
     if type and id:
       if type == 'track':
         track = models.Track.all().filter('track_id', int(id)).get()
+        location = track.location.city
         title = 'Tracks On A Map: %s by %s' % (track.title, track.user.username)
       if type == 'city':
         city = models.Location.get_by_id(int(id))
@@ -56,6 +57,7 @@ class MainHandler(webapp.RequestHandler):
         'title' : title,
         'city' : city,
         'track' : track
+        'location': location
     }
     
     path = os.path.join(os.path.dirname(__file__), 'templates/facebook_meta_info.html')
