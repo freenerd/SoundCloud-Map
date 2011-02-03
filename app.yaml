@@ -3,9 +3,10 @@ version: live
 runtime: python
 api_version: 1
 
-handlers:
+builtins:
 - datastore_admin: on
 
+handlers:
 - url: /scripts
   static_dir: scripts  
 
