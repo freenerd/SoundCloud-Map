@@ -47,11 +47,11 @@ soundManager.onload = function() {
   var genre = "";
   var maxApiUrl = "";
   var deepApiUrl = "";
-  var tracksUrl = "";  
+  var tracksUrl = "";
   var streamsPlayed = 0;
 
-  var siteURL = "http://twestival-fm.com";
-  var imageSiteURL = "http://twestivaltracksonamap.appspot.com/images";  
+  var siteURL = "http://scmeetupmap.appspot.com";
+  var imageSiteURL = "http://scmeetupmap.appspot.com/images";
   var FOOTER_HEIGHT = 35;
   var PLAYER_HEIGHT = 40;
   var HEADER_HEIGHT = 36;
@@ -331,8 +331,8 @@ soundManager.onload = function() {
           var linkToBeShared = siteURL + "/cities/" + l.id;
 
           // set up share to twitter, no url shortener yet
-          var twitterShareLink = "Enjoying the sounds of " + l.city + " on " + linkToBeShared + " < please donate @twestival";                                          
-          twitterShareLink = "http://twitter.com/home/?source=twestivalfm&status=" + encodeURIComponent(twitterShareLink);
+          var twitterShareLink = "Enjoying the sounds of SoundCloud Meetup Day " + l.city + " on " + linkToBeShared + " #scmeetup";                                          
+          twitterShareLink = "http://twitter.com/home/?source=soundcloudmeetupmap&status=" + encodeURIComponent(twitterShareLink);
           
           var facebookLinkToBeShared = siteURL + "/cities/" + l.id
           // set up share to Facebook
@@ -671,15 +671,15 @@ soundManager.onload = function() {
     });    
     
     // set up share to twitter, no url shortener yet
-    var twitterShareLink = "Loving " + track.title  + " by @" + track.user.twitter_name + " on " + linkToBeShared + " < please donate @twestivalfm";                                          
-    twitterShareLink = "http://twitter.com/home/?source=twestivalfm&status=" + encodeURIComponent(twitterShareLink);
+    var twitterShareLink = "I found " + track.title  + " by " + track.user.username + " on " + linkToBeShared + " #scmeetup";
+    twitterShareLink = "http://twitter.com/home/?source=scmeetupmap&status=" + encodeURIComponent(twitterShareLink);
     $("#player-container .share-on-twitter").attr("href", twitterShareLink);
    
     // set up share to Facebook
     var facebookLinkToBeShared = siteURL + "/tracks/" + track.id
-    var facebookShareLink = "Twestival.fm: " + track.title  + " by " + track.user.username;                                                                          
+    var facebookShareLink = "SoundCloud Global Meetup Day: " + track.title  + " by " + track.user.username;                                                                          
     facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
-    $("#player-container .share-on-facebook").attr("href", facebookShareLink);    
+    $("#player-container .share-on-facebook").attr("href", facebookShareLink);
 
     var metaDataHtml = "<a target='_blank' href='" + track.permalink_url + 
                        "/" + track.permalink + "'>" + track.title + "</a>" + 
