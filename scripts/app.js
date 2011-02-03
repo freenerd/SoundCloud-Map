@@ -328,15 +328,15 @@ soundManager.onload = function() {
           l.firstTrack = tracks[0];
           tracks[0].loc = l; 
   
-          var linkToBeShared = siteURL + "/cities/" + l.id;
+          var linkToBeShared = siteURL + "/#city-" + l.id;
 
           // set up share to twitter, no url shortener yet
-          var twitterShareLink = "Enjoying the sounds of SoundCloud Meetup Day " + l.city + " on " + linkToBeShared + " #scmeetup";                                          
+          var twitterShareLink = "Enjoying the sounds of SoundCloud Meetup " + l.city + " on " + linkToBeShared + " #scmeetup";
           twitterShareLink = "http://twitter.com/home/?source=soundcloudmeetupmap&status=" + encodeURIComponent(twitterShareLink);
-          
-          var facebookLinkToBeShared = siteURL + "/cities/" + l.id
+          var facebookLinkToBeShared = siteURL + "/from-facebook?type=city&id=" + l.id
+
           // set up share to Facebook
-          var facebookShareLink = "I am listening to " + l.city;                                                                          
+          var facebookShareLink = "I am listening SoundCloud Meeetup " + l.city;
           facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);          
           
           if(tracks[0].id < 0) {
@@ -648,7 +648,7 @@ soundManager.onload = function() {
       return false;
     });
 
-    var linkToBeShared = siteURL + "/tracks/" + track.id;
+    var linkToBeShared = siteURL + "/#track-" + track.id;
     
     // set up share link (share box)
     $("#player-container .share-link").attr('href',linkToBeShared); 
@@ -676,8 +676,8 @@ soundManager.onload = function() {
     $("#player-container .share-on-twitter").attr("href", twitterShareLink);
    
     // set up share to Facebook
-    var facebookLinkToBeShared = siteURL + "/tracks/" + track.id
-    var facebookShareLink = "SoundCloud Global Meetup Day: " + track.title  + " by " + track.user.username;                                                                          
+    var facebookLinkToBeShared = siteURL + "/from-facebook?type=track&id=" + track.id
+    var facebookShareLink = "SoundCloud Meetup Day " + track.location.city + ": " + track.title  + " by " + track.user.username;                                                                          
     facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
     $("#player-container .share-on-facebook").attr("href", facebookShareLink);
 
