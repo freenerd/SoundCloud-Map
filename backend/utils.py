@@ -100,7 +100,7 @@ def get_latest_tracks_from_soundcloud(time_from=None, time_to=None):
   time_from = time_from or calculate_time_from()
   time_to = time_to or calculate_time_to()
   query = "/tracks.json?"
-  query += "q=beatbox"
+  query += "q=scmeetup"
   query += "&created_at[from]=" + time_from.isoformat()
   query += "&created_at[to]=" + time_to.isoformat()
   query += "&duration[to]=" + settings.DURATION_LIMIT
