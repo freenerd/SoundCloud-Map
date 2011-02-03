@@ -40,7 +40,8 @@ class MainHandler(webapp.RequestHandler):
     type = self.request.get('type')
     id = self.request.get('id')
     city = None
-    track = None       
+    track = None
+    location = None
     if type and id:
       if type == 'track':
         track = models.Track.all().filter('track_id', int(id)).get()
@@ -56,7 +57,7 @@ class MainHandler(webapp.RequestHandler):
     template_values = {
         'title' : title,
         'city' : city,
-        'track' : track
+        'track' : track,
         'location': location
     }
     
