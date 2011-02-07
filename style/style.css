@@ -78,26 +78,37 @@ a:hover {
 } 
 
 .box #built-by {
-  color: #666;
+  color: #696969;
+}
+
+.box #built-by em {
+  color: #333;
+  font-style: normal;
 }
 
 .box #built-by a {
-  color: #333;
+  color: #ff6600;
 }
 
 .box #built-by a:hover {
-  color: #FF4700;
+  text-decoration: underline;
 }
 
 .box #built-by p {
   margin: 7px 0 0 0;
+  font-size: 13px;
+}
+
+.box h1,
+.box h2 {
+  font-size: 22px;
 }
 
 .box h3 {
   margin: 0 -5px 20px 0px;
   padding: 10px 10px 10px 133px;
   color: #eee;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4em;
   -moz-border-radius: 3px;
   border-radius: 3px;
@@ -113,10 +124,10 @@ a:hover {
 
 .box h3 a {
   color: #fff;
-  background: #FF4700;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  -webkit-border-radius: 3px; 
+  background: #ff6600;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
   padding: 1px 3px;
 }
 
