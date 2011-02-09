@@ -2,7 +2,7 @@ import settings_private
 
 # APPLICATION_URL = "http://www.tracksonamap.com"
 #APPLICATION_URL = "http://twestivaltracksonamap.appspot.com"
-APPLICATION_URL = "http://scmeetupmap.appspot.com"
+APPLICATION_URL = "http://scmeetupmap.com"
 
 # Private Settings
 #OAUTH_CONSUMER_KEY = settings_private.OAUTH_CONSUMER_KEY

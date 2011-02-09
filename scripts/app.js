@@ -50,8 +50,8 @@ soundManager.onload = function() {
   var tracksUrl = "";
   var streamsPlayed = 0;
 
-  var siteURL = "http://scmeetupmap.appspot.com";
-  var imageSiteURL = "http://scmeetupmap.appspot.com/images";
+  var siteURL = "http://scmeetupmap.com";
+  var imageSiteURL = "http://scmeetupmap.com/images";
   var FOOTER_HEIGHT = 35;
   var PLAYER_HEIGHT = 40;
   var HEADER_HEIGHT = 36;
