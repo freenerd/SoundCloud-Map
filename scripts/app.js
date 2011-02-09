@@ -358,7 +358,7 @@ soundManager.onload = function() {
               .find('.city span.city-name').html(l.city).end()
               .find('.title').html(tracks[0].title.substring(0,60)).end()
               .find('.avatar').attr("src",(tracks[0].artwork_url ? tracks[0].artwork_url : tracks[0].user.avatar_url)).end()
-              .find('ul li span.artist').html("<a href='http://www.soundcloud.com/" + tracks[0].user.parmalink + "'>" + tracks[0].user.username + "</a>").end()
+              .find('ul li span.artist').html("<a href='http://www.soundcloud.com/" + tracks[0].user.permalink + "'>" + tracks[0].user.username + "</a>").end()
               .find('ul li span.time').html(fuzzyTime(tracks[0].created_minutes_ago) + " ago").end()
               .find('a.play-button').bind('click',tracks[0],showPlayer).end()
               .find('.city .share-on-twitter').attr("href", twitterShareLink).end()
