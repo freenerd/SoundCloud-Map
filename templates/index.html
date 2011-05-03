@@ -1,173 +1,168 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-	<head>
-		<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key={{ google_maps_api_key }}" type="text/javascript"></script>
-    <script src="/scripts/jquery-1.3.2.js" type="text/javascript"></script>
-    <script src="/scripts/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
-		<script src="/scripts/soundmanager2.js" type="text/javascript"></script>
-		<script src="/scripts/connect-with-soundcloud.js?v={{random}}" type="text/javascript"></script>		
-		<script src="/scripts/app.js?v={{random}}" type="text/javascript"></script>       
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
-		<link rel="stylesheet" href="/style/style.css" type="text/css" media="screen" charset="utf-8">
-		<link rel="stylesheet" href="/style/soundcloud-player.css" type="text/css" media="screen" charset="utf-8">
-		
-		<title>SoundCloud Global Meetup Day</title>
-		
-	</head>
-	
-	<body id="map" onunload="GUnload()">
-	  
-    <div id="about-box" class="box">
+<!doctype html>
+<!--[if lt IE 7 ]> <html class="no-js ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="no-js ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="no-js ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-      <a href="#close" class="close">X</a>
-      <h1>SoundCloud Meetup Map</h1>
-      <h2>Create Locally, Share Globally</h2>
-      <h3>On the <a href="http://soundcloud.com">SoundCloud</a> Meetup Map you can listen in to sounds created from Meetups all across the world!</h3>
+  <title>SoundCloud Global Meetup Day</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
 
-      <div id="built-by">
-        <p><em>Click on a city to take a listen.</em></p>
-        <p>To participate, be sure you’ve entered your city into your profile <a href="http://soundcloud.com/settings">settings</a>, and tag your SoundCloud Meetup upload with <em>“scmeetup”.</em></p>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-        </p>
+  <link rel="stylesheet" href="/style/style.css">
+  <script src="/scripts/libs/modernizr-1.7.min.js"></script>
+
+</head>
+
+<body id="map">
+  <header>
+    <h1><img src="/images/ttl_global_meetup.png" alt="Celebrate The Sounds Of SoundCloud Global Meetups"></h1>
+    <a href="http://www.meetup.com/soundcloud/"><img src="/images/find_meetup.png" alt="Find a meetup near you!"></a>
+  </header>
+
+  <div id="map_canvas"></div>
+
+  <footer>
+    <div id="player-container">
+      <div class="metadata">
+        <div class="metadata-html"></div>
+        <a class="show-on-map" href="#" title="Show on map">Show on map</a>
+        <div class="download-link-div"></div>
+        <a class="favorite-status" href="#" title="">
+          <img src="">
+        </a>
       </div>
 
-    </div>
-      
-    <div class="find-meetup">
-      <h1><img src="images/ttl_global_meetup.png" alt="Celebrate The Sounds Of SoundCloud Global Meetups"></h1>
-      <a href="http://www.meetup.com/soundcloud/"><img src="images/find_meetup.png" alt="Find a meetup near you!"></a>
-    </div>
+      <div class="actions">
+        <span>Share this Track:</span>
+        <a class="share-on-twitter" target="_blank" href="#" title="Share this Track on Twitter">Share on Twitter</a>
+        <a class="share-on-facebook" target="_blank" href="#" title="Share this Track on Facebook">Share on Facebook</a>
+        <a class="share-link" href="#" title="Share the Link to this Track">Share link</a>
+      </div>
 
-		<div id="map_canvas" style="width:100%"></div>
-
-    <div class="footer">
-  		<div id="player-container" style="display:none">
-  		  <div class="metadata">
-      		<div class="metadata-html">
-      		</div>
-          <a class="show-on-map" href="#" title="Show on map">Show on map</a>
-          <div class="download-link-div"></div>
-          <a class="favorite-status" href="#" title=""><img src=""></a>
-  		  </div>
-
-  		  <div class="actions">
-  		    <span>Share this Track:</span>
-  				<a class="share-on-twitter" target="_blank" href="#" title="Share this Track on Twitter">Share on Twitter</a> 
-  				<a class="share-on-facebook" target="_blank" href="#" title="Share this Track on Facebook">Share on Facebook</a> 
-  				<a class="share-link" href="#" title="Share the Link to this Track">Share link</a>
+      <div id="player">
+        <div class="pause">
+          ||
         </div>
-
-  			<div id="player">
-  			  <div class="pause">
-  			    ||
-  			  </div>
-  			  <div class="time">
-  			    <span class="position"></span> / <span class="duration"></span>
-  			  </div>
-  			  <div class="waveform">
-  			    <div class="loading"></div>
-  			    <div class="progress"></div>
-  			    <div class="spinner"></div>
-  			    <img src="" alt="avatar">
-  			    <div class="cover"></div>
-  			  </div>			  
-  			  <div class="next">
-  			    >>
-  			  </div>
-  			</div>
-  		</div>
-  		
-  		<div class="by-soundcloud">
-  		  <span>Visit the official <a href="http://soundcloud.com/pages/meetups">SoundCloud Meetups Page</a> for more information.</span>
-  		  <a href="http://soundcloud.com"><img src="images/soundcloud.png" alt="Powered by SoundCloud"></a>
-  		</div>
-
-      {# <div class="options"> #}
-        {# <div class="genres"> #}
-        {#        Genres: #}
-        {#        <a data="" class="active" href="#">All</a> |  #}
-        {#        <a data="house" href="#">House</a> | #}
-        {#        <a data="techno" href="#">Techno</a> |  #}
-        {#        <a data="dubstep" href="#">Dubstep</a> | #}
-        {#        <a data="hiphop" href="#">Hip Hop</a> | #}
-        {#        <a data="electronic" href="#">Electronic</a> | #}
-        {#        <a data="drumandbass" href="#">Drum &amp; Bass</a> | #}
-        {#        <a data="trance" href="#">Trance</a> | #}
-        {#        <a data="rock" href="#">Rock</a> | #}
-        {#        <a data="pop" href="#">Pop</a> | #}
-        {#        <a data="ambient" href="#">Ambient</a> | #}
-        {#        <a data="indie" href="#">Indie</a> | #}
-        {#        <a data="jazz" href="#">Jazz</a> | #}
-        {#        <a data="classical" href="#">Classical</a> #}
-        {#      </div> #}
-        {# <div class="jump-to"> #}
-        {#   <span class="toam"><a href="#" id="about">Tracks on a Map</a></span> #}
-        {# {#   <span class="cwsc" id="cwsc-button"><a href="#" id="connect-with-sc"><img src="images/ajax-loader.gif"></a></span> #}
-        {# {#   <span class="cwsc"><a href="#" id="connect-with-sc-followers">followers</a></span>          #}
-        {# {#   <span class="cwsc"><a href="#" id="connect-with-sc-followings">following</a></span>           #}
-        {# {#   <span class="cwsc"><a href="#" id="connect-with-sc-favorites">favorites</a></span>                    #}
-        {#   <a class="powered-by" href="http://soundcloud.com">Powered by</a> #}
-        {# </div> #}
-    {#      </div> #}
-    {# </div> #}
-
-		<!-- TEMPLATE FOR BUBBLE -->
-    <div class="bubble" id="bubble-template">
-      <div class="city"><span class="city-track-counter">1</span> tracks from <span class="city-name">Berlin</span> 
-      <span class="actions">
-				<a class="share-on-twitter" target="_blank" href="#" title="Share this City on Twitter">Share on Twitter</a> 
-  			<a class="share-on-facebook" target="_blank" href="#" title="Share this City on Facebook">Share on Facebook</a> 
-  			<a class="share-link" target="_blank" href="#" title="Share the Link to this City">Share as Link</a>
-  		</span>
-			</div>
-      <ul class="track-list">
-        <li class="previous">View previous</li>
-        <li class="current">
-          <span class="artwork">
-            <img class="avatar" src="images/empty.png" alt="avatar">
-          </span>
-          <div class="current-meta">
-            <h3 class="title"></h3>
-            Uploaded by <span class="artist"></span> <span class="time"></span>
-          </div>
-          <a class="play-button smaller" href="#" title="Click to play">Click to play</a>
-
-        </li>
-        <li class="next">View next</li>
-      </ul>
-      <ul class="tracks-list">
-        <li class="previous">previous</li>
-        <li class="next">next</li>
-      </ul>
-    </div>
-		<!-- END TEMPLATE FOR BUBBLE -->
-		
-		<!-- TEMPLATE FOR SHARING -->
-    <div id="share-box">
-      <div class="share-box">
-        <a href="#close" class="close">X</a>
-        <h1>Share This <span class="typ">Track</span></h1>
-        <p>Send this link to anyone who you want to share this <span class="typ">track</span> with:</p>
-        <input type="text" value="foobar" readonly="readonly">
+        <div class="time">
+          <span class="position"></span> / <span class="duration"></span>
+        </div>
+        <div class="waveform">
+          <div class="loading"></div>
+          <div class="progress"></div>
+          <div class="spinner"></div>
+          <img src="" alt="avatar">
+          <div class="cover"></div>
+        </div>
+        <div class="next">
+          >>
+        </div>
       </div>
     </div>
-		<!-- END TEMPLATE FOR SHARING -->
-		
-		<!-- GOOGLE ANALYTICS -->
-		{%if not in_development_enviroment %}
-			<script type="text/javascript">
-			var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-			document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-			</script>
-			<script type="text/javascript">
-			try {
-			var pageTracker = _gat._getTracker("UA-9785773-1");
-			pageTracker._trackPageview();
-			} catch(err) {}</script>
-    {% endif %}		
-		<!-- END GOOGLE ANALYTICS -->
-		
-		</body>		
+
+    <div class="by-soundcloud">
+      <span>Visit the official <a href="http://soundcloud.com/pages/meetups">SoundCloud Meetups Page</a> for more information.</span>
+      <a href="http://soundcloud.com">
+        <img src="/images/soundcloud.png" alt="Powered by SoundCloud">
+      </a>
+    </div>
+
+    <div class="options">
+      <div class="jump-to">
+        <span class="toam"><a href="#" id="about">Tracks on a Map</a></span>
+        <span class="cwsc" id="cwsc-button"></span>
+        <span class="cwsc"><a href="#" id="connect-with-sc-followers">followers</a></span>
+        <span class="cwsc"><a href="#" id="connect-with-sc-followings">following</a></span>
+        <span class="cwsc"><a href="#" id="connect-with-sc-favorites">favorites</a></span>
+        <a class="powered-by" href="http://soundcloud.com">Powered by</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="about-box" class="box">
+    <a href="#close" class="close">X</a>
+    <h1>SoundCloud Meetup Map</h1>
+    <h2>Create Locally, Share Globally</h2>
+    <h3>On the <a href="http://soundcloud.com">SoundCloud</a> Meetup Map you can listen in to sounds created from Meetups all across the world!</h3>
+
+    <div id="built-by">
+      <p><em>Click on a city to take a listen.</em></p>
+      <p>To participate, be sure you’ve entered your city into your profile <a href="http://soundcloud.com/settings">settings</a>, and tag your SoundCloud Meetup upload with <em>“scmeetup”.</em></p>
+    </div>
+  </div>
+
+  <!-- TEMPLATE FOR BUBBLE -->
+  <div class="bubble" id="bubble-template">
+    <div class="city"><span class="city-track-counter">{ location_tracks }</span> from <span class="city-name">{ location_name }</span>
+      <span class="actions">
+        <a class="share-on-twitter" target="_blank" href="http://twitter.com/home?source=soundcloudmeetupmap&status={ location_twitter_share }" title="Share this City on Twitter">Share on Twitter</a>
+        <a class="share-on-facebook" target="_blank" href="http://www.facebook.com/share.php?u={ location_twitter_share }" title="Share this City on Facebook">Share on Facebook</a>
+        <a class="share-link" target="_blank" href="{ location_link }" title="Share the Link to this City">Share as Link</a>
+      </span>
+    </div>
+    <ul> 
+      <li class="previous">View previous</li>
+      <li class="current">
+        <span class="artwork">{ track_avatar }</span>
+        <div class="current-meta">
+          <h3 class="title">{ track_title }</h3>
+          Uploaded by <span class="artist">{ track_artist }</span> <span class="time">{ track_time }</span>
+        </div>
+        <a class="play-button smaller" href="#" title="Click to play">Click to play</a>
+      </li>
+      <li class="next">View next</li>
+    </ul>
+    <ul class="tracks-list">
+      { track_list }
+    </ul>
+  </div>
+  <!-- END TEMPLATE FOR BUBBLE -->
+
+  <!-- TEMPLATE FOR SHARING -->
+  <div id="share-box">
+    <div class="share-box">
+      <a href="#close" class="close">X</a>
+      <h1>Share This <span class="typ">Track</span></h1>
+      <p>Send this link to anyone who you want to share this <span class="typ">track</span> with:</p>
+      <input type="text" value="foobar" readonly="readonly">
+    </div>
+  </div>
+  <!-- END TEMPLATE FOR SHARING -->
+
+
+
+
+  <!-- scripts concatenated and minified via ant build script-->
+  <!-- <script src="https://maps.google.com/maps/api/js?sensor=true&key=ABQIAAAAi1DUSm2UHf3v3sWBxmGb7xQsbG-uc2xzwE37aIHsRvdyiIesVRSNo-8fc-38ft0DQT-eai5Pz4yHMQ"></script> -->
+  <script src="http://maps.google.com/maps/api/js?v=3.3&sensor=true"></script>
+  <script src="/scripts/libs/jquery-1.5.2.min.js"></script>
+  <script src="/scripts/libs/underscore.js"></script>
+  <script src="/scripts/libs/facebox/facebox.js"></script>
+  <script src="/scripts/libs/persist-min.js"></script>
+  <script src="/scripts/plugins.js"></script>
+  <script src="/scripts/script.js"></script>
+  <!-- end scripts-->
+
+
+  <!--[if lt IE 7 ]>
+    <script src="js/libs/dd_belatedpng.js"></script>
+    <script>DD_belatedPNG.fix("img, .png_bg");</script>
+  <![endif]-->
+
+
+
+  <!-- <script>
+    var _gaq=[["_setAccount","UA-XXXXX-X"],["_trackPageview"]]; // Change UA-XXXXX-X to be your site's ID
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+    g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+    s.parentNode.insertBefore(g,s)}(document,"script"));
+  </script> -->
+
+</body>
 </html>
-		

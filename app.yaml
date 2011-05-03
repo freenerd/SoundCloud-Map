@@ -8,11 +8,11 @@ builtins:
 
 handlers:
 - url: /scripts
-  static_dir: scripts  
+  static_dir: scripts
 
 - url: /style
-  static_dir: style  
-         
+  static_dir: style
+
 - url: /backend-update/track
   script: backend/update_track.py
   login: admin
@@ -35,11 +35,11 @@ handlers:
 
 - url: /backend/put-my-track-on-a-map/work.*
   script: backend/putmytrackonamap/work_task.py
-  login: admin  
+  login: admin
 
 - url: /backend/put-my-track-on-a-map/make-tweet.*
   script: backend/putmytrackonamap/make_tweet.py
-  login: admin  
+  login: admin
 
 - url: /backend/put-my-track-on-a-map/.*
   script: backend/putmytrackonamap/add_task.py
@@ -57,14 +57,14 @@ handlers:
 - url: /backend/soundcloud-connect/follower/
   script: backend/soundcloudconnect/person.py
   login: admin
-  
+
 - url: /backend/soundcloud-connect/followings/
   script: backend/soundcloudconnect/network.py
   login: admin
 
 - url: /backend/soundcloud-connect/following/
   script: backend/soundcloudconnect/person.py
-  login: admin  
+  login: admin
 
 - url: /backend/soundcloud-connect/favorites/
   script: backend/soundcloudconnect/favorites.py
@@ -72,11 +72,11 @@ handlers:
 
 - url: /backend/soundcloud-connect/favorite/
   script: backend/soundcloudconnect/favorite.py
-  login: admin    
+  login: admin
 
 - url: /api/soundcloud-connect/change-favorite/.*
   script: api/soundcloudconnect/change_favorite.py
-  login: admin  
+  login: admin
 
 - url: /soundcloud-connect.*
   script: soundcloudconnect/main.py
@@ -85,7 +85,7 @@ handlers:
   script: facebook_meta_info.py
 
 - url: /api/.*
-  script: api/main.py 
+  script: api/main.py
 
 - url: /images
   static_dir: images
@@ -101,5 +101,8 @@ handlers:
   static_files: robots.txt
   upload: robots.txt
 
-- url: .*
+- url: /locations/.*
+  script: main.py
+
+- url: /.*
   script: main.py
