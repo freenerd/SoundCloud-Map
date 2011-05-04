@@ -373,17 +373,19 @@ a:hover {
 
 .bubble ul.tracks-list {
   padding-top: 10px;
-  margin-left: -2px;
-  height: 38px;
-  overflow: hidden;
+/*  max-height: 72px;*/
+  height: 26px;
+  width: 350px;
+  overflow: auto;
 }
 
 .bubble ul.tracks-list li.mini-artwork {
   cursor: pointer;
+  float: left;
   display: block;
   width: 32px;
   height: 32px;
-  margin-right: 0px;
+  margin-right: 1px;
   text-indent: -9999px;
   outline: 0;
   background: #ff99c2;
@@ -393,6 +395,7 @@ a:hover {
 .bubble ul.tracks-list li.mini-artwork.active {
   border: 2px solid #FF4700;
 }
+
 
 .bubble h5 {
   margin:5px 0;
