@@ -56,7 +56,6 @@
         <div class="waveform">
           <div class="loading"></div>
           <div class="progress"></div>
-          <div class="spinner"></div>
           <img src="" alt="avatar">
           <div class="cover"></div>
         </div>
@@ -73,7 +72,7 @@
       </a>
     </div>
 
-    <div class="options">
+    <!-- <div class="options">
       <div class="jump-to">
         <span class="toam"><a href="#" id="about">Tracks on a Map</a></span>
         <span class="cwsc" id="cwsc-button"></span>
@@ -82,7 +81,7 @@
         <span class="cwsc"><a href="#" id="connect-with-sc-favorites">favorites</a></span>
         <a class="powered-by" href="http://soundcloud.com">Powered by</a>
       </div>
-    </div>
+    </div> -->
   </footer>
 
   <div id="about-box" class="box">
@@ -101,12 +100,12 @@
   <div class="bubble" id="bubble-template">
     <div class="city"><span class="city-track-counter">{ location_tracks }</span> from <span class="city-name">{ location_name }</span>
       <span class="actions">
-        <a class="share-on-twitter" target="_blank" href="http://twitter.com/home?source=soundcloudmeetupmap&status={ location_twitter_share }" title="Share this City on Twitter">Share on Twitter</a>
-        <a class="share-on-facebook" target="_blank" href="http://www.facebook.com/share.php?u={ location_twitter_share }" title="Share this City on Facebook">Share on Facebook</a>
+        <a class="share-on-twitter" target="_blank" href="{ location_twitter_share }" title="Share this location on Twitter">Share on Twitter</a>
+        <a class="share-on-facebook" target="_blank" href="{ location_facebook_share }" title="Share this location on Facebook">Share on Facebook</a>
         <a class="share-link" target="_blank" href="{ location_link }" title="Share the Link to this City">Share as Link</a>
       </span>
     </div>
-    <ul> 
+    <ul>
       <li class="previous">View previous</li>
       <li class="current">
         <span class="artwork">{ track_avatar }</span>
@@ -140,12 +139,11 @@
 
   <!-- scripts concatenated and minified via ant build script-->
   <!-- <script src="https://maps.google.com/maps/api/js?sensor=true&key=ABQIAAAAi1DUSm2UHf3v3sWBxmGb7xQsbG-uc2xzwE37aIHsRvdyiIesVRSNo-8fc-38ft0DQT-eai5Pz4yHMQ"></script> -->
-  <script src="http://maps.google.com/maps/api/js?v=3.3&sensor=true"></script>
-  <script src="/scripts/libs/jquery-1.5.2.min.js"></script>
-  <script src="/scripts/libs/underscore.js"></script>
-  <script src="/scripts/libs/facebox/facebox.js"></script>
-  <script src="/scripts/libs/persist-min.js"></script>
-  <script src="/scripts/plugins.js"></script>
+  <script src="http://maps.google.com/maps/api/js?libraries=geometry&v=3.3&sensor=true"></script>
+  <script src="/scripts/jquery-1.5.2.min.js"></script>
+  <script src="/scripts/soundmanager2.js"></script>
+  <script src="/scripts/underscore.js"></script>
+  <script src="/scripts/persist-min.js"></script>
   <script src="/scripts/script.js"></script>
   <!-- end scripts-->
 
