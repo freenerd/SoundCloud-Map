@@ -405,7 +405,11 @@ soundManager.onready(function(){
       user_name: track.user.username
     }));
     $('.bubble .time').html(fuzzyTime(track.created_at));
-    $('.bubble #mini' + track.id).addClass('active').scrollintoview();
+    var mini = $('.bubble #mini' + track.id);
+    var container = $('.bubble .tracks-list');
+    mini.addClass('active').parent().stop().animate({
+      "scrollTop": 44 * ( mini.index() / 9 | 0 )
+    }, 'fast');
   });
 
   $(window).resize(function() {

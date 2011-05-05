@@ -1,5 +1,5 @@
 application: scmeetupmap
-version: live
+version: tomas
 runtime: python
 api_version: 1
 

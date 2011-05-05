@@ -373,11 +373,11 @@ a:hover {
 }
 
 .bubble ul.tracks-list {
-  padding-top: 10px;
+  padding: 10px 0 10px 0;
 /*  max-height: 72px;*/
   height: 26px;
   width: 350px;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .bubble ul.tracks-list li.mini-artwork {
