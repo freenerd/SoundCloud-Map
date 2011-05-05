@@ -25,6 +25,7 @@ soundManager.onready(function(){
     mapTypeId: google.maps.MapTypeId.TERRAIN,
     zoom: 3,
     center: new google.maps.LatLng(62, -30),
+    minZoom: 3,
     maxZoom: 7,
     disableDefaultUI: true,
     scrollwheel: false,
@@ -98,11 +99,11 @@ soundManager.onready(function(){
 
   locations.twitterShareURL = function(location, track) {
     if (!!location)
-      return _.template("http://twitter.com/?source=soundcloudmeetupmap&status={status}", {
-        status: _.template('Enjoying the sounds of SoundCloud Meetup {city} on {share_url} #scmeetup', {
-          city: encodeURIComponent(location.city || location.country),
-          share_url: encodeURIComponent(locations.shareURL(location, track))
-        })
+      return _.template("http://twitter.com/home?source=soundcloudmeetupmap&status={status}", {
+        status: encodeURIComponent(_.template('Enjoying the sounds of SoundCloud Meetup {city} on {share_url} #scmeetup', {
+          city: location.city || location.country,
+          share_url: locations.shareURL(location, track)
+        }))
       })
   };
 
@@ -110,10 +111,10 @@ soundManager.onready(function(){
     if (!!location)
       return _.template("http://www.facebook.com/share.php?u={link}&t={status}", {
         link: encodeURIComponent(siteURL + "/from-facebook?type=city&id=" + location.id),
-        status: _.template('Enjoying the sounds of SoundCloud Meetup {city} on {share_url} #scmeetup', {
-          city: encodeURIComponent(location.city || location.country),
-          share_url: encodeURIComponent(locations.shareURL(location, track))
-        })
+        status: encodeURIComponent(_.template('Enjoying the sounds of SoundCloud Meetup {city} on {share_url} #scmeetup', {
+          city: location.city || location.country,
+          share_url: locations.shareURL(location, track)
+        }))
       })
   };
 
@@ -203,13 +204,6 @@ soundManager.onready(function(){
             $('.mini-artwork').live('click', function(e) {
               e.preventDefault();
               player.load(player.data.location, $(this).attr('id').replace('mini', ''))
-            });
-
-            $('.play-button').live('click', player.play);
-
-            $('.share-link').live('click', function(e) {
-              e.preventDefault();
-              $(this).hide().before(_.template('<input type="text" value="{share_link}" readonly>', { share_link: locations.shareURL(location) }));
             });
 
             $('.avatar').live('click', function(e) {
@@ -436,13 +430,6 @@ soundManager.onready(function(){
       $("#about-box").fadeOut();
     });
   });
-
-  // google.maps.event.addListener(map, 'zoom_changed', function() {
-  //   console.log(map.getCenter())
-  //   _(locations.all).each(function(location) {
-  //     circles[location.id].setRadius(locations.calcRadius(location));
-  //   });
-  // })
 
   google.maps.event.addListenerOnce(map, 'idle', function() {
 
