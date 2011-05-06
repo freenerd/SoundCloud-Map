@@ -333,15 +333,15 @@ soundManager.onready(function(){
   player.previous = function() {
     if (!player.data) return;
     var ids = _(player.data.location.tracks).keys();
-    var track_id = ids[ ids.indexOf(player.data.current) - 1 ] || ids[ ids.length - 1 ];
-    player.load(player.data.location, track_id);
+    var track_id = ids[ ids.indexOf(player.data.current) - 1 ];
+    !!track_id && player.load(player.data.location, track_id);
   };
 
   player.next = function() {
     if (!player.data) return;
     var ids = _(player.data.location.tracks).keys();
-    var track_id = ids[ ids.indexOf(player.data.current) + 1 ] || ids[0];
-    player.load(player.data.location, track_id);
+    var track_id = ids[ ids.indexOf(player.data.current) + 1 ];
+    !!track_id && player.load(player.data.location, track_id);
   };
 
   if (!!circles[currentLocationId] && circles[currentLocationId].center)
