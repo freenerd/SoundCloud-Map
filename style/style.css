@@ -243,7 +243,7 @@ a:hover {
 .bubble {
   clear: both;
   width: 350px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .bubble .artwork {
@@ -373,9 +373,7 @@ a:hover {
 }
 
 .bubble ul.tracks-list {
-  padding: 10px 0 10px 0;
-/*  max-height: 72px;*/
-  height: 26px;
+  height: 34px;
   width: 350px;
   overflow: hidden;
 }
@@ -386,20 +384,33 @@ a:hover {
   display: block;
   width: 32px;
   height: 32px;
-  margin-right: 1px;
   text-indent: -9999px;
   outline: 0;
   background: #ff99c2;
-  border: 2px solid #fff;
+  border: 1px solid #fff;
+}
+
+html.csstransitions .bubble ul.tracks-list li.mini-artwork {
+  opacity: 0.4;
 }
 
 .bubble ul.tracks-list li.mini-artwork.active {
-  border: 2px solid #FF4700;
+  border: 1px solid #FF4700;
+}
+
+html.csstransitions .bubble ul.tracks-list li.mini-artwork.active {
+  border: 1px solid #fff;
+  opacity: 1;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  -moz-transition: opacity 0.3s ease-in-out;
+  -o-transition: opacity 0.3s ease-in-out;
+  -ms-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
 
 
 .bubble h5 {
-  margin:5px 0;
+/*  margin:5px 0;*/
   padding:0;
   font-size:13px;
   font-weight:normal;

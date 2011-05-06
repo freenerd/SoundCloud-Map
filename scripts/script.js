@@ -157,28 +157,13 @@ soundManager.onready(function(){
             document.location.hash = '#location:' + String(location.id);
 
           var track = location.tracks[ _(location.tracks).keys()[0] ];
-          var bubble_html = _.template($('#bubble-template').clone().html(), {
-            location_name: location.city,
-            location_tracks: location.track_counter + ' track' + (location.track_counter == 1 ? '' : 's'),
-            location_link: locations.shareURL(location, track),
-            location_twitter_share: locations.twitterShareURL(location, track),
-            location_facebook_share: locations.facebookShareURL(location, track),
-            track_title: track.title.substring(0, 60),
-            track_avatar: _.template('<img class="avatar" src="{avatar_src}" alt="avatar">', {
-              avatar_src: avatar.for_track(track, 'large')
-            }),
-            track_artist: _.template('<a href="{user_permalink}" target="_blank">{user_name}</a>', {
-              user_permalink: track.user.permalink_url,
-              user_name: track.user.username
-            }),
-            track_time: fuzzyTime(track.created_at),
-            track_list: _(location.tracks).map(function(track) {
-              return _.template('<li id="mini{mini_track_id}" class="mini-artwork" style="background-image: url({artwork_src});"></li>', {
-                mini_track_id: track.id,
-                artwork_src: avatar.for_track(track, 'small')
-              });
-            }).join('')
-          });
+          var bubble_html = $('#bubble-template').clone();
+          bubble_html.find('.city-track-counter').html(location.track_counter + ' track' + (location.track_counter == 1 ? '' : 's')).end()
+                     .find('.city-name').html(location.city).end()
+                     .find('.share-on-twitter').html(locations.twitterShareURL(location, track)).end()
+                     .find('.share-on-facebook').html(locations.facebookShareURL(location, track)).end()
+
+          $(document).trigger('updateBubble', track);
 
           if (!!bubble) {
             bubble.close();
@@ -186,7 +171,7 @@ soundManager.onready(function(){
           }
           bubble = new google.maps.InfoWindow({
             position: circles[location.id].center,
-            content: '<div class="bubble">' + bubble_html + '</div>'
+            content: '<div class="bubble active">' + bubble_html.html() + '</div>'
           });
 
           google.maps.event.addListener(bubble, 'domready', function() {
@@ -210,7 +195,7 @@ soundManager.onready(function(){
               var image = new Image();
               var old_content = $('.bubble').html();
               var reverse = function() {
-                bubble.setContent('<div class="bubble">' + old_content + '</div>');
+                bubble.setContent('<div class="bubble active">' + old_content + '</div>');
                 bubble.open(map);
               };
               image.onclick = reverse;
@@ -232,7 +217,7 @@ soundManager.onready(function(){
         if (location.id == currentLocationId)
           setTimeout(function() {
             google.maps.event.trigger(circles[location.id], 'click');
-          }, 1000);
+          }, 500);
 
       });
     });
@@ -302,32 +287,11 @@ soundManager.onready(function(){
         current: current
       };
 
-
     window.soundManager.stopAll();
 
-    // set up share to twitter, no url shortener yet
-    // var twitterShareLink = "I found " + track.title  + " by " + track.user.username + " on " + linkToBeShared + " #scmeetup";
-    // twitterShareLink = "http://twitter.com/home/?source=scmeetupmap&status=" + encodeURIComponent(twitterShareLink);
-    player.nodes.container.find('.share-on-twitter').attr('href', locations.twitterShareURL(location));
-
-    // set up share to Facebook
-    // var facebookLinkToBeShared = siteURL + "/from-facebook?type=track&id=" + track.id
-    // var facebookShareLink = "SoundCloud Meetup Day " + track.location.city + ": " + track.title  + " by " + track.user.username;
-    // facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
-    player.nodes.container.find('.share-on-facebook').attr('href', locations.facebookShareURL(location));
-
-    var tmpl = '<a target="_blank" href="{track_permalink_url}">{track_title}</a> uploaded by ' +
-               '<a target="_blank" href="{user_permalink_url}">{user_name}</a>';
     var track = player.data.location.tracks[ player.data.current ];
-
-    player.nodes.container.find('.metadata .metadata-html').html(_.template(tmpl, {
-      track_permalink_url: track.permalink_url,
-      track_title: track.title,
-      user_permalink_url: track.user.permalink_url,
-      user_name: track.user.username
-    }));
-
-    player.nodes.waveform.find('img').attr('src', track.waveform_url);
+    $(document).trigger('updateBubble', track);
+    $(document).trigger('updatePlayer', track);
 
     player.sound = soundManager.createSound({
       id: track.id,
@@ -388,28 +352,85 @@ soundManager.onready(function(){
     var map = new google.maps.Map($('#map_canvas')[0], mapOptions);
 
   $(document).bind('forceResize', function(e) {
-    $("#map_canvas").animate({
-      height: $(window).height() - (player.nodes.container.is(':visible') ? player.nodes.container.height() : 0)
-    }, 400, function() {
-      google.maps.event.trigger(map, 'resize');
-    });
+    $("#map_canvas").height($(window).height() - (player.nodes.container.is(':visible') ? player.nodes.container.height() : 0))
+    google.maps.event.trigger(map, 'resize');
   });
 
   $(document).bind('updateBubble', function(e) {
     var track = _(arguments).last();
-    $('.bubble .avatar').attr('src', avatar.for_track(track, 'large'));
-    $('.bubble .mini-artwork').removeClass('active');
-    $('.bubble h3.title').html(track.title);
-    $('.bubble .artist').html(_.template('<a href="{user_permalink}" target="_blank">{user_name}</a>', {
-      user_permalink: track.user.permalink_url,
+    var bubble_html = $('.bubble.active');
+    bubble_html.find('.artwork').html(_.template('<img class="avatar" src="{avatar_src}" alt="avatar">', {
+      avatar_src: avatar.for_track(track, 'large')
+    })).end()
+               .find('.title').html(_.template('<a href="{track_permalink}" target="_blank">{track_title}</a>', {
+                  track_permalink: track.permalink_url,
+                  track_title: track.title.substring(0, 60)
+                })).end()
+               .find('.artist').html(_.template('<a href="{user_permalink}" target="_blank">{user_name}</a>', {
+                  user_permalink: track.user.permalink_url,
+                  user_name: track.user.username
+               })).end()
+               .find('.time').html(fuzzyTime(track.created_at)).end();
+    var mini_container = bubble_html.find('.tracks-list');
+
+    if (mini_container.find('.mini-artwork').length == 0) {
+      mini_container.append(_.map(_(locations.find(track.location.id).tracks).values().slice(0, 20), function(minitrack) {
+        return _.template('<li id="mini{mini_track_id}" class="mini-artwork" style="background-image: url({artwork_src});"></li>', {
+          mini_track_id: minitrack.id,
+          artwork_src: avatar.for_track(minitrack, 'small')
+        });
+      }).join(''))
+      var current_index = mini_container.find('#mini' + track.id).addClass('active').index() / 10 | 0;
+    }
+    else {
+      var last_index = mini_container.find('.mini-artwork.active').removeClass('active').index() / 10 | 0;
+      var current = bubble_html.find('#mini' + track.id).addClass('active');
+      var current_index = current.index() / 10 | 0;
+      if (current_index > last_index) {
+        var location = locations.find(track.location.id);
+        var track_ids = _(location.tracks).keys();
+        var from = track_ids.indexOf(mini_container.find('.mini-artwork:last').attr('id').replace('mini', ''));
+        var to = from + (!!track_ids[ from + 20 ] ? 20 : (track_ids.length - 1 - from));
+        var next_20_tracks = _(location.tracks).values().slice(from, to);
+        mini_container.append(_(next_20_tracks).map(function(minitrack) {
+          return _.template('<li id="mini{mini_track_id}" class="mini-artwork" style="background-image: url({artwork_src});"></li>', {
+            mini_track_id: minitrack.id,
+            artwork_src: avatar.for_track(minitrack, 'small')
+          });
+        }).join(''));
+      }
+    }
+    mini_container.stop().animate({
+      "scrollTop": 36 * current_index
+    }, 300);
+  });
+
+  $(document).bind('updatePlayer', function(e) {
+    var track = _(arguments).last();
+    // set up share to twitter, no url shortener yet
+    // var twitterShareLink = "I found " + track.title  + " by " + track.user.username + " on " + linkToBeShared + " #scmeetup";
+    // twitterShareLink = "http://twitter.com/home/?source=scmeetupmap&status=" + encodeURIComponent(twitterShareLink);
+    player.nodes.container.find('.share-on-twitter').attr('href', locations.twitterShareURL(location));
+
+    // set up share to Facebook
+    // var facebookLinkToBeShared = siteURL + "/from-facebook?type=track&id=" + track.id
+    // var facebookShareLink = "SoundCloud Meetup Day " + track.location.city + ": " + track.title  + " by " + track.user.username;
+    // facebookShareLink = "http://www.facebook.com/share.php?u=" + encodeURIComponent(facebookLinkToBeShared) + "&t=" + encodeURIComponent(facebookShareLink);
+    player.nodes.container.find('.share-on-facebook').attr('href', locations.facebookShareURL(location));
+
+    var tmpl = '<a target="_blank" href="{track_permalink_url}">{track_title}</a> uploaded by ' +
+               '<a target="_blank" href="{user_permalink_url}">{user_name}</a>';
+
+    player.nodes.container.find('.metadata .metadata-html').html(_.template(tmpl, {
+      track_permalink_url: track.permalink_url,
+      track_title: track.title,
+      user_permalink_url: track.user.permalink_url,
       user_name: track.user.username
     }));
-    $('.bubble .time').html(fuzzyTime(track.created_at));
-    var mini = $('.bubble #mini' + track.id);
-    var container = $('.bubble .tracks-list');
-    mini.addClass('active').parent().stop().animate({
-      "scrollTop": 44 * ( mini.index() / 9 | 0 )
-    }, 'fast');
+
+    player.nodes.waveform.find('img').animate({ opacity: 0 }, 150, function() {
+      $(this).attr('src', track.waveform_url).animate({ opacity: 1 }, 150);
+    })
   });
 
   $(window).resize(function() {
@@ -439,6 +460,8 @@ soundManager.onready(function(){
 
     $(document).trigger('forceResize');
     player.init();
+    $("#about-box").fadeIn();
+
 
     $(window).keyup(function(e) {
       var actions = {
@@ -482,11 +505,7 @@ soundManager.onready(function(){
             }
           }, function(err) {});
         }
-        else
-          $("#about-box").fadeIn();
       }
-      else
-        $("#about-box").fadeIn();
     })
   });
 
