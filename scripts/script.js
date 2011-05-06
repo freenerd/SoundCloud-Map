@@ -367,7 +367,7 @@ soundManager.onready(function(){
     })).end()
                .find('.title').html(_.template('<a href="{track_permalink}" target="_blank">{track_title}</a>', {
                   track_permalink: track.permalink_url,
-                  track_title: track.title.substring(0, 60)
+                  track_title: track.title
                 })).end()
                .find('.artist').html(_.template('<a href="{user_permalink}" target="_blank">{user_name}</a>', {
                   user_permalink: track.user.permalink_url,
