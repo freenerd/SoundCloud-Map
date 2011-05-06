@@ -4,6 +4,9 @@ soundManager.useConsole = false;
 soundManager.consoleOnly = false;
 soundManager.debugMode = false;
 soundManager.defaultOptions.multiShot = false;
+soundManager.allowPolling = true;
+soundManager.useFastPolling = true;
+soundManager.useHighPerformance = true;
 soundManager.url = "/scripts/soundmanager2_flash9.swf";
 
 soundManager.onready(function(){
