@@ -11,18 +11,22 @@ soundManager.url = "/scripts/soundmanager2_flash9.swf";
 
 soundManager.onready(function(){
 
-  if (/\/locations\/([\w-]+)/.test(document.location.pathname)) {
-   var components =  _(document.location.pathname.split('/')).last().split('-');
-  }
-  else if (/#locations:([\w-]+)/.test(document.location.hash)) {
-    var components =  _(document.location.hash.split(':')).last().split('-');
-  }
+  var setLocationAndTrackFromURL = function() {
+    if (/\/locations\/([\w-]+)/.test(document.location.pathname)) {
+     var components =  _(document.location.pathname.split('/')).last().split('-');
+    }
+    else if (/#locations:([\w-]+)/.test(document.location.hash)) {
+      var components =  _(document.location.hash.split(':')).last().split('-');
+    }
 
-  if (!!components) {
-    var currentLocationId = _(components).first();
-    var currentTrackId = components.length > 1 ? components[1] : undefined;
-  }
+    if (!!components) {
+      currentLocationId = _(components).first();
+      currentTrackId = components.length > 1 ? components[1] : undefined;
+    }
+    return [ currentLocationId, currentTrackId ];
+  };
 
+  var currentLocationId, currentTrackId;
 
   var mapOptions = {
     mapTypeId: google.maps.MapTypeId.TERRAIN,
@@ -460,12 +464,18 @@ soundManager.onready(function(){
   });
 
   google.maps.event.addListenerOnce(map, 'idle', function() {
-
+    setLocationAndTrackFromURL();
     $(document).trigger('forceResize');
     player.init();
     $("#about-box").fadeIn();
 
 
+    $(window).bind('popstate hashchange', function(e) {
+      e.preventDefault();
+      var ids = setLocationAndTrackFromURL();
+      var circle = circles[ ids[0] ];
+      !!circle && google.maps.event.trigger(circle, 'click');
+    })
     $(window).keyup(function(e) {
       var actions = {
         82: function() { // R: Random location!

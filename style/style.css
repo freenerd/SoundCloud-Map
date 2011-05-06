@@ -252,7 +252,7 @@ a:hover {
   height: 100px;
   float: left;
   margin-right: 10px;
-  background: #FF4700;
+  background: #fff;
 }
 
 .bubble .artwork img {
@@ -386,7 +386,7 @@ a:hover {
   height: 32px;
   text-indent: -9999px;
   outline: 0;
-  background: #ff99c2;
+  background: #fff;
   border: 1px solid #fff;
 }
 
