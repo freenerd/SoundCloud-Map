@@ -158,10 +158,12 @@ soundManager.onready(function(){
           $("#about-box").fadeOut();
           map.panTo(circles[location.id].center);
 
-          if ('history' in window)
-            history.pushState({}, document.title, '/locations/' + String(location.id));
-          else
-            document.location.hash = '#location:' + String(location.id);
+          if (currentLocationId != location.id) {
+            if ('history' in window)
+              history.pushState({ location_id: location.id }, document.title, '/locations/' + String(location.id));
+            else
+              document.location.hash = '#location:' + String(location.id);
+          }
 
           var track = location.tracks[ _(location.tracks).keys()[0] ];
           var bubble_html = $('#bubble-template').clone();
@@ -435,7 +437,7 @@ soundManager.onready(function(){
       user_name: track.user.username
     }));
 
-    player.nodes.waveform.find('img').animate({ opacity: 0 }, 150, function() {
+    player.nodes.waveform.find('img').stop().animate({ opacity: 0 }, 150, function() {
       $(this).attr('src', track.waveform_url).animate({ opacity: 1 }, 150);
     })
   });
@@ -469,13 +471,11 @@ soundManager.onready(function(){
     player.init();
     $("#about-box").fadeIn();
 
-
     $(window).bind('popstate hashchange', function(e) {
-      e.preventDefault();
-      var ids = setLocationAndTrackFromURL();
-      var circle = circles[ ids[0] ];
+      var circle = circles[ setLocationAndTrackFromURL()[0] ];
       !!circle && google.maps.event.trigger(circle, 'click');
-    })
+    });
+
     $(window).keyup(function(e) {
       var actions = {
         82: function() { // R: Random location!
