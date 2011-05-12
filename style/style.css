@@ -650,7 +650,7 @@ a img {
   background-position: 10px -172px;
 }
 
-body.playing #player .pause {
+#player.playing .pause {
   background-position: 8px -107px;
 }
 
@@ -684,14 +684,33 @@ body.playing #player .pause {
 #player .cover {
   background: transparent url('../images/cover.png') top left repeat-x;
 }
+
+@-webkit-keyframes pulsate {
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 #player .waveform {
   height: 50px;
   background: #ccc;
   position: relative;
   margin-right: 60px;
   top: -3px;
-  border: 1px solid #ccc
+  border: 1px solid #ccc;
+  opacity: 1;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  -moz-transition: opacity 0.3s ease-in-out;
+  -o-transition: opacity 0.3s ease-in-out;
+  -ms-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
+
+#player.activating .waveform {
+  -webkit-animation: pulsate 1s infinite ease-in-out;
+  -webkit-animation-fill-mode: forwards;
+}
+
 
 #player .waveform img {
   height: 50px;
@@ -709,7 +728,7 @@ body.playing #player .pause {
 
 #player .waveform .progress {
   height: 50px;
-  width: 0;
+  width: 0%;
   background: #FF4700;
   border-right: 1px solid #FF9800;
   position: absolute;

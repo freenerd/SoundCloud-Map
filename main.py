@@ -36,9 +36,9 @@ import settings
 class MainHandler(webapp.RequestHandler):
 
   def get(self):
-    if re.match('scmeetupmap\.appspot\.com.*', self.request.host):
+    if re.match('.*scmeetupmap\.appspot\.com.*', self.request.host):
       gmaps_key = 'ABQIAAAAlFVxoho7IKKRaJtWi9fglhSt_KhG0GhdvRgDnmQMa9dTpcfKsBQVf7eZZ6LllAUjYChAmRB9CZpxvw'
-    elif re.match('scmeetupmap\.com.*', self.request.host):
+    elif re.match('.*scmeetupmap\.com.*', self.request.host):
       gmaps_key = 'ABQIAAAAlFVxoho7IKKRaJtWi9fglhQRCg__XDN6rWqcc9cgR6CFcTUg1xQWlIYRxrfgfG5qt2pioAJ_4ienTQ'
     else:
       gmaps_key = ''
