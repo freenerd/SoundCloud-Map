@@ -134,80 +134,14 @@ soundManager.onready(function(){
     });
   };
 
-  locations.show = function(data) {
-    _(data).each(function(location) {
-      if (!!circles[location.id]) return;
+  locations.show = function(location) {
+    if (!!circles[location.id]) return;
 
-      circles[location.id] = new google.maps.Circle(_.extend(circleOptions, {
-        center: new google.maps.LatLng(location.lat, location.lon),
-        radius: locations.calcRadius(location)
-      }));
-      circles[location.id].setMap(map);
-
-      google.maps.event.addListener(circles[location.id], 'click', function() {
-        $("#about-box").fadeOut();
-        map.panTo(circles[location.id].center);
-
-        if (player.data.location.id != location.id) {
-          if ('history' in window)
-            history.pushState({ location_id: location.id }, document.title, '/locations/' + String(location.id));
-          else
-            document.location.hash = '#location:' + String(location.id);
-        }
-
-        var track = location.tracks[ _(location.tracks).keys()[0] ];
-        var bubble_html = $('#bubble-template').clone();
-        bubble_html.find('.city-track-counter').html(location.track_counter + ' track' + (location.track_counter == 1 ? '' : 's')).end()
-                   .find('.city-name').html(location.city).end()
-                   .find('.share-on-twitter').html(locations.twitterShareURL(location, track)).end()
-                   .find('.share-on-facebook').html(locations.facebookShareURL(location, track)).end()
-
-        if (!!bubble) {
-          bubble.close();
-          google.maps.event.clearInstanceListeners(bubble);
-        }
-        bubble = new google.maps.InfoWindow({
-          position: circles[location.id].center,
-          content: '<div class="bubble active">' + bubble_html.html() + '</div>'
-        });
-
-        google.maps.event.addListener(bubble, 'domready', function() {
-          player.load(location);
-
-          $('.mini-artwork').live('click', function(e) {
-            e.preventDefault();
-            player.load(player.data.location, $(this).attr('id').replace('mini', ''))
-          });
-
-          $('.avatar').live('click', function(e) {
-            var image = new Image();
-            var old_content = $('.bubble').html();
-            var reverse = function() {
-              bubble.setContent('<div class="bubble active">' + old_content + '</div>');
-              bubble.open(map);
-            };
-            image.onclick = reverse;
-            image.onload = function() {
-              bubble.setContent(image);
-            };
-            image.src = avatar.format($(this).attr('src'), 't300x300');
-          });
-        });
-
-        // google.maps.event.addListener(circle, 'mouseover', function() {
-        //   circles.setOptions({ zIndex: 1E9 });
-        // })
-
-        bubble.open(map);
-        map.panToBounds(circles[location.id].getBounds());
-      });
-
-      if (location.id == player.data.location.id)
-        setTimeout(function() {
-          google.maps.event.trigger(circles[location.id], 'click');
-        }, 500);
-
-    });
+    circles[location.id] = new google.maps.Circle(_.extend(circleOptions, {
+      center: new google.maps.LatLng(location.lat, location.lon),
+      radius: locations.calcRadius(location)
+    }));
+    circles[location.id].setMap(map);
   };
 
   player = {
@@ -330,11 +264,13 @@ soundManager.onready(function(){
     $(document).trigger('updatePlayer')
     $(document).trigger('updateBubble')
 
-    if(player.sound.bytesLoaded == player.sound.bytesTotal && player.sound.bytesLoaded > 0)
-      player.nodes.loading.css('width',"100%");
-    else
-      player.nodes.loading.css('width', 0);
-
+    if (player.sound.bytesLoaded > 0) {
+      player.nodes.player.removeClass('activating');
+      if (player.sound.bytesLoaded == player.sound.bytesTotal)
+        player.nodes.loading.css('width',"100%");
+      else
+        player.nodes.loading.css('width', 0);
+    }
   };
 
   player.previous = function() {
@@ -351,12 +287,7 @@ soundManager.onready(function(){
     !!track_id && player.load(player.data.location, track_id);
   };
 
-  if (!!circles[getLocationAndTrackFromURL()[0]])
-    var map = new google.maps.Map($('#map_canvas')[0], _.extend(mapOptions, {
-      center: circles[getLocationAndTrackFromURL()[0]].center
-    }));
-  else
-    var map = new google.maps.Map($('#map_canvas')[0], mapOptions);
+  var map = new google.maps.Map($('#map_canvas')[0], mapOptions);
 
   $(document).bind('forceResize', function(e) {
     $("#map_canvas").height($(window).height() - (player.nodes.container.is(':visible') ? player.nodes.container.height() : 0))
@@ -378,7 +309,10 @@ soundManager.onready(function(){
                   user_permalink: track.user.permalink_url,
                   user_name: track.user.username
                })).end()
-               .find('.time').html(fuzzyTime(track.created_at)).end();
+               .find('.time').html(fuzzyTime(track.created_at)).end()
+               .find('.share-on-twitter').attr('href', locations.twitterShareURL(location, track)).end()
+               .find('.share-on-facebook').attr('href', locations.facebookShareURL(location, track)).end()
+
     var mini_container = bubble_html.find('.tracks-list');
 
     if (mini_container.find('.mini-artwork').length == 0) {
@@ -504,23 +438,13 @@ soundManager.onready(function(){
       actions.hasOwnProperty(e.keyCode) && actions[e.keyCode].call();
     });
 
-    var locationsLimit = 200;
-    var handleNewLocations = function(data, callNumber) {
-      _(data).each(function(location) {
-        apiGet('tracks', { location: location.id, limit: 20 }).done(function(tracks) {
-          _(tracks).each(function(track) {
-            location.tracks = location.tracks || {};
-            location.tracks[ track.id ] = track;
-            locations.all.push(location)
-          });
-
-          locations.show(data);
-
-          if (!!window.navigator && !!window.navigator.geolocation && !player.data.location.id &&
-               ( (locationsLimit / 50 | 0) == callNumber ) ||
-               ( (locationsLimit % 50) > 0 && (locationsLimit / 50 | 0) == callNumber + 1 )
-             )
-
+    apiGet('locations/maxtracks').done(function(data) {
+      locations.maxTracks = data.max_tracks;
+      apiGet('locations', { offset: 0, limit: 200 }).done(function(data) {
+        var ids = getLocationAndTrackFromURL();
+        _(data).each(function(location) {
+          locations.show(location);
+          if (!!window.navigator && !!window.navigator.geolocation && !ids[0])
           {
             navigator.geolocation.getCurrentPosition(function(position) {
               var center = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -533,26 +457,80 @@ soundManager.onready(function(){
               }
             }, function(err) {});
           }
+          else {
+            if (player.data.location.id != ids[0] && !!circles[ids[0]])
+              google.maps.event.trigger(circles[ids[0]], 'click');
+          }
 
-        })
+          apiGet('tracks', { location: location.id, limit: 20 }).done(function(tracks) {
+            location.tracks = {};
+            _(tracks).each(function(track) {
+              location.tracks[ track.id ] = track;
+              locations.all.push(location)
+            });
 
-      })
-    }
+            google.maps.event.addListener(circles[location.id], 'click', function() {
+              $("#about-box").fadeOut();
+              map.panTo(circles[location.id].center);
 
-    apiGet('locations/maxtracks').done(function(data) {
-      locations.maxTracks = data.max_tracks;
-      _.times(locationsLimit / 50 | 0, function(i) {
-        apiGet('locations', { offset: 50 * i, limit: 50}).done(function(data) {
-          handleNewLocations(data, i + 1);
+              if (player.data.location.id != location.id) {
+                if ('history' in window)
+                  history.pushState({ location_id: location.id }, document.title, '/locations/' + String(location.id));
+                else
+                  document.location.hash = '#location:' + String(location.id);
+              }
+              var track = location.tracks[ _(location.tracks).keys()[0] ];
+              var bubble_html = $('#bubble-template').clone();
+              bubble_html.find('.city-track-counter').html(location.track_counter + ' track' + (location.track_counter == 1 ? '' : 's')).end()
+                         .find('.city-name').html(location.city).end()
+                         .find('.share-on-twitter').attr('href', locations.twitterShareURL(location, track)).end()
+                         .find('.share-on-facebook').attr('href', locations.facebookShareURL(location, track)).end()
+
+              if (!!bubble) {
+                bubble.close();
+                google.maps.event.clearInstanceListeners(bubble);
+              }
+              bubble = new google.maps.InfoWindow({
+                position: circles[location.id].center,
+                content: '<div class="bubble active">' + bubble_html.html() + '</div>'
+              });
+
+              google.maps.event.addListener(bubble, 'domready', function() {
+                if (player.data.location.id != location.id)
+                  player.load(location);
+
+                $('.mini-artwork').live('click', function(e) {
+                  e.preventDefault();
+                  player.load(player.data.location, $(this).attr('id').replace('mini', ''))
+                });
+
+                $('.avatar').live('click', function(e) {
+                  var image = new Image();
+                  var old_content = $('.bubble').html();
+                  var reverse = function() {
+                    bubble.setContent('<div class="bubble active">' + old_content + '</div>');
+                    bubble.open(map);
+                  };
+                  image.onclick = reverse;
+                  image.onload = function() {
+                    bubble.setContent(image);
+                  };
+                  image.src = avatar.format($(this).attr('src'), 't300x300');
+                });
+              });
+
+              // google.maps.event.addListener(circle, 'mouseover', function() {
+              //   circles.setOptions({ zIndex: 1E9 });
+              // })
+
+              bubble.open(map);
+              map.panToBounds(circles[location.id].getBounds());
+            });
+
+          });
         });
       });
     });
-
-    if ((locationsLimit % 50) > 0) {
-      apiGet('locations', { offset: locationsLimit, limit: locationsLimit % 50 }).done(function(data) {
-        handleNewLocations(data, (locationsLimit / 50 | 0) + 2);
-      });
-    }
   });
 
   function formatMs(ms) {
