@@ -20,12 +20,13 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
+import re
 
 # warning: due to appengine limitations, the number of sub-genres in an array may not be greater than 30
 genres = {}
 genres.update({'house': ['house', 'tech house', 'deep house', 'progressive house', 'tech-house', \
-							 					 'electro house', 'techhouse', 'minimal house', 'minimal-house' 'funky house', 'dance']}) 
-genres.update({'techno': ['techno', 'techno minimal', 'minimal techno', 'minimal-techno']})														
+                         'electro house', 'techhouse', 'minimal house', 'minimal-house' 'funky house', 'dance']})
+genres.update({'techno': ['techno', 'techno minimal', 'minimal techno', 'minimal-techno']})
 genres.update({'dubstep': ['dubstep', 'dub step']})
 genres.update({'hiphop': ['hip hop', 'hip-hop', 'hiphop', 'rap', 'r&b', 'rnb', 'r\'n\'b']})
 genres.update({'electronic': ['electronic', 'electro', 'electronica', 'minimal', 'idm']})
@@ -42,3 +43,9 @@ top_cities = ['Berlin', 'Paris', 'London', 'New York', 'Los Angeles', 'Tokyo', '
 
 def in_development_enviroment():
 	return os.environ["SERVER_SOFTWARE"] != "Google Apphosting/1.0"
+
+def gmaps_api_key_by_host(host, api_keys):
+  for regex, api_key in api_keys.items():
+    if re.match(regex, host):
+      return api_key
+  return "missing_gmaps_key"

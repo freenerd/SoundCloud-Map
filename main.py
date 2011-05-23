@@ -36,15 +36,9 @@ import settings
 class MainHandler(webapp.RequestHandler):
 
   def get(self):
-    if re.match('.*scmeetupmap\.appspot\.com.*', self.request.host):
-      gmaps_key = 'ABQIAAAAlFVxoho7IKKRaJtWi9fglhSt_KhG0GhdvRgDnmQMa9dTpcfKsBQVf7eZZ6LllAUjYChAmRB9CZpxvw'
-    elif re.match('.*scmeetupmap\.com.*', self.request.host):
-      gmaps_key = 'ABQIAAAAlFVxoho7IKKRaJtWi9fglhQRCg__XDN6rWqcc9cgR6CFcTUg1xQWlIYRxrfgfG5qt2pioAJ_4ienTQ'
-    else:
-      gmaps_key = ''
     template_values = {
         'the_host' : self.request.host,
-        'google_maps_api_key' : gmaps_key,
+        'google_maps_api_key' : util.gmaps_api_key_by_host(self.request.host, settings.GOOGLE_MAPS_API_KEYS),
         'random' : random.random(),
     }
 
