@@ -70,13 +70,13 @@ class RequestHandler(BaseHTTPRequestHandler):
         # return the authenticate header
         header = oauth.build_authenticate_header(realm=REALM)
         for k, v in header.iteritems():
-            self.send_header(k, v) 
+            self.send_header(k, v)
 
     def do_GET(self):
 
         # debug info
         #print self.command, self.path, self.headers
-        
+
         # get the post data (if any)
         postdata = None
         if self.command == 'POST':

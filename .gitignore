@@ -1,5 +1,7 @@
 .DS_Store
-
+backups
+backups/*
+datastore
 *.pyc
 
 settings_private.py*
