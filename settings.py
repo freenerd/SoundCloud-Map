@@ -21,7 +21,7 @@ GOOGLE_MAPS_API_URL = "http://maps.google.com/maps/geo?key=" + settings_private.
 API_RETRIES = 10
 SOUNDCLOUD_API_URL = "http://api.soundcloud.com"
 SOUNDCLOUD_TIMEZONE_ADJUSTMENT = 0 # in hours behind server timezone
-SOUNDCLOUD_API_DELAY = 30 # in minutes, soundcloud search index may need up to 30 minutes to update after track was created
+SOUNDCLOUD_API_DELAY = 60 # in minutes, soundcloud search index may need up to 30 minutes to update after track was created
 DURATION_LIMIT = "1200000" # in milliseconds to filter out dj-sets + podcasts
 
 # Frontend
