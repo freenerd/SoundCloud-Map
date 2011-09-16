@@ -1,7 +1,7 @@
 cron:
-- description: update the cache with new tracks
-  url: /backend-update
-  schedule: every 3 minutes   
+#- description: update the cache with new tracks
+  #url: /backend-update
+  #schedule: every 3 minutes
 
 # - description: refill the memcache with latest new tracks
 #   url: /backend-refill-memcache
