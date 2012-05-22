@@ -22,8 +22,8 @@
 from google.appengine.api.urlfetch_errors import DownloadError
 from google.appengine.api import urlfetch
 from google.appengine.ext import db 
-from django.utils import simplejson as json
 
+import json
 import logging
 import datetime, time
 
